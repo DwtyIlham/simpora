@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use CodeIgniter\HTTP\ResponseInterface;
 use App\Models\AtletModel;
 use App\Models\CaborModel;
+use App\Models\PesertaModel;
 use App\Models\UsersModel;
 use SebastianBergmann\CodeCoverage\Driver\Selector;
 
@@ -15,6 +16,7 @@ class Api extends BaseController
     protected $m_atlet;
     protected $m_cabor;
     protected $m_users;
+    protected $m_peserta;
 
     public function __construct()
     {
@@ -23,6 +25,7 @@ class Api extends BaseController
         $this->m_atlet = new AtletModel();
         $this->m_cabor = new CaborModel();
         $this->m_users = new UsersModel();
+        $this->m_peserta = new PesertaModel();
     }
 
     public function getDataAtletKab()
@@ -140,5 +143,40 @@ class Api extends BaseController
         $sql = $this->db->table('atlet_validasi')->select('kk_status, nisn_status, ktp_kia_status, foto_status, ijazah_status, akte_status')
             ->where('atlet_id', $atlet_id)->get()->getFirstRow('array');
         return $this->response->setJSON($sql);
+    }
+
+    public function set_atlet_valid()
+    {
+        $id_atlet = $this->request->getPost('atletID');
+        $status = $this->request->getPost('status');
+        if ($this->db->table('atlet_validasi')->update(['status_final' => $status], ['atlet_id' => $id_atlet])) {
+            return $this->response->setJSON(['status' => 'success']);
+        };
+    }
+
+    public function simpan_catatan()
+    {
+        $data = [
+            $this->request->getPost('dok_catatan')  => $this->request->getPost('note_value')
+        ];
+
+        if ($this->db->table('atlet_validasi')->update($data, ['atlet_id' => $this->request->getPost('atlet_id')])) {
+            return $this->response->setJSON(['status' => 'success', 'message' => 'Catatan ' . $this->request->getPost('dok_catatan') . ' berhasil disimpan.']);
+        }
+
+        return $this->response->setJSON(['status' => 'error', 'message' => 'Gagal Meyimpan Catatan.']);
+    }
+
+    public function get_catatan()
+    {
+        $result = $this->db->table('atlet_validasi')->select($this->request->getPost('dok_catatan'))
+            ->where('atlet_id', $this->request->getPost('atlet_id'))->get()->getFirstRow('array');
+        return $this->response->setJSON($result);
+    }
+
+    public function getDataPesertaIDCard()
+    {
+        $id_peserta = $this->request->getPost('id');
+        return $this->response->setJSON($this->m_peserta->getDataPesertaIDCard($id_peserta));
     }
 }

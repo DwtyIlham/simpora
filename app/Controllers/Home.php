@@ -6,6 +6,7 @@ use App\Models\AtletModel;
 use App\Models\CaborModel;
 use App\Models\UsersModel;
 use App\Models\KompModel;
+use App\Models\PesertaModel;
 
 class Home extends BaseController
 {
@@ -14,6 +15,7 @@ class Home extends BaseController
     protected $m_cabor;
     protected $m_users;
     protected $m_komp;
+    protected $m_peserta;
 
     public function __construct()
     {
@@ -23,6 +25,7 @@ class Home extends BaseController
         $this->m_cabor = new CaborModel();
         $this->m_users = new UsersModel();
         $this->m_komp = new KompModel();
+        $this->m_peserta = new PesertaModel();
     }
 
     public function index(): string
@@ -81,15 +84,32 @@ class Home extends BaseController
 
         // Validasi file upload
         $validationRules = [];
+
         foreach ($files as $file) {
-            $validationRules[$file] = [
-                'rules' => "uploaded[$file]|max_size[$file,2048]|is_image[$file]|mime_in[$file,image/jpg,image/jpeg,image/png,image/webp]",
-                'errors' => [
-                    'uploaded' => strtoupper(str_replace('_', ' ', $file)) . ' wajib diunggah.',
-                    'max_size' => 'Ukuran maksimal 2MB.',
-                ]
-            ];
+
+            // Jika file ijazah, jadikan opsional (tanpa 'uploaded')
+            if ($file === 'file_ijazah') {
+
+                $validationRules[$file] = [
+                    'rules' => "permit_empty|max_size[$file,2048]|mime_in[$file,image/jpg,image/jpeg,image/png,image/webp]",
+                    'errors' => [
+                        'max_size' => 'Ukuran maksimal 2MB.',
+                        'mime_in'  => 'Format tidak valid (hanya jpg, jpeg, png, webp).'
+                    ]
+                ];
+            } else {
+
+                // Untuk file selain ijazah tetap wajib
+                $validationRules[$file] = [
+                    'rules' => "uploaded[$file]|max_size[$file,2048]|is_image[$file]|mime_in[$file,image/jpg,image/jpeg,image/png,image/webp]",
+                    'errors' => [
+                        'uploaded' => strtoupper(str_replace('_', ' ', $file)) . ' wajib diunggah.',
+                        'max_size' => 'Ukuran maksimal 2MB.',
+                    ]
+                ];
+            }
         }
+
 
         // Validasi data
         if (!$this->validate($validationRules)) {
@@ -101,7 +121,7 @@ class Home extends BaseController
             $file = $this->request->getFile($fileKey);
 
             // Hanya cek ukuran file minimal jika file diupload
-            if ($file->getError() !== 4 && $file->getSize() < 100 * 1024) {
+            if ($file->getError() !== 4 && $file->getSize() < 99 * 1024) {
                 return redirect()->back()->withInput()->with('error', $fileKey . ' minimal berukuran 100KB.');
             }
 
@@ -438,6 +458,74 @@ class Home extends BaseController
         return redirect()->to('/admin/kompetisi/data');
     }
 
+    public function peserta($id_kompetisi)
+    {
+        $kompetisi = $this->m_komp->find($id_kompetisi)['nama'];
+        $data = [
+            'title'     => 'DATA PESERTA KOMPETISI ' . $kompetisi,
+            'peserta'   => $this->m_peserta->getDataPesertaKompetisi($id_kompetisi),
+            'cabor'     => $this->m_cabor->findAll(),
+            'sekolah'     => $this->db->table('sekolah')->get()->getResultArray(),
+            'id_kompetisi'  => $id_kompetisi
+        ];
 
+        return view('admin/peserta-data', $data);
+    }
+
+    public function addDataPeserta($id_kompetisi)
+    {
+        $data = [
+            'title'     => 'Tambah Kompetisi',
+            'kompetisi' => $this->m_komp->find($id_kompetisi)['nama'],
+            'atlet'     => $this->m_atlet->getAtletBlmDaftar($id_kompetisi),
+            'cabor'     => $this->m_cabor->findAll(),
+            'id_kompetisi'  => $id_kompetisi
+        ];
+
+        return view('admin/peserta-add', $data);
+    }
+
+    public function addDataPeserta_attempt()
+    {
+        $atlet = $this->request->getPost('atlet');
+        $kompetisi_id = $this->request->getPost('kompetisi');
+        $cabor_id = $this->request->getPost('cabor');
+        $error = 0;
+        for ($i = 0; $i < sizeof($atlet); $i++):
+            $data = [
+                'atlet_id'  => $atlet[$i],
+                'kompetisi_id'  => $kompetisi_id,
+                'cabor_id'  => $cabor_id
+            ];
+            if ($this->m_peserta->insert($data)) {
+                session()->setFlashdata('success', 'Data Peserta Berhasil Disimpan.');
+            } else {
+                $error += 1;
+            };
+        endfor;
+        if ($error > 0) {
+            session()->setFlashdata('error', 'Data Peserta Gagal Disimpan');
+        }
+        return redirect()->to('admin/kompetisi/peserta/' . $kompetisi_id);
+    }
+
+    public function deletePeserta($id, $kompetisi_id)
+    {
+        if ($this->m_peserta->where('kompetisi_id', $kompetisi_id)->delete($id)) {
+            $this->session->setFlashdata('success', 'Data Peserta berhasil dihapus.');
+        } else {
+            $this->session->setFlashdata('error', 'Data Peserta gagal dihapus.');
+        }
+        return redirect()->to('/admin/kompetisi/peserta/' . $kompetisi_id);
+    }
+
+    public function view_idcard_peserta($id_peserta)
+    {
+        $data = [
+            'title'     => 'Unduh ID Card Peserta',
+            'peserta'   => $this->m_peserta->getDataPesertaIDCard($id_peserta)
+        ];
+        return view('admin/preview-idcard', $data);
+    }
     // End Area Kompetisi
 }

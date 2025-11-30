@@ -181,7 +181,7 @@
                 <li class="sidebar-menu-group-title">Menu Admin</li>
                 <li class="dropdown">
                     <a href="javascript:void(0)">
-                        <i class="ri-pie-chart-box-line"></i>
+                        <iconify-icon icon="bi:pie-chart" class="menu-icon"></iconify-icon>
                         <span>Data Keolahragaan</span>
                     </a>
                     <ul class="sidebar-submenu">
@@ -202,440 +202,13 @@
                         <span>Daftar Pengguna</span>
                     </a>
                 </li>
-                <li>
-                    <a href="<?= base_url('admin/kompetisi/data'); ?>">
+                <li class="dropdown">
+                    <a href="javascript:void(0)">
                         <iconify-icon icon="carbon:event" class="menu-icon"></iconify-icon>
-                        <span>Kompetisi</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="calendar-main.html">
-                        <iconify-icon icon="solar:calendar-outline" class="menu-icon"></iconify-icon>
-                        <span>Calendar</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="kanban.html">
-                        <iconify-icon icon="material-symbols:map-outline" class="menu-icon"></iconify-icon>
-                        <span>Kanban</span>
-                    </a>
-                </li>
-                <li class="dropdown">
-                    <a href="javascript:void(0)">
-                        <iconify-icon icon="hugeicons:invoice-03" class="menu-icon"></iconify-icon>
-                        <span>Invoice</span>
+                        <span>Data Kompetisi</span>
                     </a>
                     <ul class="sidebar-submenu">
-                        <li>
-                            <a href="invoice-list.html"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> List</a>
-                        </li>
-                        <li>
-                            <a href="invoice-preview.html"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i>
-                                Preview</a>
-                        </li>
-                        <li>
-                            <a href="invoice-add.html"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Add new</a>
-                        </li>
-                        <li>
-                            <a href="invoice-edit.html"><i class="ri-circle-fill circle-icon text-danger-main w-auto"></i> Edit</a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="javascript:void(0)">
-                        <i class="ri-robot-2-line text-xl me-14 d-flex w-auto"></i>
-                        <span>Ai Application</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li>
-                            <a href="text-generator.html"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Text
-                                Generator</a>
-                        </li>
-                        <li>
-                            <a href="code-generator.html"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Code
-                                Generator</a>
-                        </li>
-                        <li>
-                            <a href="image-generator.html"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Image
-                                Generator</a>
-                        </li>
-                        <li>
-                            <a href="voice-generator.html"><i class="ri-circle-fill circle-icon text-danger-main w-auto"></i> Voice
-                                Generator</a>
-                        </li>
-                        <li>
-                            <a href="video-generator.html"><i class="ri-circle-fill circle-icon text-success-main w-auto"></i> Video
-                                Generator</a>
-                        </li>
-                    </ul>
-                </li>
-
-                <li class="dropdown">
-                    <a href="javascript:void(0)">
-                        <i class="ri-btc-line text-xl me-14 d-flex w-auto"></i>
-                        <span>Crypto Currency</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li>
-                            <a href="wallet.html"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Wallet</a>
-                        </li>
-                        <li>
-                            <a href="marketplace.html"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i>
-                                Marketplace</a>
-                        </li>
-                        <li>
-                            <a href="marketplace-details.html"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i>
-                                Marketplace Details</a>
-                        </li>
-                        <li>
-                            <a href="portfolio.html"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Portfolios</a>
-                        </li>
-                    </ul>
-                </li>
-
-                <li class="sidebar-menu-group-title">UI Elements</li>
-
-                <li class="dropdown">
-                    <a href="javascript:void(0)">
-                        <iconify-icon icon="solar:document-text-outline" class="menu-icon"></iconify-icon>
-                        <span>Components</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li>
-                            <a href="typography.html"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Typography</a>
-                        </li>
-                        <li>
-                            <a href="colors.html"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Colors</a>
-                        </li>
-                        <li>
-                            <a href="button.html"><i class="ri-circle-fill circle-icon text-success-main w-auto"></i> Button</a>
-                        </li>
-                        <li>
-                            <a href="dropdown.html"><i class="ri-circle-fill circle-icon text-lilac-600 w-auto"></i> Dropdown</a>
-                        </li>
-                        <li>
-                        </li>
-                        <li>
-                            <a href="card.html"><i class="ri-circle-fill circle-icon text-danger-main w-auto"></i> Card</a>
-                        </li>
-                        <li>
-                            <a href="carousel.html"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Carousel</a>
-                        </li>
-                        <li>
-                            <a href="avatar.html"><i class="ri-circle-fill circle-icon text-success-main w-auto"></i> Avatars</a>
-                        </li>
-                        <li>
-                            <a href="progress.html"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Progress bar</a>
-                        </li>
-                        <li>
-                            <a href="tabs.html"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Tab & Accordion</a>
-                        </li>
-                        <li>
-                            <a href="pagination.html"><i class="ri-circle-fill circle-icon text-danger-main w-auto"></i> Pagination</a>
-                        </li>
-                        <li>
-                            <a href="badges.html"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Badges</a>
-                        </li>
-                        <li>
-                            <a href="tooltip.html"><i class="ri-circle-fill circle-icon text-lilac-600 w-auto"></i> Tooltip &
-                                Popover</a>
-                        </li>
-                        <li>
-                            <a href="videos.html"><i class="ri-circle-fill circle-icon text-cyan w-auto"></i> Videos</a>
-                        </li>
-                        <li>
-                            <a href="star-rating.html"><i class="ri-circle-fill circle-icon text-indigo w-auto"></i> Star Ratings</a>
-                        </li>
-                        <li>
-                            <a href="tags.html"><i class="ri-circle-fill circle-icon text-purple w-auto"></i> Tags</a>
-                        </li>
-                        <li>
-                            <a href="list.html"><i class="ri-circle-fill circle-icon text-red w-auto"></i> List</a>
-                        </li>
-                        <li>
-                            <a href="calendar.html"><i class="ri-circle-fill circle-icon text-yellow w-auto"></i> Calendar</a>
-                        </li>
-                        <li>
-                            <a href="radio.html"><i class="ri-circle-fill circle-icon text-orange w-auto"></i> Radio</a>
-                        </li>
-                        <li>
-                            <a href="switch.html"><i class="ri-circle-fill circle-icon text-pink w-auto"></i> Switch</a>
-                        </li>
-                        <li>
-                            <a href="image-upload.html"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Upload</a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="javascript:void(0)">
-                        <iconify-icon icon="heroicons:document" class="menu-icon"></iconify-icon>
-                        <span>Forms</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li>
-                            <a href="form.html"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Input Forms</a>
-                        </li>
-                        <li>
-                            <a href="form-layout.html"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Input
-                                Layout</a>
-                        </li>
-                        <li>
-                            <a href="form-validation.html"><i class="ri-circle-fill circle-icon text-success-main w-auto"></i> Form
-                                Validation</a>
-                        </li>
-                        <li>
-                            <a href="wizard.html"><i class="ri-circle-fill circle-icon text-danger-main w-auto"></i> Form Wizard</a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="javascript:void(0)">
-                        <iconify-icon icon="mingcute:storage-line" class="menu-icon"></iconify-icon>
-                        <span>Table</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li>
-                            <a href="table-basic.html"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Basic
-                                Table</a>
-                        </li>
-                        <li>
-                            <a href="table-data.html"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Data Table</a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="javascript:void(0)">
-                        <iconify-icon icon="solar:pie-chart-outline" class="menu-icon"></iconify-icon>
-                        <span>Chart</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li>
-                            <a href="line-chart.html"><i class="ri-circle-fill circle-icon text-danger-main w-auto"></i> Line Chart</a>
-                        </li>
-                        <li>
-                            <a href="column-chart.html"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Column
-                                Chart</a>
-                        </li>
-                        <li>
-                            <a href="pie-chart.html"><i class="ri-circle-fill circle-icon text-success-main w-auto"></i> Pie Chart</a>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="widgets.html">
-                        <iconify-icon icon="fe:vector" class="menu-icon"></iconify-icon>
-                        <span>Widgets</span>
-                    </a>
-                </li>
-                <li class="dropdown">
-                    <a href="javascript:void(0)">
-                        <iconify-icon icon="flowbite:users-group-outline" class="menu-icon"></iconify-icon>
-                        <span>Users</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li>
-                            <a href="users-list.html"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Users List</a>
-                        </li>
-                        <li>
-                            <a href="users-grid.html"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Users Grid</a>
-                        </li>
-                        <li>
-                            <a href="add-user.html"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Add User</a>
-                        </li>
-                        <li>
-                            <a href="view-profile.html"><i class="ri-circle-fill circle-icon text-danger-main w-auto"></i> View
-                                Profile</a>
-                        </li>
-                        <li>
-                            <a href="users-role-permission.html"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> User
-                                Role & Permission</a>
-                        </li>
-                    </ul>
-                </li>
-
-                <li class="dropdown">
-                    <a href="javascript:void(0)">
-                        <i class="ri-user-settings-line text-xl me-14 d-flex w-auto"></i>
-                        <span>Role & Access</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li>
-                            <a href="role-access.html"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Role &
-                                Access</a>
-                        </li>
-                        <li>
-                            <a href="assign-role.html"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Assign
-                                Role</a>
-                        </li>
-                    </ul>
-                </li>
-
-                <li class="sidebar-menu-group-title">Application</li>
-
-                <li class="dropdown">
-                    <a href="javascript:void(0)">
-                        <iconify-icon icon="simple-line-icons:vector" class="menu-icon"></iconify-icon>
-                        <span>Authentication</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li>
-                            <a href="sign-in.html"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Sign In</a>
-                        </li>
-                        <li>
-                            <a href="sign-up.html"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Sign Up</a>
-                        </li>
-                        <li>
-                            <a href="forgot-password.html"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Forgot
-                                Password</a>
-                        </li>
-                    </ul>
-                </li>
-
-                <li class="dropdown">
-                    <a href="javascript:void(0)">
-                        <iconify-icon icon="solar:gallery-wide-linear" class="menu-icon"></iconify-icon>
-                        <span>Gallery</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li>
-                            <a href="gallery-grid.html"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Gallery
-                                Grid</a>
-                        </li>
-                        <li>
-                            <a href="gallery.html"><i class="ri-circle-fill circle-icon text-danger-600 w-auto"></i> Gallery Grid
-                                Desc</a>
-                        </li>
-                        <li>
-                            <a href="gallery-masonry.html"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Gallery
-                                Masonry</a>
-                        </li>
-                        <li>
-                            <a href="gallery-hover.html"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Gallery Hover
-                                Effect</a>
-                        </li>
-                    </ul>
-                </li>
-
-                <li>
-                    <a href="pricing.html">
-                        <iconify-icon icon="hugeicons:money-send-square" class="menu-icon"></iconify-icon>
-                        <span>Pricing</span>
-                    </a>
-                </li>
-                <li class="dropdown">
-                    <a href="javascript:void(0)">
-                        <i class="ri-news-line text-xl me-14 d-flex w-auto"></i>
-                        <span>Blog</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li>
-                            <a href="blog.html"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Blog</a>
-                        </li>
-                        <li>
-                            <a href="blog-details.html"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Blog
-                                Details</a>
-                        </li>
-                        <li>
-                            <a href="add-blog.html"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Add Blog</a>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="testimonials.html">
-                        <i class="ri-star-line text-xl me-14 d-flex w-auto"></i>
-                        <span>Testimonial</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="faq.html">
-                        <iconify-icon icon="mage:message-question-mark-round" class="menu-icon"></iconify-icon>
-                        <span>FAQs</span>
-                    </a>
-                </li>
-                <li class="dropdown">
-                    <a href="javascript:void(0)">
-                        <iconify-icon icon="streamline:straight-face" class="menu-icon"></iconify-icon>
-                        <span>Error Pages</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li>
-                            <a href="bad-request.html"><i class="ri-circle-fill circle-icon text-danger-600 w-auto"></i> Bad Request</a>
-                        </li>
-                        <li>
-                            <a href="forbidden.html"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Forbidden</a>
-                        </li>
-                        <li>
-                            <a href="error.html"><i class="ri-circle-fill circle-icon text-warning-600 w-auto"></i> 404 Page</a>
-                        </li>
-                        <li>
-                            <a href="internal-server.html"><i class="ri-circle-fill circle-icon text-primary-main w-auto"></i> Internal
-                                Server</a>
-                        </li>
-                        <li>
-                            <a href="service-unavailable.html"><i class="ri-circle-fill circle-icon text-danger-main w-auto"></i>
-                                Service Unavailable</a>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="terms-condition.html">
-                        <iconify-icon icon="octicon:info-24" class="menu-icon"></iconify-icon>
-                        <span>Terms & Conditions</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="coming-soon.html">
-                        <i class="ri-rocket-line text-xl me-14 d-flex w-auto"></i>
-                        <span>Coming Soon</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="access-denied.html">
-                        <i class="ri-folder-lock-line text-xl me-14 d-flex w-auto"></i>
-                        <span>Access Denied</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="maintenance.html">
-                        <i class="ri-hammer-line text-xl me-14 d-flex w-auto"></i>
-                        <span>Maintenance</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="blank-page.html">
-                        <i class="ri-checkbox-multiple-blank-line text-xl me-14 d-flex w-auto"></i>
-                        <span>Blank Page</span>
-                    </a>
-                </li>
-                <li class="dropdown">
-                    <a href="javascript:void(0)">
-                        <iconify-icon icon="icon-park-outline:setting-two" class="menu-icon"></iconify-icon>
-                        <span>Settings</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li>
-                            <a href="company.html"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Company</a>
-                        </li>
-                        <li>
-                            <a href="notification.html"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i>
-                                Notification</a>
-                        </li>
-                        <li>
-                            Notification Alert</a>
-                        </li>
-                        <li>
-                            <a href="theme.html"><i class="ri-circle-fill circle-icon text-danger-main w-auto"></i> Theme</a>
-                        </li>
-                        <li>
-                            <a href="currencies.html"><i class="ri-circle-fill circle-icon text-danger-main w-auto"></i> Currencies</a>
-                        </li>
-                        <li>
-                            <a href="language.html"><i class="ri-circle-fill circle-icon text-danger-main w-auto"></i> Languages</a>
-                        </li>
-                        <li>
-                            <a href="payment-gateway.html"><i class="ri-circle-fill circle-icon text-danger-main w-auto"></i> Payment
-                                Gateway</a>
-                        </li>
+                        <li><a href="<?= base_url('admin/kompetisi/data'); ?>"> <iconify-icon icon="carbon:event" class="menu-icon"></iconify-icon><span>Kompetisi</span></a></li>
                     </ul>
                 </li>
             </ul>
@@ -842,6 +415,8 @@
             <script src="<?= base_url('public'); ?>/assets/js/sweetalert2.all.min.js"></script>
             <!-- Select2 -->
             <script src="<?= base_url('public'); ?>/assets/js/select2.full.min.js"></script>
+            <!-- HTML2CANVAS-->
+            <script src="<?= base_url('public'); ?>/assets/js/html2canvas.min.js"></script>
             <!-- lightboxes -->
             <script src="<?= base_url('public'); ?>/assets/js/photoswipe.esm.js" type="module"></script>
             <script src="<?= base_url('public'); ?>/assets/js/photoswipe-lightbox.esm.js" type="module"></script>
@@ -867,6 +442,39 @@
                             allowClear: true
                         });
                     });
+
+                    if (window.location.pathname.includes('kompetisi/peserta')) {
+                        let table = new DataTable('#dataTable', {
+                            responsive: true,
+                            columnDefs: [{
+                                    targets: 2,
+                                    name: 'filter-sekolah'
+                                },
+                                {
+                                    targets: 3,
+                                    name: 'filter-cabor'
+                                }
+                            ]
+                        });
+
+                        $('#filter_cabor, #filter_sekolah').on('change', function() {
+
+                            let cabor = $('#filter_cabor option:selected').data('nama');
+                            let sekolah = $('#filter_sekolah option:selected').data('nama');
+
+                            table.columns().search("");
+
+                            if (cabor) {
+                                table.column('filter-cabor:name').search(cabor, true, false);
+                            }
+
+                            if (sekolah) {
+                                table.column('filter-sekolah:name').search(sekolah, true, false);
+                            }
+
+                            table.draw();
+                        });
+                    }
 
                     function initPhotoSwipe() {
                         $('.my-gallery').each(function() {

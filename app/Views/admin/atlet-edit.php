@@ -170,10 +170,10 @@ use CodeIgniter\Database\BaseUtils;
                             <small> File Terunggah : <a href="<?= base_url('public/uploads/atlet/file_ijazah/') . $atlet['file_ijazah']; ?>" target="_blank"><span class="text-primary">Ijazah <i class="ri-file-check-line"></i></span></a></small>
                         <?php endif; ?>
                     </div>
-                </div>
 
+                </div>
                 <div class="mt-12">
-                    <button type="submit" class="btn btn-primary-600"><i class="ri ri-save-line"></i> Simpan</button>
+                    <button type="submit" class="btn btn-primary-600 w-100"><i class="ri ri-save-line"></i> Ubah</button>
                 </div>
             </div>
         </form>

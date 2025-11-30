@@ -65,5 +65,15 @@ abstract class BaseController extends Controller
                 return $dt->format($format);
             }
         }
+
+        if (!function_exists('isAdmin')) {
+            function isAdmin()
+            {
+                if (session('user')['role_id'] === '1') {
+                    return true;
+                }
+                return false;
+            }
+        }
     }
 }

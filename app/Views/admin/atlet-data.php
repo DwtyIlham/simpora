@@ -223,7 +223,7 @@ use CodeIgniter\Database\BaseUtils;
                                 </div>
                                 <div class="modal-footer">
                                     <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                                    <button class="btn btn-primary" id="save-note">Simpan</button>
+                                    <button type="submit" class="btn btn-primary" id="save-note">Simpan</button>
                                 </div>
                             </div>
                         </div>
@@ -369,6 +369,15 @@ use CodeIgniter\Database\BaseUtils;
         }).then((result) => {
 
             if (result.isConfirmed) {
+                // loader
+                Swal.fire({
+                    title: 'Sedang memproses...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
                 // validasi dokumen
                 $.ajax({
                     url: '<?= site_url('api/validasi-dokumen'); ?>',
@@ -391,38 +400,69 @@ use CodeIgniter\Database\BaseUtils;
                         Swal.fire({
                             title: pesan,
                             icon: "success",
+                            allowOutsideClick: false,
                         }).then((result) => {
-                            if (result.isConfirmed) {
-                                // cek validasi semua dokumen
-                                let status_dok = ['kk_status', 'akte_status', 'foto_status', 'ktp_kia_status', 'nisn_status', 'ijazah_status'];
 
-                                function isAtletValid(data) {
-                                    var isOk = true;
-                                    $.each(data, function(key, value) {
-                                        if (value !== "valid") {
-                                            isOk = false; // Jika ada yang tidak valid
-                                            return false; // Keluar dari loop
+                            if (!result.isConfirmed) return;
+
+                            const dokumenWajib = [
+                                'kk_status',
+                                'akte_status',
+                                'foto_status',
+                                'ktp_kia_status',
+                                'nisn_status'
+                            ];
+
+                            function isDokumenValid(data) {
+                                const wajibValid = dokumenWajib.every(key => data[key] === "valid");
+                                const ijazahOK = (data.ijazah_status === "valid" || data.ijazah_status === "pending");
+                                return wajibValid && ijazahOK;
+                            }
+
+                            const badgeDepan = $(`.badge-status-depan[data-id="${atletId}"]`);
+
+                            // loader
+                            // Swal.fire({
+                            //     title: 'Memeriksa status akhir...',
+                            //     allowOutsideClick: false,
+                            //     didOpen: () => Swal.showLoading()
+                            // });
+
+                            $.ajax({
+                                url: `<?= site_url('api/validasi-atlet'); ?>`,
+                                method: 'GET',
+                                data: {
+                                    atletID: atletId
+                                },
+                                success: function(data) {
+
+                                    const statusFinal = isDokumenValid(data) ? "valid" : "invalid";
+
+                                    $.ajax({
+                                        url: `<?= site_url('api/set-atlet-valid'); ?>`,
+                                        method: 'POST',
+                                        data: {
+                                            atletID: atletId,
+                                            status: statusFinal
+                                        },
+                                        complete: function() {
+                                            Swal.close(); // Tutup loader
                                         }
                                     });
-                                    return isOk;
-                                }
 
-                                let badgeDepan = $(`.badge-status-depan[data-id="${atletId}"]`);
-                                $.ajax({
-                                    url: `<?= site_url('api/validasi-atlet'); ?>`,
-                                    method: `get`,
-                                    data: {
-                                        atletID: atletId
-                                    },
-                                    success: function(data) {
-                                        if (isAtletValid(data) === true) {
-                                            badgeDepan.removeClass().addClass('badge badge-status-depan bg-success').text('Valid');
-                                        } else {
-                                            badgeDepan.removeClass().addClass('badge badge-status-depan bg-warning text-dark').text('Belum Valid');
-                                        }
+                                    if (statusFinal === "valid") {
+                                        badgeDepan
+                                            .removeClass()
+                                            .addClass('badge badge-status-depan bg-success')
+                                            .text('Valid');
+                                    } else {
+                                        badgeDepan
+                                            .removeClass()
+                                            .addClass('badge badge-status-depan bg-warning text-dark')
+                                            .text('Belum Valid');
                                     }
-                                });
-                            }
+                                }
+                            });
                         });
                     }
                 });
@@ -439,10 +479,70 @@ use CodeIgniter\Database\BaseUtils;
 
     // buka modal catatan
     $(document).on('click', '.notes-file', function() {
+
         $('.modal-title').text('Catatan ' + $(this).data('label'));
-        $('#note-type').val($(this).data('type'));
         $('#modalNotes').modal('show');
+
+        let atletID = $(this).data('id');
+        let type = $(this).data('type');
+
+        // Buat nama field catatan dan status
+        let dok_catatan = type + '_catatan';
+
+        // kosongkan textarea
+        $('#note-text').val('');
+
+        // Ambil catatan lama dari DB
+        $.ajax({
+            url: `<?= site_url('api/get-catatan'); ?>`,
+            method: 'POST',
+            data: {
+                atlet_id: atletID,
+                dok_catatan: dok_catatan
+            },
+            success: function(res) {
+                if (res && res[dok_catatan]) {
+                    $('#note-text').val(res[dok_catatan]);
+                }
+            }
+        });
+
+        // Simpan ID dan field yang dipakai ke modal
+        $('#modalNotes').data('atlet-id', atletID);
+        $('#modalNotes').data('dok-catatan', dok_catatan);
     });
+
+
+    // EVENT SUBMIT (HANYA DI-BIND SEKALI)
+    $('button[type="submit"]').off('click').on('click', function() {
+
+        let atletID = $('#modalNotes').data('atlet-id');
+        let dok_catatan = $('#modalNotes').data('dok-catatan');
+        let note_value = $('#note-text').val();
+
+        $.ajax({
+            url: `<?= site_url('api/simpan-catatan'); ?>`,
+            method: 'POST',
+            data: {
+                atlet_id: atletID,
+                dok_catatan: dok_catatan,
+                note_value: note_value
+            },
+            success: function(res) {
+                if (res.status === 'success') {
+                    Swal.fire({
+                        title: "Berhasil",
+                        text: res.message,
+                        icon: "success"
+                    }).then(() => {
+                        $('#modalNotes').modal('hide');
+                    });
+                }
+            }
+        });
+    });
+
+
 
     // delete atlet
     $(document).on('click', '.delete-atlet', function() {

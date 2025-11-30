@@ -47,7 +47,7 @@ function templateFile(label, fileUrl, status, type, atletId) {
 
             <!-- Catatan -->
             <button class="btn btn-sm btn-outline-warning notes-file"
-                data-label="${label}" data-type="${type}">
+                data-label="${label}" data-id="${atletId}" data-type="${type}">
                 <i class="ri-sticky-note-add-line"></i> Catatan
             </button>
         </div>

@@ -29,4 +29,9 @@ class AtletModel extends Model
 
         return $sql->get()->getResultArray();
     }
+
+    public function getAtletBlmDaftar($id_kompetisi)
+    {
+        return $this->select('atlet.*, p.kompetisi_id')->join('peserta p', 'p.atlet_id = atlet.id and p.kompetisi_id != ' . $id_kompetisi, 'left')->findAll();
+    }
 }

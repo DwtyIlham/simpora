@@ -3,6 +3,7 @@
 use CodeIgniter\Database\BaseUtils;
 
 use function App\Controllers\format_tgl;
+use function App\Controllers\isAdmin;
 
 ?>
 <?= $this->extend('layout'); ?>
@@ -27,7 +28,9 @@ use function App\Controllers\format_tgl;
         <div class="card basic-data-table mt-12">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h5 class="card-title mb-0"><?= $title; ?></h5>
-                <a href="<?= base_url('admin/kompetisi/add'); ?>" class="btn btn-primary-600"><i class="ri-add-box-line"></i> Tambah Kompetisi</a>
+                <?php if (isAdmin()) : ?>
+                    <a href="<?= base_url('admin/kompetisi/add'); ?>" class="btn btn-primary-600"><i class="ri-add-box-line"></i> Tambah Kompetisi</a>
+                <?php endif; ?>
             </div>
             <div class="card-body table-responsive">
                 <table id="tableData" class="display table table-bordered table-hover table-striped dataTable" style="width:100%;">
@@ -39,13 +42,15 @@ use function App\Controllers\format_tgl;
                             <th style="width:10%" class="text-center">Tgl Mulai</th>
                             <th style="width:10%" class="text-center">Tgl Selesai</th>
                             <th style="width:10%" class="text-center">Tingkat</th>
-                            <th style="width:15%" class="text-center">Aksi</th>
+                            <?php if (isAdmin()): ?>
+                                <th style="width:15%" class="text-center">Aksi</th>
+                            <?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
                         <?php $no = 1;
                         foreach ($kompetisi as $k): ?>
-                        <tr>
+                            <tr>
                                 <td class="text-center align-middle"><?= $no; ?></td>
                                 <td class="align-middle"><?= $k['nama']; ?></td>
                                 <td class="align-middle" style="text-align: left;"><?= $k['deskripsi']; ?></td>
@@ -53,12 +58,19 @@ use function App\Controllers\format_tgl;
                                 <td class="text-center align-middle"><?= format_tgl($k['tgl_end']); ?></td>
                                 <td class="text-center align-middle"><?= strtoupper($k['tingkat']); ?></td>
                                 <td class="text-center align-middle">
-                                    <a href="<?= site_url('admin/kompetisi/add/') . $k['id']; ?>" class="btn-edit w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
-                                        <iconify-icon icon="lucide:edit"></iconify-icon>
+                                    <a href="<?= site_url('admin/kompetisi/peserta/') . $k['id']; ?>"
+                                        class="btn-view-idcard w-32-px h-32-px bg-primary-100 text-primary rounded-circle d-inline-flex align-items-center justify-content-center"
+                                        data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Peserta Kompetisi">
+                                        <iconify-icon icon="lucide:scan-eye"></iconify-icon>
                                     </a>
-                                    <a id="<?= $k['id']; ?>" class="btn-delete  w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center">
-                                        <iconify-icon icon="mingcute:delete-2-line"></iconify-icon>
-                                    </a>
+                                    <?php if (isAdmin()): ?>
+                                        <a href="<?= site_url('admin/kompetisi/add/') . $k['id']; ?>" class="btn-edit w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
+                                            <iconify-icon icon="lucide:edit"></iconify-icon>
+                                        </a>
+                                        <a id="<?= $k['id']; ?>" class="btn-delete  w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center">
+                                            <iconify-icon icon="mingcute:delete-2-line"></iconify-icon>
+                                        </a>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php $no++;
