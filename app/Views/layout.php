@@ -48,10 +48,19 @@
     <link rel="stylesheet" href="<?= base_url('public'); ?>/assets/css/style.css">
 </head>
 
+
 <body>
 
     <!-- Theme Customization Structure Start -->
     <div class="body-overlay"></div>
+    <!-- loader -->
+    <div id="loading" class="loading">
+        <div class="loader--ripple">
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    <!-- end loader -->
 
     <button type="button"
         class="theme-customization__button w-48-px h-48-px bg-primary-600 text-white rounded-circle d-flex justify-content-center align-items-center position-fixed end-0 bottom-0 mb-40 me-40 text-2xxl bg-hover-primary-700">
@@ -188,12 +197,6 @@
                         <li>
                             <a href="<?= base_url('admin/atlet/data'); ?>"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Data Atlet</a>
                         </li>
-                        <li>
-                            <a href="javascript:void(0)"><i class="ri-circle-fill circle-icon text-success-600 w-auto"></i> Data Pelatih</a>
-                        </li>
-                        <li>
-                            <a href="javascript:void(0)"><i class="ri-circle-fill circle-icon text-warning-600 w-auto"></i> Data Cabor</a>
-                        </li>
                     </ul>
                 </li>
                 <li>
@@ -208,8 +211,10 @@
                         <span>Data Kompetisi</span>
                     </a>
                     <ul class="sidebar-submenu">
-                        <li><a href="<?= base_url('admin/kompetisi/data'); ?>"> <iconify-icon icon="carbon:event" class="menu-icon"></iconify-icon><span>Kompetisi</span></a></li>
+                        <li><a href="<?= base_url('admin/kompetisi/data'); ?>"><iconify-icon icon="lucide:circle-star" class="menu-icon"></iconify-icon><span>Kompetisi</span></a></li>
+                        <li><a href="<?= base_url('admin/kompetisi/prestasi'); ?>"> <iconify-icon icon="lucide:medal" class="menu-icon"></iconify-icon><span>Prestasi</span></a></li>
                     </ul>
+                <li><a class="text-danger-500" href="<?= base_url('logout'); ?>"> <iconify-icon icon="carbon:exit" class="menu-icon"></iconify-icon></iconify-icon><span>Logout</span></a></li>
                 </li>
             </ul>
         </div>
@@ -237,107 +242,6 @@
                     <div class="d-flex flex-wrap align-items-center gap-3">
                         <button type="button" data-theme-toggle
                             class="w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"></button>
-
-                        <div class="dropdown">
-                            <button
-                                class="has-indicator w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"
-                                type="button" data-bs-toggle="dropdown">
-                                <iconify-icon icon="iconoir:bell" class="text-primary-light text-xl"></iconify-icon>
-                            </button>
-                            <div class="dropdown-menu to-top dropdown-menu-lg p-0">
-                                <div
-                                    class="m-16 py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
-                                    <div>
-                                        <h6 class="text-lg text-primary-light fw-semibold mb-0">Notifications</h6>
-                                    </div>
-                                    <span
-                                        class="text-primary-600 fw-semibold text-lg w-40-px h-40-px rounded-circle bg-base d-flex justify-content-center align-items-center">05</span>
-                                </div>
-
-                                <div class="max-h-400-px overflow-y-auto scroll-sm pe-4">
-                                    <a href="javascript:void(0)"
-                                        class="px-24 py-12 d-flex align-items-start gap-3 mb-2 justify-content-between">
-                                        <div class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                                            <span
-                                                class="w-44-px h-44-px bg-success-subtle text-success-main rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
-                                                <iconify-icon icon="bitcoin-icons:verify-outline" class="icon text-xxl"></iconify-icon>
-                                            </span>
-                                            <div>
-                                                <h6 class="text-md fw-semibold mb-4">Congratulations</h6>
-                                                <p class="mb-0 text-sm text-secondary-light text-w-200-px">Your profile has been Verified. Your
-                                                    profile has been Verified</p>
-                                            </div>
-                                        </div>
-                                        <span class="text-sm text-secondary-light flex-shrink-0">23 Mins ago</span>
-                                    </a>
-
-                                    <a href="javascript:void(0)"
-                                        class="px-24 py-12 d-flex align-items-start gap-3 mb-2 justify-content-between bg-neutral-50">
-                                        <div class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                                            <span
-                                                class="w-44-px h-44-px bg-success-subtle text-success-main rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
-                                                <img src="<?= base_url('public'); ?>/assets/images/notification/profile-1.png" alt="Image">
-                                            </span>
-                                            <div>
-                                                <h6 class="text-md fw-semibold mb-4">Ronald Richards</h6>
-                                                <p class="mb-0 text-sm text-secondary-light text-w-200-px">You can stitch between artboards</p>
-                                            </div>
-                                        </div>
-                                        <span class="text-sm text-secondary-light flex-shrink-0">23 Mins ago</span>
-                                    </a>
-
-                                    <a href="javascript:void(0)"
-                                        class="px-24 py-12 d-flex align-items-start gap-3 mb-2 justify-content-between">
-                                        <div class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                                            <span
-                                                class="w-44-px h-44-px bg-info-subtle text-info-main rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
-                                                AM
-                                            </span>
-                                            <div>
-                                                <h6 class="text-md fw-semibold mb-4">Arlene McCoy</h6>
-                                                <p class="mb-0 text-sm text-secondary-light text-w-200-px">Invite you to prototyping</p>
-                                            </div>
-                                        </div>
-                                        <span class="text-sm text-secondary-light flex-shrink-0">23 Mins ago</span>
-                                    </a>
-
-                                    <a href="javascript:void(0)"
-                                        class="px-24 py-12 d-flex align-items-start gap-3 mb-2 justify-content-between bg-neutral-50">
-                                        <div class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                                            <span
-                                                class="w-44-px h-44-px bg-success-subtle text-success-main rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
-                                                <img src="<?= base_url('public'); ?>/assets/images/notification/profile-2.png" alt="Image">
-                                            </span>
-                                            <div>
-                                                <h6 class="text-md fw-semibold mb-4">Robiul Hasan</h6>
-                                                <p class="mb-0 text-sm text-secondary-light text-w-200-px">Invite you to prototyping</p>
-                                            </div>
-                                        </div>
-                                        <span class="text-sm text-secondary-light flex-shrink-0">23 Mins ago</span>
-                                    </a>
-
-                                    <a href="javascript:void(0)"
-                                        class="px-24 py-12 d-flex align-items-start gap-3 mb-2 justify-content-between">
-                                        <div class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                                            <span
-                                                class="w-44-px h-44-px bg-info-subtle text-info-main rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
-                                                DR
-                                            </span>
-                                            <div>
-                                                <h6 class="text-md fw-semibold mb-4">Darlene Robertson</h6>
-                                                <p class="mb-0 text-sm text-secondary-light text-w-200-px">Invite you to prototyping</p>
-                                            </div>
-                                        </div>
-                                        <span class="text-sm text-secondary-light flex-shrink-0">23 Mins ago</span>
-                                    </a>
-                                </div>
-
-                                <div class="text-center py-12 px-16">
-                                    <a href="javascript:void(0)" class="text-primary-600 fw-semibold text-md">See All Notification</a>
-                                </div>
-
-                            </div>
-                        </div><!-- Notification dropdown end -->
 
                         <div class="dropdown">
                             <button class="d-flex justify-content-center align-items-center rounded-circle" type="button"
@@ -432,6 +336,25 @@
 
             <script>
                 window.onload = function() {
+                    const loader = document.getElementById("loading");
+
+                    loader.classList.add("loading--hide");
+
+                    setTimeout(() => {
+                        loader.style.display = "none";
+                    }, 1500);
+
+                    $(document).ajaxStart(function() {
+                        $("#loading").show().removeClass("loading--hide");
+                    });
+
+                    $(document).ajaxStop(function() {
+                        $("#loading").addClass("loading--hide");
+                        setTimeout(() => {
+                            $("#loading").hide();
+                        }, 400);
+                    });
+
                     // select2
                     $('.select2').each(function() {
                         let parentWidth = $(this).parent().width(); // ambil lebar px
@@ -443,7 +366,10 @@
                         });
                     });
 
-                    if (window.location.pathname.includes('kompetisi/peserta')) {
+
+                    if (['kompetisi/peserta', 'kompetisi/prestasi/'].some(x =>
+                            window.location.pathname.includes(x)
+                        )) {
                         let table = new DataTable('#dataTable', {
                             responsive: true,
                             columnDefs: [{

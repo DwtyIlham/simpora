@@ -7,6 +7,7 @@ use App\Models\CaborModel;
 use App\Models\UsersModel;
 use App\Models\KompModel;
 use App\Models\PesertaModel;
+use Config\Encryption;
 
 class Home extends BaseController
 {
@@ -517,6 +518,67 @@ class Home extends BaseController
             $this->session->setFlashdata('error', 'Data Peserta gagal dihapus.');
         }
         return redirect()->to('/admin/kompetisi/peserta/' . $kompetisi_id);
+    }
+
+    public function dataKompetisiPrestasi()
+    {
+        $data = [
+            'title'     => 'Data Prestasi',
+            'kompetisi' => $this->m_komp->findAll()
+        ];
+        return view('admin/prestasi-kompetisi', $data);
+    }
+
+    public function dataKompetisiPrestasiPeserta($id_kompetisi)
+    {
+        $id_kompetisi = decode_id($id_kompetisi);
+        $kompetisi = $this->m_komp->first($id_kompetisi)['nama'];
+        $data = [
+            'title'     => 'Data Prestasi ' . $kompetisi,
+            'peserta'   => $this->m_peserta->getDataPesertaPrestasi($id_kompetisi),
+            'cabor'     => $this->m_cabor->findAll(),
+            'sekolah'   => $this->db->table('sekolah')->get()->getResultArray(),
+            'id_kompetisi'  => $id_kompetisi
+        ];
+
+        return view('admin/prestasi-peserta', $data);
+    }
+
+    public function addDataPrestasi($id_kompetisi)
+    {
+        $id_kompetisi = decode_id($id_kompetisi);
+        $kompetisi = $this->m_komp->first($id_kompetisi)['nama'];
+        $data = [
+            'title'         => 'Tambah Atlet Prestasi ' . $kompetisi,
+            'sekolah'       => $this->db->table('sekolah')->get()->getResultArray(),
+            'cabor'         => $this->m_cabor->findAll(),
+            'kompetisi'     => $kompetisi,
+            'id_kompetisi'  => $id_kompetisi
+        ];
+        return view('admin/prestasi-add', $data);
+    }
+
+    public function addDataPrestasi_attempt()
+    {
+        $id = $this->request->getPost('peserta_id');
+        $kompetisi_id = $this->request->getPost('kompetisi_id');
+        $prestasi_id = $this->request->getPost('prestasi_id');
+        $data = ['prestasi' => $prestasi_id];
+        if ($this->m_peserta->update($id, $data)) {
+            session()->setFlashdata('success', 'Data Peserta Berhasil Disimpan.');
+        } else {
+            session()->setFlashdata('error', 'Data Peserta Gagal Disimpan');
+        }
+        return redirect()->to('admin/kompetisi/prestasi/' . encode_id($kompetisi_id));
+    }
+
+    public function view_piagam($id_peserta)
+    {
+        $data = [
+            'data'  => $this->m_peserta->getDataPeserta($id_peserta)
+        ];
+
+        return view('piagam/piagam', $data);
     }
 
     public function view_idcard_peserta($id_peserta)

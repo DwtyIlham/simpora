@@ -17,7 +17,7 @@
 
 <?php if (session()->getFlashdata('welcome')) : ?>
   <div class="toast-container position-fixed top-0 end-0 p-3">
-    <div id="toast" class="toast shadow-lg border-0 rounded-3" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3500">
+    <div id="toast" class="toast shadow-lg border-0 rounded-3" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="6500">
       <div class="toast-header bg-primary-500 text-white rounded-top-3">
         <i class="bi bi-person-check me-2"></i>
         <strong class="me-auto">Login Berhasil</strong>

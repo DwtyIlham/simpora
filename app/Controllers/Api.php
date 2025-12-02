@@ -179,4 +179,10 @@ class Api extends BaseController
         $id_peserta = $this->request->getPost('id');
         return $this->response->setJSON($this->m_peserta->getDataPesertaIDCard($id_peserta));
     }
+
+    public function getPesertaKompetisiCaborSekolah($cabor_id, $sekolah_id)
+    {
+        $result = $this->m_peserta->getPesertaKompetisiCaborSekolah($cabor_id, $sekolah_id);
+        return $this->response->setJSON($result);
+    }
 }

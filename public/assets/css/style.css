@@ -16009,5 +16009,59 @@ td.fc-header-center {
     cursor: grabbing;
 }
 
+/* Spinner ripple */
+.loading {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bs-body-bg, #fff);
+    z-index: 9999;
+    transition: opacity 0.4s ease;
+}
+
+.loading.loading--hide {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Ripple loader */
+.loader--ripple {
+    display: inline-block;
+    position: relative;
+    width: 64px;
+    height: 64px;
+}
+
+.loader--ripple div {
+    position: absolute;
+    border: 4px solid currentColor;
+    opacity: 1;
+    border-radius: 50%;
+    animation: loader--ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+
+.loader--ripple div:nth-child(2) {
+    animation-delay: -0.5s;
+}
+
+@keyframes loader--ripple {
+    0% {
+        top: 28px;
+        left: 28px;
+        width: 0;
+        height: 0;
+        opacity: 1;
+    }
+    100% {
+        top: -1px;
+        left: -1px;
+        width: 58px;
+        height: 58px;
+        opacity: 0;
+    }
+}
+
 
 /* === footer css end === */

@@ -42,6 +42,7 @@ abstract class BaseController extends Controller
      * The creation of dynamic property is deprecated in PHP 8.2.
      */
     protected $session;
+    protected $md5key;
 
     /**
      * @return void
@@ -55,6 +56,33 @@ abstract class BaseController extends Controller
 
         // E.g.: $this->session = \Config\Services::session();
         $this->session = \Config\Services::session();
+
+        function encode_id($id)
+        {
+            $b64 = base64_encode("x-$id-x");
+            return strtr($b64, [
+                '+' => 'e07fe2007cf',
+                '/' => '4709c0abfa1',
+                '=' => 'b2e606c9be'
+            ]);
+        }
+
+        function decode_id($hash)
+        {
+            $b64 = strtr($hash, [
+                'e07fe2007cf'   => '+',
+                '4709c0abfa1'   => '/',
+                'b2e606c9be'    => '='
+            ]);
+
+            $decoded = base64_decode($b64);
+
+            if (preg_match('/x-(.*)-x/', $decoded, $m)) {
+                return $m[1];
+            }
+            return false;
+        }
+
 
 
         if (!function_exists('format_tgl')) {

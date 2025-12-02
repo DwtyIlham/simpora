@@ -194,7 +194,9 @@ use CodeIgniter\Database\BaseUtils;
                                     <div class="fw-bold" id="v-alamat">-</div>
                                 </div>
                             </div>
-                            <button class="btn bg-danger-focus text-danger-main mt-12" data-bs-dismiss="modal">Kembali</button>
+                            <button class="btn bg-danger-focus text-danger-main radius-8 px-20 py-11 d-flex align-items-center justify-content-center gap-2" data-bs-dismiss="modal">
+                                <iconify-icon icon="mingcute:square-arrow-left-line" class="text-xl"></iconify-icon> Kembali
+                            </button>
                         </div>
                     </div>
 

@@ -33,6 +33,12 @@ $routes->get('admin/kompetisi/peserta/add/(:num)', 'Home::addDataPeserta/$1');
 $routes->get('admin/kompetisi/peserta/view-idcard-kompetisi/(:num)', 'Home::view_idcard_peserta/$1');
 $routes->post('admin/kompetisi/peserta/add', 'Home::addDataPeserta_attempt');
 $routes->get('admin/kompetisi/peserta/delete/(:any)/(:num)', 'Home::deletePeserta/$1/$2');
+$routes->get('admin/kompetisi/prestasi', 'Home::dataKompetisiPrestasi');
+$routes->get('admin/kompetisi/prestasi/(:any)', 'Home::dataKompetisiPrestasiPeserta/$1');
+$routes->get('admin/kompetisi/prestasi-add/(:any)', 'Home::addDataPrestasi/$1');
+$routes->post('admin/kompetisi/prestasi-add', 'Home::addDataPrestasi_attempt');
+$routes->get('admin/view-piagam/(:any)', 'Home::view_piagam/$1');
+$routes->get('pdf/view-piagam/(:any)', 'PdfController::generate_pdf/$1');
 
 // Sekolah Routes
 
@@ -46,6 +52,7 @@ $routes->post('api/init_atlet_validasi', 'Api::init_atlet_validasi');
 $routes->post('api/simpan-catatan', 'Api::simpan_catatan');
 $routes->post('api/get-catatan', 'Api::get_catatan');
 $routes->post('api/getDataPesertaIDCard', 'Api::getDataPesertaIDCard');
+$routes->get('api/get-peserta-kompetisi-caborsekolah/(:any)', 'Api::getPesertaKompetisiCaborSekolah/$1/$2');
 
 // Authentication Routes
 $routes->post('auth/login', 'Auth::login');
