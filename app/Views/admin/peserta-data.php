@@ -331,7 +331,7 @@ use function App\Controllers\isAdmin;
         let nama_atlet = $('#idcard-atlet').text();
 
         // Pastikan font sudah siap
-        await.document.fonts.ready.then(() => {
+        document.fonts.ready.then(() => {
             html2canvas(element, {
                 scale: window.devicePixelRatio * 2,
                 useCORS: true,

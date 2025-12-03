@@ -205,6 +205,12 @@
                         <span>Daftar Pengguna</span>
                     </a>
                 </li>
+                <li>
+                    <a href="<?= base_url('admin/operator/data'); ?>">
+                        <iconify-icon icon="streamline-freehand:meeting-co-working-2" class="menu-icon"></iconify-icon>
+                        <span>Daftar Operator</span>
+                    </a>
+                </li>
                 <li class="dropdown">
                     <a href="javascript:void(0)">
                         <iconify-icon icon="carbon:event" class="menu-icon"></iconify-icon>

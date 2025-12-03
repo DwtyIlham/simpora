@@ -39,6 +39,67 @@ class Home extends BaseController
         return view('dashboard');
     }
 
+    // Area Operator
+    public function dataOperator()
+    {
+        $data = [
+            'title'     => 'Data Operator Sekolah',
+            'data'      =>  $this->m_users->getDataOperator()
+        ];
+
+        return view('admin/operator-data', $data);
+    }
+
+    public function addOperator()
+    {
+        $data = [
+            'title'     => 'Tambah Operator Sekolah',
+            'sekolah'   => $this->m_users->getSekolahNotRegistered()
+        ];
+
+        return view('admin/operator-add', $data);
+    }
+
+    public function addOperator_attempt()
+    {
+        // mencoba mengambil data dari form registrasi
+        $data = [
+            'nama'          => $this->request->getPost('nama_lengkap'),
+            'role_id'       => $this->request->getPost('role'),
+            'username'      => $this->request->getPost('username'),
+            'password'      => $this->request->getPost('password'),
+            'sekolah_id'    => $this->request->getPost('sekolah_id'),
+            'no_wa'         => $this->request->getPost('no_wa'),
+        ];
+
+        // cek apakah username sudah ada
+        $existingUser = $this->m_users->getUserByUsername($data['username']);
+        if ($existingUser) {
+            $this->session->setFlashdata('error', 'Username sudah terpakai. Silahkan gunakan username lain.');
+            return redirect()->to('/register');
+        }
+        // hash password sebelum disimpan
+        $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
+        // logika penyimpanan data registrasi ke database atau proses lainnya
+        if ($this->m_users->register($data)) {
+            // jika berhasil
+            $this->session->setFlashdata('success', 'Data operatorberhasil disimpan. Silahkan login.');
+        } else {
+            // jika gagal
+            $this->session->setFlashdata('error', 'Data operator gagal disimpan. Silahkan coba lagi.');
+            return redirect()->back();
+        }
+        return redirect()->to('admin/operator/data');
+    }
+
+    public function deleteOperator($id)
+    {
+        $this->m_users->delete($id);
+        $this->session->setFlashdata('success', 'Operator berhasil dihapus.');
+        return redirect()->to('/admin/operator/data');
+    }
+    // End Area Operator
+
     // Area Atlet
     public function dataAtlet()
     {

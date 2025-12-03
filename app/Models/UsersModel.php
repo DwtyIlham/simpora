@@ -39,4 +39,13 @@ class UsersModel extends Model
     {
         return $this->insert($data);
     }
+
+    public function getDataOperator()
+    {
+        $sql = $this->db->table('users u')->select('u.id, u.nama, u.no_wa, s.nama sekolah, s.kecamatan, s.bentuk_pendidikan')
+            ->join('sekolah s', 'u.sekolah_id = s.id')->where(['u.isActive' => '1', 'u.role_id' => '2'])
+            ->get()->getResultArray();
+
+        return $sql;
+    }
 }

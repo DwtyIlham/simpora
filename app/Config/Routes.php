@@ -40,7 +40,11 @@ $routes->post('admin/kompetisi/prestasi-add', 'Home::addDataPrestasi_attempt');
 $routes->get('admin/view-piagam/(:any)', 'Home::view_piagam/$1');
 $routes->get('pdf/view-piagam/(:any)', 'PdfController::generate_pdf/$1');
 
-// Sekolah Routes
+// Operator Routes
+$routes->get('admin/operator/data', 'Home::dataOperator');
+$routes->get('admin/operator/add', 'Home::addOperator');
+$routes->post('admin/operator/add', 'Home::addOperator_attempt');
+$routes->get('admin/operator/delete/(:segment)', 'Home::deleteOperator/$1');
 
 // API Routes
 $routes->get('api/get-data-atlet-kab', 'Api::getDataAtletKab');
