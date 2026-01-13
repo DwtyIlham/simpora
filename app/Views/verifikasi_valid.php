@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Verifikasi ID Card</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f6fb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .card {
+            background: white;
+            width: 360px;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, .15);
+        }
+
+        .status {
+            background: #2ecc71;
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+
+        .foto {
+            width: 110px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        .nama {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .info {
+            font-size: 14px;
+            margin-top: 6px;
+            color: #555;
+        }
+
+        .footer {
+            margin-top: 16px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <div class="status">✅ ID CARD VALID</div>
+
+        <img src="<?= base_url('uploads/atlet/file_foto/' . $peserta['file_foto']) ?>" class="foto">
+
+        <div class="nama"><?= strtoupper($peserta['nama']) ?></div>
+        <div class="info">Atlet <?= strtoupper($peserta['sekolah']) ?></div>
+        <div class="info">Cabor: <?= strtoupper($peserta['cabor']) ?></div>
+
+        <div class="footer">
+            <?= APP_NAME; ?> • Sistem Verifikasi Digital
+        </div>
+    </div>
+
+</body>
+
+</html>
