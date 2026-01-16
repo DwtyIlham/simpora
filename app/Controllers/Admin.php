@@ -848,10 +848,12 @@ class Admin extends BaseController
     {
         $peserta = $this->m_peserta
             ->from('peserta p')
-            ->select('p.*, a.file_foto, a.nama, s.nama sekolah, c.nama cabor')
+            ->select('p.*, a.file_foto, a.nama, s.nama sekolah, c.nama cabor, CONCAT(nc.nama, " ", nc.jenjang, " ", nc.kategori, " ", IFNULL(nc.detail, "")) AS nomor_cabor, k.nama kompetisi, k.deskripsi')
             ->join('atlet a', 'a.id = p.atlet_id')
             ->join('sekolah s', 's.id = a.sekolah_id')
             ->join('cabor c', 'c.id = p.cabor_id')
+            ->join('nomor_cabor nc', 'nc.id = p.nomor_cabor_id')
+            ->join('kompetisi k', 'k.id = p.kompetisi_id')
             ->where('p.id', $id)
             ->first();
 

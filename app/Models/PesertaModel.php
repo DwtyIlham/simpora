@@ -16,13 +16,25 @@ class PesertaModel extends Model
 
     protected bool $allowEmptyInserts = false;
 
+    public function getPesertaBySekolah($sekolah_id)
+    {
+        $sql = $this->db->table('peserta p')->select('p.id, p.kompetisi_id, p.atlet_id, a.nama atlet_nama, a.sekolah_id, s.nama sekolah_nama, c.nama cabor_nama, nc.nama nomor_cabor')
+            ->join('atlet a', 'a.id = p.atlet_id', 'left')
+            ->join('cabor c', 'c.id = p.cabor_id', 'left')
+            ->join('nomor_cabor nc', 'nc.id = p.nomor_cabor_id', 'left')
+            ->join('sekolah s', 's.id = a.sekolah_id', 'left')
+            ->where('a.sekolah_id', $sekolah_id)
+            ->get();
+
+        return $sql->getResultArray();
+    }
+
     public function getDataPesertaKompetisi($id_kompetisi)
     {
         $sql = $this->db->table('kompetisi k')
             ->select([
                 'k.nama AS kompetisi_nama',
                 'k.deskripsi',
-
                 'p.id',
                 'p.kompetisi_id',
                 'p.atlet_id',

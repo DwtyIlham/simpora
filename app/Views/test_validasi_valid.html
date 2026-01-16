@@ -14,6 +14,14 @@
             height: 100vh;
         }
 
+        .header {
+            background: linear-gradient(135deg, #003d86, #005fcb);
+            color: #fff;
+            padding: 10px 6px 14px;
+            border-radius: 10px;
+            height: 10vh;
+        }
+
         .card {
             background: white;
             width: 360px;
@@ -24,7 +32,7 @@
         }
 
         .status {
-            background: #2ecc71;
+            /* background: #2ecc71; */
             color: white;
             padding: 12px;
             border-radius: 12px;
@@ -59,22 +67,16 @@
 </head>
 
 <body>
-
     <div class="card">
+        <div class="kompetisi header"><?= strtoupper($peserta['kompetisi']); ?><br /><?= $peserta['deskripsi']; ?></div>
         <div class="status">✅ ID CARD VALID</div>
-
-        <div class="nama"><b>
-                <p>
-                    KOMPETISI <?= strtoupper($peserta['kompetisi']) ?>
-                </p>
-            </b>
-        </div>
 
         <img src="<?= base_url('uploads/atlet/file_foto/' . $peserta['file_foto']) ?>" class="foto">
 
         <div class="nama"><?= strtoupper($peserta['nama']) ?></div>
         <div class="info">Atlet <?= strtoupper($peserta['sekolah']) ?></div>
         <div class="info">Cabor: <?= strtoupper($peserta['cabor']) ?></div>
+        <div class="info">Nomor Cabor: <?= strtoupper($peserta['nomor_cabor']) ?></div>
 
         <div class="footer">
             <?= APP_NAME; ?> • Sistem Verifikasi Digital

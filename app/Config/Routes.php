@@ -42,6 +42,23 @@ $routes->get('sekolah/users/add', 'Sekolah::addDataUsers');
 $routes->post('sekolah/users/add', 'Sekolah::addDataUsers_attempt');
 $routes->post('sekolah/users/update', 'Sekolah::addDataUsers_attempt');
 $routes->get('sekolah/users/delete/(:any)', 'Sekolah::deleteUser/$1');
+$routes->get('sekolah/kompetisi/data', 'Sekolah::dataKompetisi');
+$routes->get('sekolah/kompetisi/add', 'Sekolah::addDataKompetisi');
+$routes->post('sekolah/kompetisi/add', 'Sekolah::addDataKompetisi_attempt');
+$routes->get('sekolah/kompetisi/add/(:num)', 'Sekolah::addDataKompetisi/$1');
+$routes->post('sekolah/kompetisi/add/(:num)', 'Sekolah::addDataKompetisi_attempt/$1');
+$routes->get('sekolah/kompetisi/delete/(:any)', 'Sekolah::deleteKompetisi/$1');
+$routes->get('sekolah/kompetisi/peserta/(:num)', 'Sekolah::peserta/$1');
+$routes->get('sekolah/kompetisi/peserta/add/(:num)', 'Sekolah::addDataPeserta/$1');
+$routes->get('sekolah/kompetisi/peserta/view-idcard-kompetisi/(:num)', 'Sekolah::view_idcard_peserta/$1');
+$routes->post('sekolah/kompetisi/peserta/add', 'Sekolah::addDataPeserta_attempt');
+$routes->get('sekolah/kompetisi/peserta/delete/(:any)/(:num)', 'Sekolah::deletePeserta/$1/$2');
+$routes->get('sekolah/kompetisi/prestasi', 'Sekolah::dataKompetisiPrestasi');
+$routes->get('sekolah/kompetisi/prestasi/(:any)', 'Sekolah::dataKompetisiPrestasiPeserta/$1');
+$routes->get('sekolah/kompetisi/prestasi-add/(:any)', 'Sekolah::addDataPrestasi/$1');
+$routes->post('sekolah/kompetisi/prestasi-add', 'Sekolah::addDataPrestasi_attempt');
+$routes->post('sekolah/kompetisi/prestasi-edit', 'Sekolah::editPrestasi_attempt');
+$routes->get('sekolah/view-piagam/(:any)', 'Sekolah::view_piagam/$1');
 
 // Kompetisi routes
 $routes->get('admin/kompetisi/data', 'Admin::dataKompetisi');
@@ -93,7 +110,7 @@ $routes->post('api/getNomorCabor', 'Api::getNomorCabor');
 $routes->post('api/jurnal-medali-kab', 'Api::jurnal_medali_kab');
 
 // Validasi QR Code Routes
-$routes->get('validasi-peserta/(:segment)', 'Admin::validasi_peserta/$1');
+$routes->get('api/validasi/qr-code-atlet/(:segment)', 'Admin::validasi_peserta/$1');
 
 
 // Authentication Routes

@@ -47,7 +47,7 @@ class LoginFilter implements FilterInterface
         $uri = trim(service('uri')->getPath(), '/');
 
         // Allow special routes first
-        if (str_starts_with($uri, 'simpora/validasi-peserta/')) {
+        if (str_starts_with($uri, 'simpora/api/validasi/qr-code-atlet/')) {
             return $request; // Allow access
         }
 

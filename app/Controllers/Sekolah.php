@@ -9,6 +9,8 @@ use App\Models\KompModel;
 use App\Models\PesertaModel;
 use Config\Encryption;
 use Config\Services;
+use Ramsey\Uuid\Uuid;
+
 
 class Sekolah extends BaseController
 {
@@ -50,13 +52,13 @@ class Sekolah extends BaseController
             'cabor'    => $this->m_cabor->findAll(),
             'sekolah'   => $this->db->table('sekolah')->get()->getResultArray(),
         ];
-        return view('admin/atlet-data', $data);
+        return view('sekolah/atlet-data', $data);
     }
 
     public function addDataAtlet($id = null)
     {
         $data = [
-            'sekolah' => $this->db->table('sekolah')->where('id', $this->sekolah_id)->get()->getFirstRow(),
+            'sekolah' => $this->db->table('sekolah')->where('id', $this->sekolah_id)->get()->getFirstRow('array'),
             'cabor' => $this->m_cabor->findAll()
         ];
 
@@ -65,7 +67,7 @@ class Sekolah extends BaseController
             $data['atlet'] = $this->m_atlet->where('id', $id)->first();
         }
 
-        return view('admin/atlet-add', $data);
+        return view('sekolah/atlet-add', $data);
     }
 
     public function addDataAtlet_attempt()
@@ -156,17 +158,17 @@ class Sekolah extends BaseController
         $nikExists = $this->m_atlet->where('nik', $nik)->first();
         if ($nikExists) {
             $this->session->setFlashdata('error', 'NIK sudah terdaftar. Silahkan periksa kembali.');
-            return redirect()->to('/admin/atlet/add')->withInput();
+            return redirect()->to('/sekolah/atlet/add')->withInput();
         } elseif (empty($nik) || strlen($nik) != 16) {
             $this->session->setFlashdata('error', 'NIK harus diisi dan terdiri dari 16 digit angka.');
-            return redirect()->to('/admin/atlet/add')->withInput();
+            return redirect()->to('/sekolah/atlet/add')->withInput();
         }
 
         // Validasi NISN
         $nisnExists = $this->m_atlet->where('nisn', $nisn)->first();
         if ($nisnExists) {
             $this->session->setFlashdata('error', 'NISN sudah terdaftar. Silahkan periksa kembali.');
-            return redirect()->to('/admin/atlet/add')->withInput();
+            return redirect()->to('/sekolah/atlet/add')->withInput();
         }
 
         // Insert data atlet baru
@@ -178,21 +180,21 @@ class Sekolah extends BaseController
             $this->session->setFlashdata('success', 'Data Atlet Berhasil Ditambahkan.');
         } else {
             $this->session->setFlashdata('error', 'Data Atlet Gagal Ditambahkan. Silahkan Coba Lagi.');
-            return redirect()->to('/admin/atlet/add')->withInput();
+            return redirect()->to('/sekolah/atlet/add')->withInput();
         }
 
-        return redirect()->to('/admin/atlet/data');
+        return redirect()->to('/sekolah/atlet/data');
     }
 
     public function editDataAtlet($id)
     {
         $data = [
-            'atlet' => $this->m_atlet->find($id),
-            'sekolah' => $this->db->table('sekolah')->get()->getResultArray(),
-            'cabor' => $this->m_cabor->findAll()
+            'atlet' => $this->m_atlet->getAtletDetailByID($id),
+            'cabor'    => $this->m_cabor->findAll(),
+            'sekolah'   => $this->db->table('sekolah')->get()->getResultArray(),
         ];
 
-        return view('admin/atlet-edit', $data);
+        return view('sekolah/atlet-edit', $data);
     }
 
     public function editDataAtlet_attempt($id)
@@ -305,7 +307,7 @@ class Sekolah extends BaseController
             $this->session->setFlashdata('error', 'Gagal mengubah data atlet.');
         }
 
-        return redirect()->to('/admin/atlet/data');
+        return redirect()->to('/sekolah/atlet/data');
     }
 
     public function deleteAtlet($id)
@@ -322,7 +324,7 @@ class Sekolah extends BaseController
         } else {
             $this->session->setFlashdata('error', 'Data Atlet gagal dihapus.');
         }
-        return redirect()->to('/admin/atlet/data');
+        return redirect()->to('/sekolah/atlet/data');
     }
     // End Area Atlet
 
@@ -332,7 +334,7 @@ class Sekolah extends BaseController
         $data = [
             'users'     => $this->db->table('users')->get()->getResultArray(),
         ];
-        return view('admin/users-data', $data);
+        return view('sekolah/users-data', $data);
     }
 
     public function addDataUsers()
@@ -341,7 +343,7 @@ class Sekolah extends BaseController
             'users'     => $this->db->table('users')->get()->getResultArray(),
             'sekolah'   => $this->m_users->getSekolahNotRegistered()
         ];
-        return view('admin/users-add', $data);
+        return view('sekolah/users-add', $data);
     }
 
     public function addDataUsers_attempt()
@@ -362,7 +364,7 @@ class Sekolah extends BaseController
             $existingUser = $this->m_users->getUserByUsername($data['username']);
             if ($existingUser) {
                 $this->session->setFlashdata('error', 'Username sudah terpakai. Silahkan gunakan username lain.');
-                return redirect()->to('/admin/users/add');
+                return redirect()->to('/sekolah/users/add');
             }
             // hash password sebelum disimpan
             $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
@@ -370,13 +372,13 @@ class Sekolah extends BaseController
             if ($this->m_users->register($data)) {
                 // jika berhasil
                 $this->session->setFlashdata('success', 'Registrasi berhasil. Silahkan login.');
-                return redirect()->to('/admin/users/add');
+                return redirect()->to('/sekolah/users/add');
             } else {
                 // jika gagal
                 $this->session->setFlashdata('error', 'Registrasi gagal. Silahkan coba lagi.');
-                return redirect()->to('/admin/users/add');
+                return redirect()->to('/sekolah/users/add');
             }
-            return redirect()->to('admin/users/add');
+            return redirect()->to('sekolah/users/add');
         else:
 
             $data = [
@@ -390,7 +392,7 @@ class Sekolah extends BaseController
 
             if ($this->m_users->update($id, $data)) {
                 $this->session->setFlashdata('success', 'User berhasil diperbarui.');
-                return redirect()->to('/admin/users/data');
+                return redirect()->to('/sekolah/users/data');
             };
 
         endif;
@@ -400,7 +402,7 @@ class Sekolah extends BaseController
     {
         $this->m_users->delete($id);
         $this->session->setFlashdata('success', 'User berhasil dihapus.');
-        return redirect()->to('/admin/users/data');
+        return redirect()->to('/sekolah/users/data');
     }
     // End Area Users
 
@@ -412,7 +414,7 @@ class Sekolah extends BaseController
             'title'     => 'Data Kompetisi',
             'kompetisi' => $this->m_komp->findAll()
         ];
-        return view('admin/kompetisi-data', $data);
+        return view('sekolah/kompetisi-data', $data);
     }
 
     public function addDataKompetisi($id = '')
@@ -425,7 +427,7 @@ class Sekolah extends BaseController
             $data['kompetisi'] = $this->m_komp->where('id', $id)->first();
         }
 
-        return view('admin/kompetisi-add', $data);
+        return view('sekolah/kompetisi-add', $data);
     }
 
     public function addDataKompetisi_attempt($id = null)
@@ -449,7 +451,7 @@ class Sekolah extends BaseController
                 session()->setFlashdata('error', 'Data Kompetisi Gagal Disimpan.');
             }
 
-            return redirect()->to('/admin/kompetisi/add');
+            return redirect()->to('/sekolah/kompetisi/add');
         }
 
         // Jika $id ada → Update
@@ -459,21 +461,22 @@ class Sekolah extends BaseController
             session()->setFlashdata('error', 'Data Kompetisi Gagal Diubah.');
         }
 
-        return redirect()->to('/admin/kompetisi/data');
+        return redirect()->to('/sekolah/kompetisi/data');
     }
 
     public function peserta($id_kompetisi)
     {
+        $sekolah_id = session()->get('user')['sekolah_id'];
         $kompetisi = $this->m_komp->find($id_kompetisi)['nama'];
         $data = [
             'title'     => 'DATA PESERTA KOMPETISI ' . $kompetisi,
-            'peserta'   => $this->m_peserta->getDataPesertaKompetisi($id_kompetisi),
+            'peserta'   => $this->m_peserta->getPesertaBySekolah($sekolah_id),
             'cabor'     => $this->m_cabor->findAll(),
             'sekolah'     => $this->db->table('sekolah')->get()->getResultArray(),
             'id_kompetisi'  => $id_kompetisi
         ];
 
-        return view('admin/peserta-data', $data);
+        return view('sekolah/peserta-data', $data);
     }
 
     public function addDataPeserta($id_kompetisi)
@@ -486,7 +489,7 @@ class Sekolah extends BaseController
             'id_kompetisi'  => $id_kompetisi
         ];
 
-        return view('admin/peserta-add', $data);
+        return view('sekolah/peserta-add', $data);
     }
 
     public function addDataPeserta_attempt()
@@ -494,12 +497,15 @@ class Sekolah extends BaseController
         $atlet = $this->request->getPost('atlet');
         $kompetisi_id = $this->request->getPost('kompetisi');
         $cabor_id = $this->request->getPost('cabor');
+        $nomor_cabor_id = $this->request->getPost('nomor_cabor');
         $error = 0;
         for ($i = 0; $i < sizeof($atlet); $i++):
             $data = [
+                'id' => Uuid::uuid4()->toString(),
                 'atlet_id'  => $atlet[$i],
                 'kompetisi_id'  => $kompetisi_id,
-                'cabor_id'  => $cabor_id
+                'cabor_id'  => $cabor_id,
+                'nomor_cabor_id' => $nomor_cabor_id
             ];
             if ($this->m_peserta->insert($data)) {
                 session()->setFlashdata('success', 'Data Peserta Berhasil Disimpan.');
@@ -510,7 +516,7 @@ class Sekolah extends BaseController
         if ($error > 0) {
             session()->setFlashdata('error', 'Data Peserta Gagal Disimpan');
         }
-        return redirect()->to('admin/kompetisi/peserta/' . $kompetisi_id);
+        return redirect()->to('sekolah/kompetisi/peserta/' . $kompetisi_id);
     }
 
     public function deletePeserta($id, $kompetisi_id)
@@ -520,7 +526,7 @@ class Sekolah extends BaseController
         } else {
             $this->session->setFlashdata('error', 'Data Peserta gagal dihapus.');
         }
-        return redirect()->to('/admin/kompetisi/peserta/' . $kompetisi_id);
+        return redirect()->to('/sekolah/kompetisi/peserta/' . $kompetisi_id);
     }
 
     public function dataKompetisiPrestasi()
@@ -529,7 +535,7 @@ class Sekolah extends BaseController
             'title'     => 'Data Prestasi',
             'kompetisi' => $this->m_komp->findAll()
         ];
-        return view('admin/prestasi-kompetisi', $data);
+        return view('sekolah/prestasi-kompetisi', $data);
     }
 
     public function dataKompetisiPrestasiPeserta($id_kompetisi)
@@ -544,7 +550,7 @@ class Sekolah extends BaseController
             'id_kompetisi'  => $id_kompetisi
         ];
 
-        return view('admin/prestasi-peserta', $data);
+        return view('sekolah/prestasi-peserta', $data);
     }
 
     public function addDataPrestasi($id_kompetisi)
@@ -558,7 +564,7 @@ class Sekolah extends BaseController
             'kompetisi'     => $kompetisi,
             'id_kompetisi'  => $id_kompetisi
         ];
-        return view('admin/prestasi-add', $data);
+        return view('sekolah/prestasi-add', $data);
     }
 
     public function addDataPrestasi_attempt()
@@ -572,7 +578,7 @@ class Sekolah extends BaseController
         } else {
             session()->setFlashdata('error', 'Data Peserta Gagal Disimpan');
         }
-        return redirect()->to('admin/kompetisi/prestasi/' . encode_id($kompetisi_id));
+        return redirect()->to('sekolah/kompetisi/prestasi/' . encode_id($kompetisi_id));
     }
 
     public function view_piagam($id_peserta)
@@ -590,7 +596,7 @@ class Sekolah extends BaseController
             'title'     => 'Unduh ID Card Peserta',
             'peserta'   => $this->m_peserta->getDataPesertaIDCard($id_peserta)
         ];
-        return view('admin/preview-idcard', $data);
+        return view('sekolah/preview-idcard', $data);
     }
     // End Area Kompetisi
 }
