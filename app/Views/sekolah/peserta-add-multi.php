@@ -29,7 +29,7 @@ use CodeIgniter\Database\BaseUtils;
                 <h5 class="card-title mb-0">Form <?= $title; ?></h5>
             </div>
             <!-- Form kompetisi Administrator Dinas -->
-            <form id="formTambahPesertaBySekolah" action="<?= base_url('sekolah/kompetisi/peserta/add') ?>" method="POST">
+            <form id="formTambahPesertaBySekolah" action="<?= base_url('sekolah/kompetisi/peserta/add-multi') ?>" method="POST">
                 <?= csrf_field(); ?>
                 <div class="card-body">
                     <div class="row gy-2">
@@ -42,6 +42,15 @@ use CodeIgniter\Database\BaseUtils;
                                 <input type="text" class="form-control" value="<?= $kompetisi ?>" autocomplete="off" readonly>
                                 <input type="hidden" name="kompetisi" class="form-control" value="<?= set_value('kompetisi', $id_kompetisi); ?>" autocomplete="off" readonly>
                             </div>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Pilih Atlet</label>
+                            <select class="form-select select2" name="atlet[]" id="atlet" data-placeholder="Ketik/Pilih Atlet" multiple>
+                                <option></option>
+                                <?php foreach ($atlet as $a): ?>
+                                    <option value="<?= $a['id']; ?>"><?= $a['nama_atlet']; ?></option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                         <div class="col-6">
                             <label class="form-label">Pilih Cabor</label>
@@ -59,15 +68,6 @@ use CodeIgniter\Database\BaseUtils;
                                     <option></option>
                                 </select>
                             </div>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label">Pilih Atlet</label>
-                            <select class="form-select select2" name="atlet[]" id="atlet" data-placeholder="Ketik/Pilih Atlet" multiple>
-                                <option></option>
-                                <?php foreach ($atlet as $a): ?>
-                                    <option value="<?= $a['id']; ?>"><?= $a['nama']; ?></option>
-                                <?php endforeach; ?>
-                            </select>
                         </div>
                         <div class="col-12">
                             <button role="submit" class="btn btn-primary-600"><i class="ri-save-line"></i> Simpan</button>

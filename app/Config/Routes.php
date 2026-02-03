@@ -27,6 +27,8 @@ $routes->get('admin/cabor/delete/(:num)', 'Admin::deleteCabor/$1');
 $routes->get('admin/kompetisi/nomor-cabor', 'Admin::dataNomorCabor');
 $routes->post('admin/kompetisi/nomor-cabor/add', 'Admin::addNomorCabor');
 $routes->post('admin/kompetisi/nomor-cabor/edit/(:num)', 'Admin::editNomorCabor/$1');
+$routes->get('admin/ganti-password', 'Admin::ganti_password');
+$routes->post('admin/ganti-password-attempt', 'Admin::ganti_password_attempt');
 
 
 // Sekolah Routes
@@ -46,10 +48,12 @@ $routes->get('sekolah/kompetisi/data', 'Sekolah::dataKompetisi');
 $routes->get('sekolah/kompetisi/add', 'Sekolah::addDataKompetisi');
 $routes->post('sekolah/kompetisi/add', 'Sekolah::addDataKompetisi_attempt');
 $routes->get('sekolah/kompetisi/add/(:num)', 'Sekolah::addDataKompetisi/$1');
+$routes->get('sekolah/kompetisi/peserta/add-multi/(:num)', 'Sekolah::addDataPesertaMulti/$1');
 $routes->post('sekolah/kompetisi/add/(:num)', 'Sekolah::addDataKompetisi_attempt/$1');
 $routes->get('sekolah/kompetisi/delete/(:any)', 'Sekolah::deleteKompetisi/$1');
 $routes->get('sekolah/kompetisi/peserta/(:num)', 'Sekolah::peserta/$1');
 $routes->get('sekolah/kompetisi/peserta/add/(:num)', 'Sekolah::addDataPeserta/$1');
+$routes->post('sekolah/addPesertaMultiCabor', 'Sekolah::addPesertaMultiCabor');
 $routes->get('sekolah/kompetisi/peserta/view-idcard-kompetisi/(:num)', 'Sekolah::view_idcard_peserta/$1');
 $routes->post('sekolah/kompetisi/peserta/add', 'Sekolah::addDataPeserta_attempt');
 $routes->get('sekolah/kompetisi/peserta/delete/(:any)/(:num)', 'Sekolah::deletePeserta/$1/$2');
@@ -70,7 +74,7 @@ $routes->get('admin/kompetisi/delete/(:any)', 'Admin::deleteKompetisi/$1');
 $routes->get('admin/kompetisi/peserta/(:num)', 'Admin::peserta/$1');
 $routes->get('admin/kompetisi/peserta/add/(:num)', 'Admin::addDataPeserta/$1');
 $routes->get('admin/kompetisi/peserta/view-idcard-kompetisi/(:num)', 'Admin::view_idcard_peserta/$1');
-$routes->post('admin/kompetisi/peserta/add', 'Admin::addDataPeserta_attempt');
+$routes->post('admin/kompetisi/peserta/add-multi', 'Admin::addDataPesertaMulti_attempt');
 $routes->get('admin/kompetisi/peserta/delete/(:any)/(:num)', 'Admin::deletePeserta/$1/$2');
 $routes->get('admin/kompetisi/prestasi', 'Admin::dataKompetisiPrestasi');
 $routes->get('admin/kompetisi/prestasi/(:any)', 'Admin::dataKompetisiPrestasiPeserta/$1');
@@ -108,6 +112,7 @@ $routes->post('api/toggle-status-user', 'Api::toggle_status_user');
 $routes->post('api/toggle-nomor-cabor-status', 'Api::toggle_status_nocabor');
 $routes->post('api/getNomorCabor', 'Api::getNomorCabor');
 $routes->post('api/jurnal-medali-kab', 'Api::jurnal_medali_kab');
+$routes->post('api/cek-regis-atlet-multi-cabor', 'Api::cekRegAtletMultiCabor');
 
 // Validasi QR Code Routes
 $routes->get('api/validasi/qr-code-atlet/(:segment)', 'Admin::validasi_peserta/$1');

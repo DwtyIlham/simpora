@@ -97,22 +97,26 @@ use function App\Controllers\isAdmin;
                             $err_validasi_dokumen = 0;
                             foreach ($jenis_dok as $jd) {
                                 if ($jd !== 'ijazah_status') {
-                                    $a[$jd] === 'valid' ? $err_validasi_dokumen += 0 : $err_validasi_dokumen += 1;
+                                    if ($a[$jd] === 'pending') {
+                                        $err_validasi_dokumen = 99;
+                                    } else {
+                                        $a[$jd] === 'valid' ? $err_validasi_dokumen += 0 : $err_validasi_dokumen += 1;
+                                    }
                                 }
                             }
                         ?>
                             <tr>
                                 <td class="text-center"><?= $no; ?></td>
                                 <td class="text-center">
-                                    <?php if (isAdmin()): ?>
-                                        <a href="javascript:void(0)" data-id="<?= $a['id']; ?>" data-bs-toggle="tooltip" data-bs-placement="top" title="Detail & Validasi" data-bs-title="Detail dan Validasi"
-                                            class="view-atlet w-32-px h-32-px bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center">
-                                            <iconify-icon icon="hugeicons:validation-approval"></iconify-icon>
+                                    <a href="javascript:void(0)" data-id="<?= $a['id']; ?>" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Hasil Validasi"
+                                        class="view-atlet w-32-px h-32-px bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center">
+                                        <iconify-icon icon="lucide:info"></iconify-icon>
+                                    </a>
+                                    <?php if ($err_validasi_dokumen > 0 && $err_validasi_dokumen < 99): ?>
+                                        <a href="<?= site_url('sekolah/atlet/edit/') . $a['id']; ?>" class="w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
+                                            <iconify-icon icon="lucide:edit"></iconify-icon>
                                         </a>
                                     <?php endif; ?>
-                                    <a href="<?= site_url('sekolah/atlet/edit/') . $a['id']; ?>" class="w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
-                                        <iconify-icon icon="lucide:edit"></iconify-icon>
-                                    </a>
                                     <a id="<?= $a['id']; ?>" class="delete-atlet w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center">
                                         <iconify-icon icon="mingcute:delete-2-line"></iconify-icon>
                                     </a>
@@ -334,22 +338,22 @@ use function App\Controllers\isAdmin;
                 let html = "";
 
                 if (res.data.file_kk)
-                    html += templateFile("Kartu Keluarga", `<?= base_url('public/uploads/atlet/file_kk/'); ?>` + res.data.file_kk, res.validasi.kk_status, "kk", atletId);
+                    html += templateFile("Kartu Keluarga", `<?= base_url('public/uploads/atlet/file_kk/'); ?>` + res.data.file_kk, res.validasi.kk_status, "kk", atletId, 'sekolah');
 
                 if (res.data.file_akte)
-                    html += templateFile("Akte Kelahiran", `<?= base_url('public/uploads/atlet/file_akte/'); ?>` + res.data.file_akte, res.validasi.akte_status, "akte", atletId);
+                    html += templateFile("Akte Kelahiran", `<?= base_url('public/uploads/atlet/file_akte/'); ?>` + res.data.file_akte, res.validasi.akte_status, "akte", atletId, 'sekolah');
 
                 if (res.data.file_foto)
-                    html += templateFile("Foto Atlet", `<?= base_url('public/uploads/atlet/file_foto/'); ?>` + res.data.file_foto, res.validasi.foto_status, "foto", atletId);
+                    html += templateFile("Foto Atlet", `<?= base_url('public/uploads/atlet/file_foto/'); ?>` + res.data.file_foto, res.validasi.foto_status, "foto", atletId, 'sekolah');
 
                 if (res.data.file_ijazah)
-                    html += templateFile("Ijazah", `<?= base_url('public/uploads/atlet/file_ijazah/'); ?>` + res.data.file_ijazah, res.validasi.ijazah_status, "ijazah", atletId);
+                    html += templateFile("Ijazah", `<?= base_url('public/uploads/atlet/file_ijazah/'); ?>` + res.data.file_ijazah, res.validasi.ijazah_status, "ijazah", atletId, 'sekolah');
 
                 if (res.data.file_nisn)
-                    html += templateFile("NISN", `<?= base_url('public/uploads/atlet/file_nisn/'); ?>` + res.data.file_nisn, res.validasi.nisn_status, "nisn", atletId);
+                    html += templateFile("NISN", `<?= base_url('public/uploads/atlet/file_nisn/'); ?>` + res.data.file_nisn, res.validasi.nisn_status, "nisn", atletId, 'sekolah');
 
                 if (res.data.file_ktp_kia)
-                    html += templateFile("KTP/KIA", `<?= base_url('public/uploads/atlet/file_ktp_kia/'); ?>` + res.data.file_ktp_kia, res.validasi.ktp_kia_status, "ktp_kia", atletId);
+                    html += templateFile("KTP/KIA", `<?= base_url('public/uploads/atlet/file_ktp_kia/'); ?>` + res.data.file_ktp_kia, res.validasi.ktp_kia_status, "ktp_kia", atletId, 'sekolah');
 
                 $("#file-gallery").html(html);
                 detectImageSize();
@@ -550,8 +554,6 @@ use function App\Controllers\isAdmin;
             }
         });
     });
-
-
 
     // delete atlet
     $(document).on('click', '.delete-atlet', function() {

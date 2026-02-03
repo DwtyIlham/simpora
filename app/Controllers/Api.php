@@ -261,4 +261,61 @@ class Api extends BaseController
 
         return $this->response->setJSON($data);
     }
+
+    public function cekRegAtletMultiCabor()
+    {
+        $atletIds     = $this->request->getPost('atlet_ids');
+        $caborId      = $this->request->getPost('cabor_id');
+        $nomorCaborId = $this->request->getPost('nomor_cabor_id');
+
+        // cabor yang boleh multi nomor
+        $multiEventCabor = ['ATLETIK', 'RENANG'];
+
+        foreach ($atletIds as $atletId) {
+
+            $history = $this->m_atlet->where('id', $atletId)->findAll();
+
+            // 1️⃣ Sudah terdaftar di cabor lain
+            foreach ($history as $row) {
+                if ($row['cabor_id'] != $caborId) {
+                    return $this->response->setJSON([
+                        'status'  => false,
+                        'icon'    => 'error',
+                        'title'   => 'Pendaftaran Gagal',
+                        'message' => 'Atlet sudah terdaftar di cabor lain.',
+                    ]);
+                }
+            }
+            // 2️⃣ Sudah di cabor yang sama
+            $sameCabor = array_filter($history, fn($r) => $r['cabor_id'] == $caborId);
+
+            if ($sameCabor) {
+
+                // nomor lomba sama
+                foreach ($sameCabor as $row) {
+                    if ($row['nomor_cabor_id'] == $nomorCaborId) {
+                        return $this->response->setJSON([
+                            'status'  => false,
+                            'icon'    => 'warning',
+                            'title'   => 'Nomor Sudah Diambil',
+                            'message' => 'Atlet sudah terdaftar di nomor lomba tersebut.'
+                        ]);
+                    }
+                }
+                // cabor tidak boleh multi nomor
+                if (!in_array($caborId, $multiEventCabor)) {
+                    return $this->response->setJSON([
+                        'status'  => false,
+                        'icon'    => 'error',
+                        'title'   => 'Batasan Cabor',
+                        'message' => 'Cabor ini tidak mengizinkan lebih dari satu nomor lomba.',
+                    ]);
+                }
+            }
+        }
+
+        return $this->response->setJSON([
+            'status' => true
+        ]);
+    }
 }

@@ -866,4 +866,72 @@ class Admin extends BaseController
             'peserta' => $peserta
         ]);
     }
+
+    // Reset Password
+
+    public function ganti_password()
+    {
+        $user_id = $this->request->getGet('id');
+        $data = [
+            'title' => 'Ganti Password',
+            'user' => $this->m_users->getUserById($user_id),
+            'user_id'   => $user_id
+        ];
+
+        return view('auth/ganti-password', $data);
+    }
+
+    public function ganti_password_attempt()
+    {
+        $user_id          = $this->request->getPost('user_id');
+        $currentPassword  = $this->request->getPost('current_password');
+        $newPassword      = $this->request->getPost('new_password');
+        $confirmPassword  = $this->request->getPost('confirm_password');
+
+        // Ambil data user
+        $user = $this->m_users->find($user_id);
+
+        if (!$user) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'User tidak ditemukan.'
+            ]);
+        }
+
+        // Cek password lama
+        if (!password_verify($currentPassword, $user['password'])) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Password saat ini salah.'
+            ]);
+        }
+
+        // Cek konfirmasi password
+        if ($newPassword !== $confirmPassword) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Konfirmasi password tidak cocok.'
+            ]);
+        }
+
+        // Hash password baru
+        $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
+
+        // Update
+        $update = $this->m_users->update($user_id, [
+            'password' => $hashedPassword
+        ]);
+
+        if ($update) {
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Password berhasil diganti.'
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'success' => false,
+            'message' => 'Gagal mengganti password.'
+        ]);
+    }
 }

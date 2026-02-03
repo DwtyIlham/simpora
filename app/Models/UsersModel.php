@@ -21,6 +21,12 @@ class UsersModel extends Model
 
     protected $beforeInsert = ['insertUUID'];
 
+
+    public function getUserById($id)
+    {
+        return $this->where(['id' => $id])->first();
+    }
+
     public function getUserByUsername($username)
     {
         return $this->where(['username' => $username], ['isActive' => '1'])->first();

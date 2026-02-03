@@ -113,6 +113,16 @@ class Auth extends BaseController
         return redirect()->to('/');
     }
 
+    public function ganti_password($id)
+    {
+        $data = [
+            'title' => 'Ganti Password',
+            'user' => $this->m_users->getUserById($id)
+        ];
+
+        return view('auth/ganti_password', $data);
+    }
+
     public function logout(): ResponseInterface
     {
         $this->session->destroy();

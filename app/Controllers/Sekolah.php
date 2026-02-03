@@ -52,6 +52,7 @@ class Sekolah extends BaseController
             'cabor'    => $this->m_cabor->findAll(),
             'sekolah'   => $this->db->table('sekolah')->get()->getResultArray(),
         ];
+        // dd($data['atlet']);
         return view('sekolah/atlet-data', $data);
     }
 
@@ -484,7 +485,7 @@ class Sekolah extends BaseController
         $data = [
             'title'     => 'Tambah Kompetisi',
             'kompetisi' => $this->m_komp->find($id_kompetisi)['nama'],
-            'atlet'     => $this->m_atlet->getAtletBlmDaftar($id_kompetisi),
+            'atlet'     => $this->m_atlet->getAtletBlmDaftarBySekolah($id_kompetisi),
             'cabor'     => $this->m_cabor->findAll(),
             'id_kompetisi'  => $id_kompetisi
         ];
@@ -518,6 +519,31 @@ class Sekolah extends BaseController
         }
         return redirect()->to('sekolah/kompetisi/peserta/' . $kompetisi_id);
     }
+
+    public function addPesertaMultiCabor()
+    {
+        $peserta_id = $this->request->getPost('peserta_id');
+        $nocaborBaru = $this->request->getPost('nocabor_baru');
+
+        // Validasi sederhana
+        if (empty($peserta_id) || empty($nocaborBaru)) {
+            session()->setFlashdata('error', 'Data tidak lengkap.');
+            return redirect()->back();
+        }
+
+        $data = [
+            'nomor_cabor_id_2' => $nocaborBaru
+        ];
+
+        if ($this->m_peserta->update($peserta_id, $data)) {
+            session()->setFlashdata('success', 'Data Peserta Berhasil Disimpan.');
+        } else {
+            session()->setFlashdata('error', 'Data Peserta Gagal Disimpan.');
+        }
+
+        return redirect()->back();
+    }
+
 
     public function deletePeserta($id, $kompetisi_id)
     {

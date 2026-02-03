@@ -18,16 +18,40 @@ class PesertaModel extends Model
 
     public function getPesertaBySekolah($sekolah_id)
     {
-        $sql = $this->db->table('peserta p')->select('p.id, p.kompetisi_id, p.atlet_id, a.nama atlet_nama, a.sekolah_id, s.nama sekolah_nama, c.nama cabor_nama, nc.nama nomor_cabor')
+        $sql = $this->db->table('peserta p')
+            ->select([
+                'p.id',
+                'p.kompetisi_id',
+                'p.atlet_id',
+                'p.cabor_id',
+                'a.nama AS atlet_nama',
+                'a.sekolah_id',
+                's.nama AS sekolah_nama',
+                'c.nama AS cabor_nama',
+                'GROUP_CONCAT(
+                CONCAT(nc.nama, " ", nc.jenjang, " ", nc.kategori, " ", nc.detail)
+                SEPARATOR "||"
+            ) AS nomor_cabor'
+            ])
             ->join('atlet a', 'a.id = p.atlet_id', 'left')
             ->join('cabor c', 'c.id = p.cabor_id', 'left')
-            ->join('nomor_cabor nc', 'nc.id = p.nomor_cabor_id', 'left')
+            ->join('nomor_cabor nc', 'nc.id IN (p.nomor_cabor_id, p.nomor_cabor_id_2)', 'left')
             ->join('sekolah s', 's.id = a.sekolah_id', 'left')
             ->where('a.sekolah_id', $sekolah_id)
+            ->groupBy([
+                'p.id',
+                'p.kompetisi_id',
+                'p.atlet_id',
+                'a.nama',
+                'a.sekolah_id',
+                's.nama',
+                'c.nama'
+            ])
             ->get();
 
         return $sql->getResultArray();
     }
+
 
     public function getDataPesertaKompetisi($id_kompetisi)
     {

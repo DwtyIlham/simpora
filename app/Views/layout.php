@@ -212,7 +212,7 @@
                     <li>
                         <a href="<?= base_url($role . '/users/data'); ?>">
                             <iconify-icon icon="bi:person-gear" class="menu-icon"></iconify-icon>
-                            <span>Daftar Pengguna</span>
+                            <span>Daftar Users</span>
                         </a>
                     </li>
                     <li>
@@ -239,6 +239,12 @@
                     <a href="<?= site_url('jurnal-medali'); ?>">
                         <iconify-icon icon="material-symbols:trophy-outline-rounded" class="menu-icon"></iconify-icon>
                         <span>Jurnal Medali</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= site_url('admin/ganti-password?id=' . session('user')['id']); ?>">
+                        <iconify-icon icon="material-symbols:vpn-key-alert-outline" class="menu-icon"></iconify-icon>
+                        <span>Ganti Password</span>
                     </a>
                 </li>
                 <li><a class="text-danger-500" href="<?= base_url('logout'); ?>"> <iconify-icon icon="carbon:exit" class="menu-icon"></iconify-icon></iconify-icon><span>Logout</span></a></li>
@@ -360,6 +366,16 @@
 
             <!-- main js -->
             <script src="<?= base_url('public'); ?>/assets/js/app.js"></script>
+
+            <script>
+                // init tooltips
+                document.addEventListener('DOMContentLoaded', function() {
+                    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                    tooltipTriggerList.map(function(tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl)
+                    })
+                })
+            </script>
 
             <script>
                 window.onload = function() {

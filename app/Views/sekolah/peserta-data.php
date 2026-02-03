@@ -9,6 +9,16 @@ use function App\Controllers\isAdmin;
 <?= $this->extend('layout'); ?>
 <?= $this->section('content'); ?>
 
+<style>
+    .modal-body h6 {
+        font-weight: 600;
+    }
+
+    .form-control[readonly] {
+        cursor: not-allowed;
+    }
+</style>
+
 <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-12">
     <h6 class="fw-semibold mb-0"><?= $title; ?></h6>
     <ul class="d-flex align-items-center gap-2">
@@ -29,10 +39,17 @@ use function App\Controllers\isAdmin;
             <div class="card-header">
                 <a href="<?= base_url('sekolah/kompetisi/data'); ?>" class="btn btn-sm bg-danger-focus bg-hover-danger-200 text-danger-600"><i class="ri-arrow-go-back-line"></i> Daftar Kompetisi</a>
             </div>
-            <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0"><?= $title; ?></h5>
-                <a href="<?= base_url('sekolah/kompetisi/peserta/add/' . $id_kompetisi); ?>" class="btn btn-primary-600"><i class="ri-add-box-line"></i> Tambah Peserta</a>
+
+                <div class="d-flex gap-2">
+                    <a href="<?= base_url('sekolah/kompetisi/peserta/add/' . $id_kompetisi); ?>"
+                        class="btn btn-primary-600">
+                        <i class="ri-add-box-line"></i> Tambah Peserta
+                    </a>
+                </div>
             </div>
+
             <div class="card-body table-responsive">
                 <table id="dataTable" class="display table table-bordered table-hover table-striped" style="width:100%;">
                     <thead>
@@ -53,16 +70,31 @@ use function App\Controllers\isAdmin;
                                 <td class="align-middle"><?= $p['atlet_nama']; ?></td>
                                 <td class="align-middle" style="text-align: left;"><?= $p['sekolah_nama']; ?></td>
                                 <td class="text-center align-middle"><?= $p['cabor_nama']; ?></td>
-                                <td class="text-center align-middle"><?= $p['nomor_cabor'] ?? '-'; ?></td>
+                                <td class="align-middle">
+                                    <?php $nocab = explode('||', $p['nomor_cabor']) ?? '-'; ?>
+                                    <?php foreach ($nocab as $i => $nc): ?>
+                                        <?= $nc; ?><br />
+                                    <?php endforeach; ?>
+                                </td>
                                 <td class="text-center align-middle m-auto">
                                     <a data-id="<?= $p['id']; ?>"
                                         class="btn-view-idcard w-32-px h-32-px bg-info-focus text-info-main rounded-circle d-inline-flex align-items-center justify-content-center"
                                         data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat ID Card">
                                         <iconify-icon icon="lucide:id-card-lanyard"></iconify-icon>
                                     </a>
-                                    <a href="<?= site_url('sekolah/peserta/edit/') . $p['id']; ?>" class="btn-edit w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
-                                        <iconify-icon icon="lucide:edit"></iconify-icon>
-                                    </a>
+                                    <?php
+                                    $disable = is_array($nocab) && count($nocab) > 1;
+                                    if (!$disable): ?>
+                                        <a href="#"
+                                            class="btn-add-atlet-multi-cabor w-32-px h-32-px bg-info-focus text-info-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                                            data-peserta-id="<?= $p['id']; ?>" data-cabor-id="<?= $p['cabor_id']; ?>"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-title="<?= $disable ? 'Atlet sudah memiliki lebih dari 1 nomor cabor' : 'Tambah Atlet Multi Cabor'; ?>">
+
+                                            <iconify-icon icon="mdi:account-multiple-add"></iconify-icon>
+                                        </a>
+                                    <?php else: '';
+                                    endif; ?>
                                     <a id="<?= $p['id']; ?>" data-kompetisi-id="<?= $p['kompetisi_id']; ?>" class="btn-delete w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center">
                                         <iconify-icon icon="mingcute:delete-2-line"></iconify-icon>
                                     </a>
@@ -77,7 +109,7 @@ use function App\Controllers\isAdmin;
     </div>
 </div>
 
-<!-- Modal -->
+<!-- Modal QR -->
 <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -269,6 +301,86 @@ use function App\Controllers\isAdmin;
     </div>
 </div>
 
+<!-- Modal Tambah Atlet Multi Cabor -->
+<div class="modal fade" id="modal-add-atlet-multi-cabor" tabindex="-1" aria-labelledby="modal-add-atlet-multi-cabor-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <form id="formAddMultiCabor" action="<?= site_url('sekolah/addPesertaMultiCabor'); ?>" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-add-atlet-multi-cabor-label">Tambah Atlet Multi Cabor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <input type="hidden" name="peserta_id" id="peserta_id">
+                            <!-- CABOR TERDAFTAR -->
+                            <div class="mb-4">
+                                <h6 class="text-muted mb-3">
+                                    <i class="bi bi-list-check"></i> Cabor Terdaftar
+                                </h6>
+
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label small">Nama Cabor</label>
+                                        <input type="text" class="form-control bg-light" id="md-cabor-1" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small">Nomor Cabor</label>
+                                        <input type="text" class="form-control bg-light" id="md-nocabor-1" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- TAMBAH CABOR -->
+                            <div>
+                                <h6 class="my-3">
+                                    <i class="bi bi-plus-circle-fill text-success"></i>
+                                    Tambah Nomor Cabor
+                                </h6>
+
+                                <div class="row g-3">
+                                    <div class="col-6">
+                                        <label class="form-label">Cabor</label>
+                                        <select class="form-select select2" id="md-multi-cabor" data-placeholder="Pilih Cabor" disabled>
+                                            <option></option>
+                                            <?php foreach ($cabor as $c): ?>
+                                                <option value="<?= $c['id']; ?>"><?= $c['nama']; ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="form-label">Nomor Cabor</label>
+                                        <select id="nomor_cabor" name="nocabor_baru" class="form-select select2" data-placeholder="Pilih Nomor Cabor" required>
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-info bg-info-100 text-info-600 border-info-100 px-24 py-11 mb-0 radius-8 py-2 mt-3 d-flex align-items-center gap-2" role="alert">
+                                    <iconify-icon icon="material-symbols:info" width="20" height="20"></iconify-icon>
+                                    <span>
+                                        Cabor baru akan <strong>ditambahkan</strong> dan tidak menghapus data sebelumnya.
+                                    </span>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button role="submit" class="btn btn-primary-600"><i class="ri-save-line"></i> Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script src="<?= base_url('public/assets/js/gallery.js'); ?>"></script>
 
 <script>
@@ -347,7 +459,7 @@ use function App\Controllers\isAdmin;
             },
             success: function(res) {
                 $('#qrModalLabel').text('ID Card Peserta - ' + res['atlet_nama']);
-                $('#idcard-title').html(`<span>${res['kompetisi_nama']}</span><br/><small class="text-label">${res['deskripsi']}</small>`);
+                $('#idcard-title').html(`<span>${res['kompetisi_nama']}</span><br /><small class="text-label">${res['deskripsi']}</small>`);
                 $('#idcard-foto').attr('src', folder_foto_atlet + res['file_foto']);
                 $('#idcard-atlet').text(res['atlet_nama']);
                 $('#idcard-sekolah').text(res['sekolah_nama']);
@@ -386,6 +498,58 @@ use function App\Controllers\isAdmin;
             });
         });
     }
+
+    // modal atlet multi cabor
+    $('.btn-add-atlet-multi-cabor').on('click', function() {
+        let atlet = $(this).closest('tr').find('td').eq('1').text().trim();
+        let peserta_id = $(this).data('peserta-id');
+        let cabor_1 = $(this).closest('tr').find('td').eq('3').text().trim();
+        let nocabor_1 = $(this).closest('tr').find('td').eq('4').text().trim();
+        let cabor_id = $(this).data('cabor-id');
+
+        $('#peserta_id').val(peserta_id);
+        $('#modal-add-atlet-multi-cabor-label').text('Form Multi Cabor - ' + atlet);
+        $('#md-cabor-1').val(cabor_1);
+        $('#md-nocabor-1').val(nocabor_1);
+        $('#md-multi-cabor').val(cabor_id).change();
+        $('#modal-add-atlet-multi-cabor').modal('show');
+    });
+
+    // select2 modal
+    $('#modal-add-atlet-multi-cabor').on('shown.bs.modal', function() {
+        $('.select2').select2({
+            dropdownParent: $('#modal-add-atlet-multi-cabor')
+        });
+    });
+
+    // load nomor cabor berdasar cabor terpilih
+    $('#md-multi-cabor').on('change', function() {
+        let caborId = $(this).val();
+        $.ajax({
+            url: "<?= site_url('api/getNomorCabor'); ?>",
+            method: 'POST',
+            data: {
+                cabor_id: caborId,
+                <?= csrf_token() ?>: "<?= csrf_hash() ?>"
+            },
+            dataType: 'json',
+            success: function(response) {
+                let nomorCaborSelect = $('#nomor_cabor');
+                nomorCaborSelect.attr('disabled', false);
+                nomorCaborSelect.empty();
+                nomorCaborSelect.append('<option></option>'); // Placeholder
+
+                response.forEach(function(nomorCabor) {
+                    nomorCaborSelect.append(
+                        `<option value="${nomorCabor.id}">${nomorCabor.nama} ${nomorCabor.kategori} ${nomorCabor.jenjang}</option>`
+                    );
+                });
+            },
+            error: function() {
+                alert('Gagal mengambil data nomor cabor.');
+            }
+        });
+    });
 </script>
 
 <?= $this->endSection(); ?>

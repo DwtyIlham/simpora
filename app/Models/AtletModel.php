@@ -51,6 +51,28 @@ class AtletModel extends Model
             ->findAll();
     }
 
+    public function getAtletBlmDaftarBySekolah($id_kompetisi)
+    {
+        return $this->select('atlet.id, atlet.nama')
+            ->join('peserta p', 'p.atlet_id = atlet.id AND p.kompetisi_id = ' . (int)$id_kompetisi, 'left')
+            ->join('atlet_validasi av', 'av.atlet_id = atlet.id', 'left')
+            ->where('av.status_final', 'valid')
+            ->where('atlet.sekolah_id', session()->get('user')['sekolah_id'])
+            ->where('p.atlet_id IS NULL')
+            ->findAll();
+    }
+
+    public function getAtletMultiCabor($id_kompetisi)
+    {
+        return $this->db->table('peserta p')->select('p.id, p.atlet_id, a.nama nama_atlet, c.nama nama_cabor, nc.nama nama_nocabor')
+            ->join('atlet a', 'p.atlet_id = a.id', 'left')
+            ->join('cabor c', 'p.cabor_id = c.id', 'left')
+            ->join('nomor_cabor nc', 'p.nomor_cabor_id = nc.id', 'left')
+            ->where('p.kompetisi_id', $id_kompetisi)
+            ->where('a.sekolah_id', session('user')['sekolah_id'])
+            ->get()->getResultArray();
+    }
+
     public function getAtletDetailByID($id)
     {
         $sql = $this->db->table('atlet')->select('atlet.*, av.kk_status, akte_status, av.foto_status,
