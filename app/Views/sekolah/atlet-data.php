@@ -112,7 +112,7 @@ use function App\Controllers\isAdmin;
                                         class="view-atlet w-32-px h-32-px bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center">
                                         <iconify-icon icon="lucide:info"></iconify-icon>
                                     </a>
-                                    <?php if ($err_validasi_dokumen > 0 && $err_validasi_dokumen < 99): ?>
+                                    <?php if ($err_validasi_dokumen > 0 && $err_validasi_dokumen !== 99): ?>
                                         <a href="<?= site_url('sekolah/atlet/edit/') . $a['id']; ?>" class="w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
                                             <iconify-icon icon="lucide:edit"></iconify-icon>
                                         </a>

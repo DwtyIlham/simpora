@@ -38,7 +38,7 @@ use function App\Controllers\isAdmin;
                                 <option value="">Pilih Kompetisi</option>
                                 <!-- loop dari backend -->
                                 <?php foreach ($kompetisi as $k): ?>
-                                    <option value="<?= $k['id']; ?>"><?= $k['nama']; ?></option>
+                                    <option value="<?= $k['id']; ?>" <?= $k['id'] == '1' ? 'selected' : ''; ?>><?= $k['nama']; ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -47,7 +47,7 @@ use function App\Controllers\isAdmin;
                             <label class="form-label">Bentuk Pendidikan</label>
                             <select id="filterBentuk" class="form-select">
                                 <option value="">Semua Jenjang</option>
-                                <option value="SD">SD</option>
+                                <option value="SD" selected>SD</option>
                                 <option value="SMP">SMP</option>
                                 <option value="SMA">SMA</option>
                             </select>

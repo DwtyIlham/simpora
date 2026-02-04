@@ -149,7 +149,7 @@ use CodeIgniter\Database\BaseUtils;
 
                     <div class="col-6">
                         <label class="form-label">Unggah Foto</label>
-                        <input type="file" name="file_foto" class="form-control">
+                        <input type="file" name="file_foto" class="form-control" accept="image/jpeg, image/png">
                         <?php if (!empty($atlet['file_foto'])): ?>
                             <small> File Terunggah : <a href="<?= base_url('public/uploads/atlet/file_foto/') . $atlet['file_foto']; ?>" target="_blank"><span class="text-primary">Foto <i class="ri-file-check-line"></i></span></a></small>
                         <?php endif; ?>

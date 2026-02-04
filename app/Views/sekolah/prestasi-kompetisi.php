@@ -40,9 +40,7 @@ use function App\Controllers\isAdmin;
                             <th style="width:10%" class="text-center">Tgl Mulai</th>
                             <th style="width:10%" class="text-center">Tgl Selesai</th>
                             <th style="width:10%" class="text-center">Tingkat</th>
-                            <?php if (isAdmin()): ?>
-                                <th style="width:15%" class="text-center">Aksi</th>
-                            <?php endif; ?>
+                            <th style="width:15%" class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -56,10 +54,10 @@ use function App\Controllers\isAdmin;
                                 <td class="text-center align-middle"><?= format_tgl($k['tgl_end']); ?></td>
                                 <td class="text-center align-middle"><?= strtoupper($k['tingkat']); ?></td>
                                 <td class="text-center align-middle">
-                                    <a href="<?= site_url('admin/kompetisi/prestasi/') . encode_id($k['id']); ?>"
+                                    <a href="<?= site_url('sekolah/kompetisi/prestasi/') . encode_id($k['id']); ?>"
                                         class="btn-view-idcard w-32-px h-32-px bg-primary-100 text-primary rounded-circle d-inline-flex align-items-center justify-content-center"
-                                        data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Peserta Kompetisi">
-                                        <iconify-icon icon="lucide:scan-eye"></iconify-icon>
+                                        data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Data Prestasi">
+                                        <iconify-icon icon="game-icons:achievement" width="24" height="24"></iconify-icon>
                                     </a>
                                     <?php if (isAdmin()): ?>
                                         <a href="<?= site_url('admin/kompetisi/add/') . $k['id']; ?>" class="btn-edit w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">

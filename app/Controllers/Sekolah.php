@@ -570,7 +570,7 @@ class Sekolah extends BaseController
         $kompetisi = $this->m_komp->first($id_kompetisi)['nama'];
         $data = [
             'title'     => 'Data Prestasi ' . $kompetisi,
-            'peserta'   => $this->m_peserta->getDataPesertaPrestasi($id_kompetisi),
+            'peserta'   => $this->m_peserta->getDataPesertaPrestasiSekolah($id_kompetisi),
             'cabor'     => $this->m_cabor->findAll(),
             'sekolah'   => $this->db->table('sekolah')->get()->getResultArray(),
             'id_kompetisi'  => $id_kompetisi
