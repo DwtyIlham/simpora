@@ -41,7 +41,10 @@ class Sekolah extends BaseController
 
     public function dashboard()
     {
-        return view('dashboard');
+        $data = [
+            'data'  => $this->m_atlet->totalDataKomponen()
+        ];
+        return view('dashboard', $data);
     }
 
     // Area Atlet
@@ -315,16 +318,37 @@ class Sekolah extends BaseController
     {
         $files = ['file_kk', 'file_akte', 'file_nisn', 'file_foto', 'file_ktp_kia', 'file_ijazah'];
         $oldFile = $this->m_atlet->find($id);
-        if ($this->m_atlet->delete($id)) {
+
+        try {
+
+            // Coba hapus data
+            $this->m_atlet->delete($id);
+
+            // Jika berhasil, hapus file fisik
             foreach ($files as $file) {
-                if (file_exists($oldFile[$file])) {
+                if (!empty($oldFile[$file]) && file_exists($oldFile[$file])) {
                     unlink($oldFile[$file]);
                 }
             }
-            $this->session->setFlashdata('success', 'Data Atlet berhasil dihapus.');
-        } else {
-            $this->session->setFlashdata('error', 'Data Atlet gagal dihapus.');
+
+            session()->setFlashdata('success', 'Data Atlet berhasil dihapus.');
+        } catch (\CodeIgniter\Database\Exceptions\DatabaseException $e) {
+
+            // Cek apakah error karena foreign key (1451)
+            if (str_contains($e->getMessage(), '1451')) {
+                session()->setFlashdata(
+                    'error',
+                    'Data Atlet tidak bisa dihapus karena masih terdaftar sebagai peserta kompetisi. Hapus data peserta terlebih dahulu.'
+                );
+            } else {
+
+                session()->setFlashdata(
+                    'error',
+                    'Terjadi kesalahan sistem saat menghapus data. Cek Apakah Masih Terdaftar Sebagai Peserta Kompetisi.'
+                );
+            }
         }
+
         return redirect()->to('/sekolah/atlet/data');
     }
     // End Area Atlet
@@ -483,7 +507,7 @@ class Sekolah extends BaseController
     public function addDataPeserta($id_kompetisi)
     {
         $data = [
-            'title'     => 'Tambah Kompetisi',
+            'title'     => 'Tambah Peserta Kompetisi',
             'kompetisi' => $this->m_komp->find($id_kompetisi)['nama'],
             'atlet'     => $this->m_atlet->getAtletBlmDaftarBySekolah($id_kompetisi),
             'cabor'     => $this->m_cabor->findAll(),

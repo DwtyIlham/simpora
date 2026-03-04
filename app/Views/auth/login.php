@@ -8,7 +8,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIMPORA - KAB. BANJARNEGARA</title>
+    <title>SILAGAPORA - KAB. BANJARNEGARA</title>
     <link rel="icon" type="image/png" href="assets/images/icon.png" sizes="16x16">
     <!-- remix icon font css  -->
     <link rel="stylesheet" href="assets/css/remixicon.css">
@@ -165,7 +165,7 @@
         <div class="auth-left d-lg-block d-none">
             <div class="d-flex align-items-center flex-column h-100 justify-content-center">
                 <!-- <img src="assets/images/auth/auth-img.png" alt="Image"> -->
-                <img src="assets/images/login-image.jpg" alt="Image">
+                <img src="assets/images/login-image.webp" alt="Image">
             </div>
         </div>
         <div class="auth-right py-32 px-24 d-flex flex-column justify-content-center">
@@ -192,16 +192,16 @@
                     <div class="d-flex align-items-center justify-content-center flex-wrap gap-3 p-3">
 
                         <!-- Logo -->
-                        <div class="text-center" style="max-width: 15%;">
-                            <img src="<?= base_url('public/assets/images/logo_bna.svg'); ?>"
+                        <div class="text-center" style="max-width: 25%;">
+                            <img src="<?= base_url('public/assets/images/logo.jpeg'); ?>"
                                 alt="Logo BNA"
-                                class="img-fluid">
+                                class="img-fluid rounded" style="width: 100%; height: auto; object-fit: cover;">
                         </div>
 
                         <!-- Text -->
                         <div class="text-center align-self-center">
-                            <h1 class="mb-0"><img src="assets/images/icon.png" alt="Logo-Simpora" class="img-fluid" style="max-width: 10%;"> SIMPORA</h1>
-                            <small class="mb-0">Sistem Informasi Manajemen Pembinaan Olahraga</small>
+                            <h2 class="mb-0">SILAGAPORA</h2>
+                            <small class="mb-0">SISTEM INFORMASI LOMBA DAN AGENDA<br /> DAN OLAHRAGA BANJARNEGARA</small>
                         </div>
 
                     </div>

@@ -8,7 +8,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIMPORA - KAB. BANJARNEGARA</title>
+    <title>SILAGAPORA - KAB. BANJARNEGARA</title>
     <link rel="icon" type="image/png" href="assets/images/icon.png" sizes="16x16">
     <!-- remix icon font css  -->
     <link rel="stylesheet" href="assets/css/remixicon.css">
@@ -194,7 +194,7 @@
                     <tr>
                         <td style="width: 10%;"><img src="assets/images/icon.png" alt="Image" class="img img-fluid max-w-100-px"></td>
                         <td class="align-middle text-center ms-2 g-3">
-                            <h3 class="mb-0">SIMPORA</h3>
+                            <h3 class="mb-0">SILAGAPORA</h3>
                             <span class="">Kab. Banjarnegara</span>
                         </td>
                     </tr>
@@ -202,7 +202,7 @@
                 <div class="card-header mb-8">
                     <span class="card-title fw-bold text-center mb-12">Registrasi Akun Operator Sekolah</span>
                 </div>
-                <form action="<?= base_url(); ?>auth/register-attempt" method="post">
+                <form action="<?= site_url('auth/register-attempt'); ?>" method="post">
                     <?= csrf_field(); ?>
                     <input type="hidden" name="role" value="2">
                     <div class="icon-field mb-16">
@@ -246,13 +246,11 @@
                         <span class="toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-16 text-secondary-light" data-toggle="#your-password"></span>
                     </div>
 
-                    <button type="submit" class="btn btn-primary text-sm btn-sm px-12 py-16 w-100 radius-12 mt-32">Register</button>
-
-                    <div class="mt-32 text-center text-sm">
-                        <p class="mb-0">Sudah punya akun ? Silahkan login <a href="<?= base_url('/'); ?>" class="text-primary-600 fw-semibold text-primary-main bg-info-focus px-4">disini <i class="ri-arrow-right-line"></i>.</a></p>
-                    </div>
-
+                    <button type="submit" class="btn btn-primary text-sm btn-sm px-12 py-16 w-100 radius-12 mt-32">Daftar</button>
                 </form>
+                <div class="mt-32 text-center text-sm">
+                    <p class="mb-0">Sudah punya akun ? Silahkan login <a href="<?= base_url('/'); ?>" class="text-primary-600 fw-semibold text-primary-main bg-info-focus px-4">disini <i class="ri-arrow-right-line"></i>.</a></p>
+                </div>
             </div>
         </div>
     </section>

@@ -2,11 +2,23 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 
+<style>
+    .sidebar-logo span {
+        transition: opacity 0.3s ease;
+    }
+
+    .sidebar-mini .sidebar-logo span {
+        opacity: 0;
+        height: 0;
+        overflow: hidden;
+    }
+</style>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIMPORA - Banjarnegara</title>
-    <link rel="icon" type="image/png" href="<?= base_url('public'); ?>/assets/images/icon.png" sizes="16x16">
+    <title>SILAGAPORA - Banjarnegara</title>
+    <link rel="icon" type="image/png" href="<?= base_url('public'); ?>/assets/images/logo_bna.svg" sizes="16x16">
     <!-- remix icon font css  -->
     <link rel="stylesheet" href="<?= base_url('public'); ?>/assets/css/remixicon.css">
     <!-- BootStrap css -->
@@ -182,12 +194,14 @@
         <button type="button" class="sidebar-close-btn">
             <iconify-icon icon="radix-icons:cross-2"></iconify-icon>
         </button>
-        <div>
-            <a href="<?= base_url('/dashboard'); ?>" class="d-flex align-items-center gap-2 sidebar-logo">
-                <img src="<?= base_url('public'); ?>/assets/images/icon.png" alt="site logo" class="light-logo">
-                <span class="fs-2">SIMPORA</span>
-            </a>
-        </div>
+        <a href="<?= base_url('/dashboard'); ?>" class="d-flex justify-content-center align-items-center sidebar-logo">
+            <div class="d-flex justify-content-center align-items-center">
+                <img src="<?= base_url('public/assets/images/logo.jpeg'); ?>"
+                    alt="Site Logo"
+                    class="img-fluid rounded-circle light-logo">
+                <span class="light-logo fs-6">&nbsp;SILAGAPORA</span>
+            </div>
+        </a>
         <div class="sidebar-menu-area">
             <ul class="sidebar-menu" id="sidebar-menu">
                 <li>
@@ -327,33 +341,34 @@
             <script src="<?= base_url('public'); ?>/assets/js/lib/jquery-3.7.1.min.js"></script>
             <!-- Bootstrap js -->
             <script src="<?= base_url('public'); ?>/assets/js/lib/bootstrap.bundle.min.js"></script>
-            <!-- Apex Chart js -->
-            <script src="<?= base_url('public'); ?>/assets/js/lib/apexcharts.min.js"></script>
+            <?php if (uri_string() === 'dashboard' || uri_string() === 'sekolah/dashboard'): ?>
+                <script src="<?= base_url('public/assets/js/lib/apexcharts.min.js'); ?>"></script>
+            <?php endif; ?>
             <!-- Data Table js -->
             <script src="<?= base_url('public'); ?>/assets/js/lib/dataTables.min.js"></script>
             <!-- Iconify Font js -->
             <script src="<?= base_url('public'); ?>/assets/js/lib/iconify-icon.min.js"></script>
             <!-- jQuery UI js -->
-            <script src="<?= base_url('public'); ?>/assets/js/lib/jquery-ui.min.js"></script>
+            <script src="<?= base_url('public'); ?>/assets/js/lib/jquery-ui.min.js" defer></script>
             <!-- Vector Map js -->
-            <script src="<?= base_url('public'); ?>/assets/js/lib/jquery-jvectormap-2.0.5.min.js"></script>
-            <script src="<?= base_url('public'); ?>/assets/js/lib/jquery-jvectormap-world-mill-en.js"></script>
+            <script src="<?= base_url('public'); ?>/assets/js/lib/jquery-jvectormap-2.0.5.min.js" defer></script>
+            <script src="<?= base_url('public'); ?>/assets/js/lib/jquery-jvectormap-world-mill-en.js" defer></script>
             <!-- Popup js -->
-            <script src="<?= base_url('public'); ?>/assets/js/lib/magnifc-popup.min.js"></script>
+            <script src="<?= base_url('public'); ?>/assets/js/lib/magnifc-popup.min.js" defer></script>
             <!-- Slick Slider js -->
-            <script src="<?= base_url('public'); ?>/assets/js/lib/slick.min.js"></script>
+            <script src="<?= base_url('public'); ?>/assets/js/lib/slick.min.js" defer></script>
             <!-- prism js -->
-            <script src="<?= base_url('public'); ?>/assets/js/lib/prism.js"></script>
+            <script src="<?= base_url('public'); ?>/assets/js/lib/prism.js" defer></script>
             <!-- file upload js -->
-            <script src="<?= base_url('public'); ?>/assets/js/lib/file-upload.js"></script>
+            <script src="<?= base_url('public'); ?>/assets/js/lib/file-upload.js" defer></script>
             <!-- audioplayer -->
-            <script src="<?= base_url('public'); ?>/assets/js/lib/audioplayer.js"></script>
+            <script src="<?= base_url('public'); ?>/assets/js/lib/audioplayer.js" defer></script>
             <!-- swal -->
             <script src="<?= base_url('public'); ?>/assets/js/sweetalert2.all.min.js"></script>
             <!-- Select2 -->
             <script src="<?= base_url('public'); ?>/assets/js/select2.full.min.js"></script>
             <!-- HTML2CANVAS-->
-            <script src="<?= base_url('public'); ?>/assets/js/html2canvas.min.js"></script>
+            <script src="<?= base_url('public'); ?>/assets/js/html2canvas.min.js" defer></script>
             <!-- lightboxes -->
             <script src="<?= base_url('public'); ?>/assets/js/photoswipe.esm.js" type="module"></script>
             <script src="<?= base_url('public'); ?>/assets/js/photoswipe-lightbox.esm.js" type="module"></script>

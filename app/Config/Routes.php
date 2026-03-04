@@ -29,6 +29,8 @@ $routes->post('admin/kompetisi/nomor-cabor/add', 'Admin::addNomorCabor');
 $routes->post('admin/kompetisi/nomor-cabor/edit/(:num)', 'Admin::editNomorCabor/$1');
 $routes->get('admin/ganti-password', 'Admin::ganti_password');
 $routes->post('admin/ganti-password-attempt', 'Admin::ganti_password_attempt');
+$routes->get('admin/coba', 'Admin::coba');
+$routes->post('admin/coba', 'Admin::coba');
 
 
 // Sekolah Routes

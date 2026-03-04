@@ -63,12 +63,16 @@ class Admin extends BaseController
 
     public function index(): string
     {
+
         return view('auth/login');
     }
 
     public function dashboard()
     {
-        return view('dashboard');
+        $data = [
+            'data'  => $this->m_atlet->totalDataKomponen()
+        ];
+        return view('dashboard', $data);
     }
 
     // Area Operator
@@ -571,7 +575,7 @@ class Admin extends BaseController
     public function addDataPeserta($id_kompetisi)
     {
         $data = [
-            'title'     => 'Tambah Kompetisi',
+            'title'     => 'Tambah Peserta Kompetisi',
             'kompetisi' => $this->m_komp->find($id_kompetisi)['nama'],
             'atlet'     => $this->m_atlet->getAtletBlmDaftar($id_kompetisi),
             'cabor'     => $this->m_cabor->findAll(),
@@ -933,5 +937,10 @@ class Admin extends BaseController
             'success' => false,
             'message' => 'Gagal mengganti password.'
         ]);
+    }
+
+    public function coba()
+    {
+        return view('coba');
     }
 }

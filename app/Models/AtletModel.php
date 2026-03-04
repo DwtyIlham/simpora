@@ -84,4 +84,21 @@ class AtletModel extends Model
 
         return $sql->get()->getRowArray();
     }
+
+    public function totalDataKomponen()
+    {
+        $totalAtlet = $this->select('id')->countAllResults();
+        $totalKompetisi = $this->db->table('kompetisi')->select('id')->countAllResults();
+        $totalCabor = $this->db->table('cabor')->select('id')->countAllResults();
+        $totalNomorCabor = $this->db->table('nomor_cabor')->select('id')->countAllResults();
+        $totalSekolahAtlet = $this->db->table('atlet')->select('id')->groupBy('sekolah_id')->countAllResults();
+
+        return [
+            'total_atlet'   => $totalAtlet,
+            'total_kompetisi'   => $totalKompetisi,
+            'total_cabor'   => $totalCabor,
+            'total_nomor_cabor'   => $totalNomorCabor,
+            'total_sekolah_atlet'   => $totalSekolahAtlet
+        ];
+    }
 }

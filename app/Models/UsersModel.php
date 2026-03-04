@@ -21,7 +21,6 @@ class UsersModel extends Model
 
     protected $beforeInsert = ['insertUUID'];
 
-
     public function getUserById($id)
     {
         return $this->where(['id' => $id])->first();
@@ -43,6 +42,7 @@ class UsersModel extends Model
 
     public function register($data)
     {
+        $data['id'] = $this->generateUUID();
         return $this->insert($data);
     }
 

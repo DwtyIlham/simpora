@@ -19,7 +19,7 @@ use function App\Controllers\isAdmin;
             </a>
         </li>
         <li>-</li>
-        <li class="fw-medium">SIMPORA</li>
+        <li class="fw-medium">SILAGAPORA</li>
     </ul>
 </div>
 
@@ -164,7 +164,7 @@ use function App\Controllers\isAdmin;
                             </div>
 
                             <!-- Footer Bar -->
-                            <div class="footer"><span class="text-light"><small>SIMPORA - BANJARNEGARA</small></span></div>
+                            <div class="footer"><span class="text-light"><small>SILAGAPORA - BANJARNEGARA</small></span></div>
                         </div>
                     </div>
                 </div>

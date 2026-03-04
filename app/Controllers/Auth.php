@@ -68,6 +68,9 @@ class Auth extends BaseController
                 $this->session->setFlashdata('error', $errors[1]);
                 return redirect()->to('/');
             }
+        } else {
+            $this->session->setFlashdata('error', 'Username dan Password harus diisi.');
+            return redirect()->to('/');
         }
     }
 

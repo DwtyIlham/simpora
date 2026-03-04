@@ -11,7 +11,7 @@
       </a>
     </li>
     <li>-</li>
-    <li class="fw-medium">SIMPORA</li>
+    <li class="fw-medium">SILAGAPORA</li>
   </ul>
 </div>
 
@@ -55,7 +55,7 @@
                     <span class="mb-0 fw-medium text-secondary-light text-lg">Total Atlet</span>
                   </div>
                 </div>
-                <h5 class="fw-semibold mb-0">15,000</h5>
+                <h5 class="fw-semibold mb-0"><?= $data['total_atlet']; ?></h5>
               </div>
 
             </div>
@@ -66,13 +66,13 @@
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-8">
                   <span
                     class="mb-0 w-48-px h-48-px bg-base text-pink text-2xl flex-shrink-0 d-flex justify-content-center align-items-center rounded-circle h6">
-                    <i class="ri-group-3-fill"></i>
+                    <iconify-icon icon="material-symbols:sports-score" width="32" height="32"></iconify-icon>
                   </span>
                   <div>
-                    <span class="mb-0 fw-medium text-secondary-light text-lg">Total Tenaga Olahraga</span>
+                    <span class="mb-0 fw-medium text-secondary-light text-lg">Total Kompetisi</span>
                   </div>
                 </div>
-                <h5 class="fw-semibold mb-0">15,000</h5>
+                <h5 class="fw-semibold mb-0"><?= $data['total_kompetisi']; ?></h5>
               </div>
 
             </div>
@@ -83,13 +83,13 @@
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-8">
                   <span
                     class="mb-0 w-48-px h-48-px bg-base text-pink text-2xl flex-shrink-0 d-flex justify-content-center align-items-center rounded-circle h6">
-                    <i class="ri-football-line"></i>
+                    <iconify-icon icon="icon-park-outline:list-alphabet" width="32" height="32"></iconify-icon>
                   </span>
                   <div>
                     <span class="mb-0 fw-medium text-secondary-light text-lg">Total Cabor</span>
                   </div>
                 </div>
-                <h5 class="fw-semibold mb-0">15,000</h5>
+                <h5 class="fw-semibold mb-0"><?= $data['total_cabor']; ?></h5>
               </div>
 
             </div>
@@ -100,13 +100,13 @@
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-8">
                   <span
                     class="mb-0 w-48-px h-48-px bg-base text-pink text-2xl flex-shrink-0 d-flex justify-content-center align-items-center rounded-circle h6">
-                    <i class="ri-football-line"></i>
+                    <iconify-icon icon="cil:list-numbered" width="32" height="32"></iconify-icon>
                   </span>
                   <div>
-                    <span class="mb-0 fw-medium text-secondary-light text-lg">Total Medali</span>
+                    <span class="mb-0 fw-medium text-secondary-light text-lg">Total Nomor Cabor</span>
                   </div>
                 </div>
-                <h5 class="fw-semibold mb-0">100</h5>
+                <h5 class="fw-semibold mb-0"><?= $data['total_nomor_cabor']; ?></h5>
               </div>
 
             </div>
@@ -117,13 +117,13 @@
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-8">
                   <span
                     class="mb-0 w-48-px h-48-px bg-base text-pink text-2xl flex-shrink-0 d-flex justify-content-center align-items-center rounded-circle h6">
-                    <i class="ri-football-line"></i>
+                    <iconify-icon icon="fa7-solid:school-circle-check" width="32" height="32"></iconify-icon>
                   </span>
                   <div>
-                    <span class="mb-0 fw-medium text-secondary-light text-lg">Total Medali</span>
+                    <span class="mb-0 fw-medium text-secondary-light text-lg">Total Sekolah Atlet</span>
                   </div>
                 </div>
-                <h5 class="fw-semibold mb-0">100</h5>
+                <h5 class="fw-semibold mb-0"><?= $data['total_sekolah_atlet']; ?></h5>
               </div>
 
             </div>

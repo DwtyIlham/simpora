@@ -20,7 +20,7 @@ use function App\Controllers\isAdmin;
             </a>
         </li>
         <li>-</li>
-        <li class="fw-medium">SIMPORA</li>
+        <li class="fw-medium">SILAGAPORA</li>
     </ul>
 </div>
 
@@ -70,8 +70,8 @@ use function App\Controllers\isAdmin;
                             <select class="form-select" name="filter_status" id="filter_status">
                                 <option selected>- Semua -</option>
                                 <option value="valid" data-status="valid">Valid</option>
-                                <option value="invalid" data-status="invalid">Invalid</option>
-                                <option value="pending" data-status="pending">Pending</option>
+                                <!-- <option value="invalid" data-status="invalid">Invalid</option> -->
+                                <option value="pending" data-status="belum valid">Belum Valid</option>
                             </select>
                         </div>
                     </div>

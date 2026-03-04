@@ -36,8 +36,7 @@ class LoginFilter implements FilterInterface
             '/auth/login',
             'auth/cek',
             '/register',
-            '/simpora/register',
-            '/simpora/auth/register-attempt',
+            'auth/register-attempt',
         ];
 
         // Normalize $allowed (remove leading/trailing slashes)

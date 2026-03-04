@@ -21,7 +21,7 @@ use CodeIgniter\Database\BaseUtils;
             </a>
         </li>
         <li>-</li>
-        <li class="fw-medium">SIMPORA</li>
+        <li class="fw-medium">SILAGAPORA</li>
     </ul>
 </div>
 
