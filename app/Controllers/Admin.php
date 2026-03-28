@@ -178,7 +178,15 @@ class Admin extends BaseController
         ];
 
         // Daftar file yang akan di-upload
-        $files = ['file_kk', 'file_akte', 'file_nisn', 'file_foto', 'file_ktp_kia', 'file_ijazah'];
+        $files = [
+            // 'file_kk',
+            'file_akte',
+            'file_nisn',
+            'file_foto',
+            'file_ktp_kia_kk',
+            'file_ijazah',
+            'file_suket'
+        ];
 
         // Validasi file upload
         $validationRules = [];
@@ -312,7 +320,15 @@ class Admin extends BaseController
 
 
         // File yang digunakan
-        $files = ['file_kk', 'file_akte', 'file_nisn', 'file_foto', 'file_ktp_kia', 'file_ijazah'];
+        $files = [
+            // 'file_kk',
+            'file_akte',
+            'file_nisn',
+            'file_foto',
+            'file_ktp_kia_kk',
+            'file_ijazah',
+            'file_suket'
+        ];
 
         // --- VALIDASI FILE EDIT (opsional) ---
         $validationRules = [];
@@ -406,12 +422,20 @@ class Admin extends BaseController
 
     public function deleteAtlet($id)
     {
-        $files = ['file_kk', 'file_akte', 'file_nisn', 'file_foto', 'file_ktp_kia', 'file_ijazah'];
+        $files = [
+            // 'file_kk',
+            'file_akte',
+            'file_nisn',
+            'file_foto',
+            'file_ktp_kia_kk',
+            'file_ijazah',
+            'file_suket'
+        ];
         $oldFile = $this->m_atlet->find($id);
         if ($this->m_atlet->delete($id)) {
             foreach ($files as $file) {
-                if (file_exists($oldFile[$file])) {
-                    unlink($oldFile[$file]);
+                if (file_exists(@$oldFile[$file])) {
+                    unlink(@$oldFile[$file]);
                 }
             }
             $this->session->setFlashdata('success', 'Data Atlet berhasil dihapus.');
@@ -870,6 +894,20 @@ class Admin extends BaseController
             'peserta' => $peserta
         ]);
     }
+
+    // Admin Setting
+
+    public function admin_setting()
+    {
+        $data = [
+            'title' => 'Admin Setting',
+            'setting' => $this->db->table('admin_setting')->get()->getResultArray()
+        ];
+
+        return view('admin/admin-setting', $data);
+    }
+
+    // End of Admin Setting
 
     // Reset Password
 

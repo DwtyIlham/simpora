@@ -31,7 +31,7 @@ $routes->get('admin/ganti-password', 'Admin::ganti_password');
 $routes->post('admin/ganti-password-attempt', 'Admin::ganti_password_attempt');
 $routes->get('admin/coba', 'Admin::coba');
 $routes->post('admin/coba', 'Admin::coba');
-
+$routes->get('admin/setting', 'Admin::admin_setting');
 
 // Sekolah Routes
 $routes->get('sekolah/dashboard', 'Sekolah::dashboard');
@@ -115,6 +115,7 @@ $routes->post('api/toggle-nomor-cabor-status', 'Api::toggle_status_nocabor');
 $routes->post('api/getNomorCabor', 'Api::getNomorCabor');
 $routes->post('api/jurnal-medali-kab', 'Api::jurnal_medali_kab');
 $routes->post('api/cek-regis-atlet-multi-cabor', 'Api::cekRegAtletMultiCabor');
+$routes->post('api/toggle_admin_setting', 'Api::toggle_admin_setting');
 
 // Validasi QR Code Routes
 $routes->get('api/validasi/qr-code-atlet/(:segment)', 'Admin::validasi_peserta/$1');

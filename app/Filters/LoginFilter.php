@@ -35,7 +35,7 @@ class LoginFilter implements FilterInterface
             'login',
             '/auth/login',
             'auth/cek',
-            '/register',
+            'simpora/register',
             'auth/register-attempt',
         ];
 

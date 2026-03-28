@@ -76,7 +76,6 @@ use CodeIgniter\Database\BaseUtils;
                 </div>
             </form>
         </div>
-        <!-- End of Form kompetisi Administrator Dinas -->
     </div>
 </div>
 
@@ -118,7 +117,7 @@ use CodeIgniter\Database\BaseUtils;
 
                 response.forEach(function(nomorCabor) {
                     nomorCaborSelect.append(
-                        `<option value="${nomorCabor.id}">${nomorCabor.nama} ${nomorCabor.kategori} ${nomorCabor.jenjang}</option>`
+                        `<option value="${nomorCabor.id}">${nomorCabor.nama} ${nomorCabor.kategori ?? ''} ${nomorCabor.jenjang ?? ''}</option>`
                     );
                 });
             },

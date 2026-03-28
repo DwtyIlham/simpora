@@ -165,7 +165,7 @@
         <div class="auth-left d-lg-block d-none">
             <div class="d-flex align-items-center flex-column h-100 justify-content-center">
                 <!-- <img src="assets/images/auth/auth-img.png" alt="Image"> -->
-                <img src="assets/images/login-image.webp" alt="Image">
+                <img src="assets/images/login-image.jpg" alt="Image">
             </div>
         </div>
         <div class="auth-right py-32 px-24 d-flex flex-column justify-content-center">
@@ -208,6 +208,7 @@
 
                 </div>
                 <form action="auth/login" method="post">
+                    <?= csrf_field(); ?>
                     <div class="icon-field mb-16">
                         <span class="icon top-50 translate-middle-y">
                             <iconify-icon icon="mage:user"></iconify-icon>

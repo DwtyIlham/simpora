@@ -9,6 +9,7 @@ use function App\Controllers\isAdmin;
 <?= $this->section('content'); ?>
 
 <?php $role = session('user')['role_id'] == '1' ? 'admin' : 'sekolah' ?>
+<?php $is_editable = $admin_setting[0]['status']; ?>
 
 <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-12">
     <h6 class="fw-semibold mb-0">Data Atlet Pelajar</h6>
@@ -92,7 +93,7 @@ use function App\Controllers\isAdmin;
                     </thead>
                     <tbody>
                         <?php $no = 1;
-                        $jenis_dok = ['kk_status', 'akte_status', 'foto_status', 'ktp_kia_status', 'nisn_status', 'ijazah_status'];
+                        $jenis_dok = ['akte_status', 'foto_status', 'ktp_kia_kk_status', 'nisn_status', 'ijazah_status', 'suket_status'];
                         foreach ($atlet as $a):
                             $err_validasi_dokumen = 0;
                             foreach ($jenis_dok as $jd) {
@@ -112,7 +113,7 @@ use function App\Controllers\isAdmin;
                                         class="view-atlet w-32-px h-32-px bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center">
                                         <iconify-icon icon="lucide:info"></iconify-icon>
                                     </a>
-                                    <?php if ($err_validasi_dokumen > 0 && $err_validasi_dokumen !== 99): ?>
+                                    <?php if ($is_editable == 1 && $err_validasi_dokumen > 0 && $err_validasi_dokumen !== 99): ?>
                                         <a href="<?= site_url('sekolah/atlet/edit/') . $a['id']; ?>" class="w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
                                             <iconify-icon icon="lucide:edit"></iconify-icon>
                                         </a>
@@ -236,7 +237,9 @@ use function App\Controllers\isAdmin;
                                 </div>
                                 <div class="modal-footer">
                                     <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                                    <button type="submit" class="btn btn-primary" id="save-note">Simpan</button>
+                                    <?php if (isAdmin()): ?>
+                                        <button type="submit" class="btn btn-primary" id="save-note">Simpan</button>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -317,6 +320,8 @@ use function App\Controllers\isAdmin;
                 id: atletId
             },
             success: function(res) {
+                console.log(res);
+
                 // ============================================
                 // SET DATA ATLET
                 // ============================================
@@ -336,10 +341,6 @@ use function App\Controllers\isAdmin;
                 // GALLERY FILE
                 // ============================================
                 let html = "";
-
-                if (res.data.file_kk)
-                    html += templateFile("Kartu Keluarga", `<?= base_url('public/uploads/atlet/file_kk/'); ?>` + res.data.file_kk, res.validasi.kk_status, "kk", atletId, 'sekolah');
-
                 if (res.data.file_akte)
                     html += templateFile("Akte Kelahiran", `<?= base_url('public/uploads/atlet/file_akte/'); ?>` + res.data.file_akte, res.validasi.akte_status, "akte", atletId, 'sekolah');
 
@@ -352,133 +353,15 @@ use function App\Controllers\isAdmin;
                 if (res.data.file_nisn)
                     html += templateFile("NISN", `<?= base_url('public/uploads/atlet/file_nisn/'); ?>` + res.data.file_nisn, res.validasi.nisn_status, "nisn", atletId, 'sekolah');
 
-                if (res.data.file_ktp_kia)
-                    html += templateFile("KTP/KIA", `<?= base_url('public/uploads/atlet/file_ktp_kia/'); ?>` + res.data.file_ktp_kia, res.validasi.ktp_kia_status, "ktp_kia", atletId, 'sekolah');
+                if (res.data.file_ktp_kia_kk)
+                    html += templateFile("KTP/KIA/KK", `<?= base_url('public/uploads/atlet/file_ktp_kia_kk/'); ?>` + res.data.file_ktp_kia_kk, res.validasi.ktp_kia_kk_status, "ktp_kia_kk", atletId, 'sekolah');
+
+                if (res.data.file_suket)
+                    html += templateFile("Surat Keterangan", `<?= base_url('public/uploads/atlet/file_suket/'); ?>` + res.data.file_suket, res.validasi.suket_status, "suket", atletId, 'sekolah');
 
                 $("#file-gallery").html(html);
                 detectImageSize();
                 reInitGallery();
-            }
-        });
-    });
-
-    $(document).on('click', '.validate-file, .invalidate-file', function() {
-
-        let atletId = $(this).data('atlet-id');
-        let type = $(this).data('type');
-
-        let dok = type + "_status";
-        let status = $(this).hasClass('validate-file') ? 'valid' : 'invalid';
-        let pesan = status === 'valid' ? 'Dokumen Berhasil Divalidasi.' : 'Status Dokumen Berhasil Diubah.';
-
-        Swal.fire({
-            title: status === 'valid' ? `Validasi dokumen ${type}?` : `Cabut validasi dokumen ${type}?`,
-            icon: status === 'valid' ? 'info' : 'warning',
-            showCancelButton: true,
-            confirmButtonColor: status === 'valid' ? 'rgba(8, 184, 108, 1)' : '#d33',
-            cancelButtonColor: '#93999f',
-            confirmButtonText: status === 'valid' ? 'Validasi' : 'Cabut Validasi',
-            cancelButtonText: 'Batal',
-        }).then((result) => {
-
-            if (result.isConfirmed) {
-                // loader
-                Swal.fire({
-                    title: 'Sedang memproses...',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-                // validasi dokumen
-                $.ajax({
-                    url: '<?= site_url('api/validasi-dokumen'); ?>',
-                    method: 'GET',
-                    data: {
-                        atletID: atletId,
-                        dok: dok,
-                        status: status,
-                    },
-                    success: function() {
-
-                        let badgeEl = $(`.badge-status[data-type="${type}"]`);
-
-                        if (status === 'valid') {
-                            badgeEl.removeClass().addClass('badge badge-status bg-success').text('Valid');
-                        } else {
-                            badgeEl.removeClass().addClass('badge badge-status bg-danger').text('Tidak Valid');
-                        }
-
-                        Swal.fire({
-                            title: pesan,
-                            icon: "success",
-                            allowOutsideClick: false,
-                        }).then((result) => {
-
-                            if (!result.isConfirmed) return;
-
-                            const dokumenWajib = [
-                                'kk_status',
-                                'akte_status',
-                                'foto_status',
-                                'ktp_kia_status',
-                                'nisn_status'
-                            ];
-
-                            function isDokumenValid(data) {
-                                const wajibValid = dokumenWajib.every(key => data[key] === "valid");
-                                const ijazahOK = (data.ijazah_status === "valid" || data.ijazah_status === "pending");
-                                return wajibValid && ijazahOK;
-                            }
-
-                            const badgeDepan = $(`.badge-status-depan[data-id="${atletId}"]`);
-
-                            // loader
-                            // Swal.fire({
-                            //     title: 'Memeriksa status akhir...',
-                            //     allowOutsideClick: false,
-                            //     didOpen: () => Swal.showLoading()
-                            // });
-
-                            $.ajax({
-                                url: `<?= site_url('api/validasi-atlet'); ?>`,
-                                method: 'GET',
-                                data: {
-                                    atletID: atletId
-                                },
-                                success: function(data) {
-
-                                    const statusFinal = isDokumenValid(data) ? "valid" : "invalid";
-
-                                    $.ajax({
-                                        url: `<?= site_url('api/set-atlet-valid'); ?>`,
-                                        method: 'POST',
-                                        data: {
-                                            atletID: atletId,
-                                            status: statusFinal
-                                        },
-                                        complete: function() {
-                                            Swal.close(); // Tutup loader
-                                        }
-                                    });
-
-                                    if (statusFinal === "valid") {
-                                        badgeDepan
-                                            .removeClass()
-                                            .addClass('badge badge-status-depan bg-success')
-                                            .text('Valid');
-                                    } else {
-                                        badgeDepan
-                                            .removeClass()
-                                            .addClass('badge badge-status-depan bg-warning text-dark')
-                                            .text('Belum Valid');
-                                    }
-                                }
-                            });
-                        });
-                    }
-                });
             }
         });
     });

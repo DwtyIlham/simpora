@@ -31,7 +31,8 @@ class PesertaModel extends Model
                 'GROUP_CONCAT(
                 CONCAT(nc.nama, " ", nc.jenjang, " ", nc.kategori, " ", nc.detail)
                 SEPARATOR "||"
-            ) AS nomor_cabor'
+            ) AS nomor_cabor',
+                'nc.nama AS nomor_cabor_nama'
             ])
             ->join('atlet a', 'a.id = p.atlet_id', 'left')
             ->join('cabor c', 'c.id = p.cabor_id', 'left')

@@ -255,6 +255,14 @@
                         <span>Jurnal Medali</span>
                     </a>
                 </li>
+                <?php if (isAdmin()): ?>
+                    <li>
+                        <a href="<?= site_url('admin/setting'); ?>">
+                            <iconify-icon icon="material-symbols:settings-outline" class="menu-icon"></iconify-icon>
+                            <span>Setting</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
                 <li>
                     <a href="<?= site_url('admin/ganti-password?id=' . session('user')['id']); ?>">
                         <iconify-icon icon="material-symbols:vpn-key-alert-outline" class="menu-icon"></iconify-icon>
@@ -393,7 +401,7 @@
             </script>
 
             <script>
-                window.onload = function() {
+                document.addEventListener("DOMContentLoaded", function() {
                     const loader = document.getElementById("loading");
 
                     loader.classList.add("loading--hide");
@@ -533,7 +541,7 @@
                             button: "OK",
                         });
                     <?php endif; ?>
-                };
+                });
             </script>
             <!-- End Script -->
             <!-- Content-->

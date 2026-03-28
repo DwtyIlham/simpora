@@ -29,12 +29,12 @@ use function App\Controllers\isAdmin;
             <div class="card-header">
                 <a href="<?= base_url('admin/kompetisi/data'); ?>" class="btn btn-sm bg-danger-focus bg-hover-danger-200 text-danger-600"><i class="ri-arrow-go-back-line"></i> Daftar Kompetisi</a>
             </div>
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <h5 class="card-title mb-0"><?= $title; ?></h5>
-                <?php if (isAdmin()) : ?>
+            <?php if (!isAdmin()) : ?>
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="card-title mb-0"><?= $title; ?></h5>
                     <a href="<?= base_url('admin/kompetisi/peserta/add/' . $id_kompetisi); ?>" class="btn btn-primary-600"><i class="ri-add-box-line"></i> Tambah Peserta</a>
-                <?php endif; ?>
-            </div>
+                </div>
+            <?php endif; ?>
             <div class="card-body gy-3">
                 <div class="row">
                     <div class="col-6">

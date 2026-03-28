@@ -190,15 +190,22 @@
             <?php endif; ?>
 
             <div class="max-w-464-px mx-auto w-100">
-                <table class="table table-sm">
-                    <tr>
-                        <td style="width: 10%;"><img src="assets/images/icon.png" alt="Image" class="img img-fluid max-w-100-px"></td>
-                        <td class="align-middle text-center ms-2 g-3">
-                            <h3 class="mb-0">SILAGAPORA</h3>
-                            <span class="">Kab. Banjarnegara</span>
-                        </td>
-                    </tr>
-                </table>
+                <div class="d-flex align-items-center justify-content-center flex-wrap gap-3 p-3">
+
+                    <!-- Logo -->
+                    <div class="text-center" style="max-width: 25%;">
+                        <img src="<?= base_url('public/assets/images/logo.jpeg'); ?>"
+                            alt="Logo BNA"
+                            class="img-fluid rounded" style="width: 100%; height: auto; object-fit: cover;">
+                    </div>
+
+                    <!-- Text -->
+                    <div class="text-center align-self-center">
+                        <h2 class="mb-0">SILAGAPORA</h2>
+                        <small class="mb-0">SISTEM INFORMASI LOMBA DAN AGENDA<br /> DAN OLAHRAGA BANJARNEGARA</small>
+                    </div>
+
+                </div>
                 <div class="card-header mb-8">
                     <span class="card-title fw-bold text-center mb-12">Registrasi Akun Operator Sekolah</span>
                 </div>

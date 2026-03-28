@@ -85,35 +85,81 @@ class Auth extends BaseController
 
     public function register_attempt()
     {
-        // mencoba mengambil data dari form registrasi
-        $data = [
-            'nama'          => $this->request->getPost('nama'),
-            'role_id'       => $this->request->getPost('role'),
-            'username'      => $this->request->getPost('username'),
-            'password'      => $this->request->getPost('password'),
-            'sekolah_id'    => $this->request->getPost('sekolah'),
-            'no_wa'         => $this->request->getPost('no_wa'),
-        ];
+        helper(['form']);
 
-        // cek apakah username sudah ada
-        $existingUser = $this->m_users->getUserByUsername($data['username']);
-        if ($existingUser) {
-            $this->session->setFlashdata('error', 'Username sudah terpakai. Silahkan gunakan username lain.');
+        $ip = $this->request->getIPAddress();
+
+        $cache = cache();
+        $key = 'register_' . $ip;
+
+        $count = $cache->get($key) ?? 0;
+
+        if ($count >= 5) {
+
+            $this->session->setFlashdata('error', 'Terlalu banyak percobaan registrasi.');
             return redirect()->to('/register');
         }
-        // hash password sebelum disimpan
-        $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
-        // logika penyimpanan data registrasi ke database atau proses lainnya
+
+        $cache->save($key, $count + 1, 300); // 5 menit
+
+        $rules = [
+            'nama' => [
+                'rules' => 'required|alpha_numeric_space|min_length[3]|max_length[100]'
+            ],
+            'username' => [
+                'rules' => 'required|alpha_numeric|min_length[4]|max_length[20]'
+            ],
+            'password' => [
+                'rules' => 'required|min_length[6]|max_length[50]'
+            ],
+            'no_wa' => [
+                'rules' => 'required|numeric|min_length[10]|max_length[15]'
+            ],
+            'role' => [
+                'rules' => 'required|numeric'
+            ],
+            'sekolah' => [
+                'rules' => 'required'
+            ]
+        ];
+
+        if (!$this->validate($rules)) {
+            $this->session->setFlashdata('error', 'Data tidak valid.');
+            return redirect()->to('/register')->withInput();
+        }
+
+        // ambil data setelah validasi
+        $data = [
+
+            'nama'       => $this->request->getPost('nama'),
+            'role_id'    => $this->request->getPost('role'),
+            'username'   => $this->request->getPost('username'),
+            'password'   => password_hash($this->request->getPost('password'), PASSWORD_BCRYPT),
+            'sekolah_id' => $this->request->getPost('sekolah'),
+            'no_wa'      => $this->request->getPost('no_wa'),
+
+        ];
+
+        $data = array_map('trim', $data);
+
+        // cek username
+        $existingUser = $this->m_users->getUserByUsername($data['username']);
+
+        if ($existingUser) {
+
+            $this->session->setFlashdata('error', 'Username sudah terpakai.');
+            return redirect()->to('/register')->withInput();
+        }
+
         if ($this->m_users->register($data)) {
-            // jika berhasil
+
             $this->session->setFlashdata('success', 'Registrasi berhasil. Silahkan login.');
             return redirect()->to('/');
         } else {
-            // jika gagal
-            $this->session->setFlashdata('error', 'Registrasi gagal. Silahkan coba lagi.');
-            return redirect()->to('/register');
+
+            $this->session->setFlashdata('error', 'Registrasi gagal.');
+            return redirect()->to('/register')->withInput();
         }
-        return redirect()->to('/');
     }
 
     public function ganti_password($id)

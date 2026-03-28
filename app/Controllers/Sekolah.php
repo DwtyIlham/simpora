@@ -54,6 +54,7 @@ class Sekolah extends BaseController
             'atlet'     => $this->m_atlet->getAtletDataBySekolah(),
             'cabor'    => $this->m_cabor->findAll(),
             'sekolah'   => $this->db->table('sekolah')->get()->getResultArray(),
+            'admin_setting' => $this->db->table('admin_setting')->get()->getResultArray()
         ];
         // dd($data['atlet']);
         return view('sekolah/atlet-data', $data);
@@ -90,7 +91,15 @@ class Sekolah extends BaseController
         ];
 
         // Daftar file yang akan di-upload
-        $files = ['file_kk', 'file_akte', 'file_nisn', 'file_foto', 'file_ktp_kia', 'file_ijazah'];
+        $files = [
+            // 'file_kk',
+            'file_akte',
+            'file_nisn',
+            'file_foto',
+            'file_ktp_kia_kk',
+            'file_ijazah',
+            'file_suket'
+        ];
 
         // Validasi file upload
         $validationRules = [];
@@ -222,7 +231,15 @@ class Sekolah extends BaseController
 
 
         // File yang digunakan
-        $files = ['file_kk', 'file_akte', 'file_nisn', 'file_foto', 'file_ktp_kia', 'file_ijazah'];
+        $files = [
+            // 'file_kk', 
+            'file_akte',
+            'file_nisn',
+            'file_foto',
+            'file_ktp_kia_kk',
+            'file_ijazah',
+            'file_suket'
+        ];
 
         // --- VALIDASI FILE EDIT (opsional) ---
         $validationRules = [];
@@ -316,7 +333,15 @@ class Sekolah extends BaseController
 
     public function deleteAtlet($id)
     {
-        $files = ['file_kk', 'file_akte', 'file_nisn', 'file_foto', 'file_ktp_kia', 'file_ijazah'];
+        $files = [
+            // 'file_kk', 
+            'file_akte',
+            'file_nisn',
+            'file_foto',
+            'file_ktp_kia_kk',
+            'file_ijazah',
+            'file_suket'
+        ];
         $oldFile = $this->m_atlet->find($id);
 
         try {

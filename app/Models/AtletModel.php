@@ -22,7 +22,7 @@ class AtletModel extends Model
     public function getAtletData()
     {
         $sql = $this->db->table('atlet')->select('atlet.*, av.kk_status, akte_status, av.foto_status,
-                av.ijazah_status, av.nisn_status, av.ktp_kia_status, s.nama sekolah, c.nama cabor')
+                av.ijazah_status, av.nisn_status, av.ktp_kia_kk_status, av.suket_status,s.nama sekolah, c.nama cabor')
             ->join('sekolah s', 'atlet.sekolah_id = s.id', 'left')
             ->join('atlet_validasi av', 'av.atlet_id = atlet.id', 'left')
             ->join('cabor c', 'c.id = atlet.cabor_id', 'left');
@@ -33,7 +33,7 @@ class AtletModel extends Model
     public function getAtletDataBySekolah()
     {
         $sql = $this->db->table('atlet')->select('atlet.*, av.kk_status, akte_status, av.foto_status,
-                av.ijazah_status, av.nisn_status, av.ktp_kia_status, s.nama sekolah, c.nama cabor')
+                av.ijazah_status, av.nisn_status, av.ktp_kia_kk_status, av.suket_status, s.nama sekolah, c.nama cabor')
             ->join('sekolah s', 'atlet.sekolah_id = s.id', 'left')
             ->join('atlet_validasi av', 'av.atlet_id = atlet.id', 'left')
             ->join('cabor c', 'c.id = atlet.cabor_id', 'left')
@@ -76,7 +76,7 @@ class AtletModel extends Model
     public function getAtletDetailByID($id)
     {
         $sql = $this->db->table('atlet')->select('atlet.*, av.kk_status, akte_status, av.foto_status,
-                av.ijazah_status, av.nisn_status, av.ktp_kia_status, s.nama sekolah, s.id sekolah_id, c.nama cabor')
+                av.ijazah_status, av.nisn_status, av.ktp_kia_kk_status, s.nama sekolah, s.id sekolah_id, c.nama cabor')
             ->join('sekolah s', 'atlet.sekolah_id = s.id', 'left')
             ->join('atlet_validasi av', 'av.atlet_id = atlet.id', 'left')
             ->join('cabor c', 'c.id = atlet.cabor_id', 'left')

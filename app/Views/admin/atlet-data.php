@@ -92,7 +92,7 @@ use function App\Controllers\isAdmin;
                     </thead>
                     <tbody>
                         <?php $no = 1;
-                        $jenis_dok = ['kk_status', 'akte_status', 'foto_status', 'ktp_kia_status', 'nisn_status', 'ijazah_status'];
+                        $jenis_dok = ['akte_status', 'foto_status', 'ktp_kia_kk_status', 'nisn_status', 'ijazah_status', 'suket_status'];
                         foreach ($atlet as $a):
                             $err_validasi_dokumen = 0;
                             foreach ($jenis_dok as $jd) {
@@ -332,10 +332,6 @@ use function App\Controllers\isAdmin;
                 // GALLERY FILE
                 // ============================================
                 let html = "";
-
-                if (res.data.file_kk)
-                    html += templateFile("Kartu Keluarga", `<?= base_url('public/uploads/atlet/file_kk/'); ?>` + res.data.file_kk, res.validasi.kk_status, "kk", atletId);
-
                 if (res.data.file_akte)
                     html += templateFile("Akte Kelahiran", `<?= base_url('public/uploads/atlet/file_akte/'); ?>` + res.data.file_akte, res.validasi.akte_status, "akte", atletId);
 
@@ -348,8 +344,11 @@ use function App\Controllers\isAdmin;
                 if (res.data.file_nisn)
                     html += templateFile("NISN", `<?= base_url('public/uploads/atlet/file_nisn/'); ?>` + res.data.file_nisn, res.validasi.nisn_status, "nisn", atletId);
 
-                if (res.data.file_ktp_kia)
-                    html += templateFile("KTP/KIA", `<?= base_url('public/uploads/atlet/file_ktp_kia/'); ?>` + res.data.file_ktp_kia, res.validasi.ktp_kia_status, "ktp_kia", atletId);
+                if (res.data.file_ktp_kia_kk)
+                    html += templateFile("KTP/KIA/KK", `<?= base_url('public/uploads/atlet/file_ktp_kia_kk/'); ?>` + res.data.file_ktp_kia_kk, res.validasi.ktp_kia_kk_status, "ktp_kia_kk", atletId);
+
+                if (res.data.file_suket)
+                    html += templateFile("Surat Keterangan", `<?= base_url('public/uploads/atlet/file_suket/'); ?>` + res.data.file_suket, res.validasi.suket_status, "suket", atletId);
 
                 $("#file-gallery").html(html);
                 detectImageSize();
@@ -415,11 +414,12 @@ use function App\Controllers\isAdmin;
                             if (!result.isConfirmed) return;
 
                             const dokumenWajib = [
-                                'kk_status',
+                                // 'kk_status',
                                 'akte_status',
                                 'foto_status',
-                                'ktp_kia_status',
-                                'nisn_status'
+                                'ktp_kia_kk_status',
+                                'nisn_status',
+                                'suket_status'
                             ];
 
                             function isDokumenValid(data) {

@@ -140,7 +140,7 @@ class Api extends BaseController
     public function validasi_atlet()
     {
         $atlet_id = $this->request->getGet('atletID');
-        $sql = $this->db->table('atlet_validasi')->select('kk_status, nisn_status, ktp_kia_status, foto_status, ijazah_status, akte_status')
+        $sql = $this->db->table('atlet_validasi')->select('kk_status, nisn_status, ktp_kia_kk_status, foto_status, ijazah_status, akte_status, suket_status')
             ->where('atlet_id', $atlet_id)->get()->getFirstRow('array');
         return $this->response->setJSON($sql);
     }
@@ -316,6 +316,19 @@ class Api extends BaseController
 
         return $this->response->setJSON([
             'status' => true
+        ]);
+    }
+
+    public function toggle_admin_setting()
+    {
+        $id = $this->request->getPost('id');
+        $status = $this->request->getPost('status');
+
+        $update = $this->db->table('admin_setting')->where('id', $id)->update(['status' => $status]);
+
+        echo json_encode([
+            'status'    => $status,
+            'success' => $update ? true : false
         ]);
     }
 }

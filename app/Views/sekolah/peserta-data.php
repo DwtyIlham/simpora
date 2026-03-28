@@ -71,10 +71,13 @@ use function App\Controllers\isAdmin;
                                 <td class="align-middle" style="text-align: left;"><?= $p['sekolah_nama']; ?></td>
                                 <td class="text-center align-middle"><?= $p['cabor_nama']; ?></td>
                                 <td class="align-middle">
+                                    <?= $p['nomor_cabor_nama']; ?>
                                     <?php $nocab = explode('||', $p['nomor_cabor']) ?? '-'; ?>
-                                    <?php foreach ($nocab as $i => $nc): ?>
-                                        <?= $nc; ?><br />
-                                    <?php endforeach; ?>
+                                    <?php if (!empty($nocab)):
+                                        foreach ($nocab as $i => $nc): ?>
+                                            <?= $nc ?><br />
+                                    <?php endforeach;
+                                    endif; ?>
                                 </td>
                                 <td class="text-center align-middle m-auto">
                                     <a data-id="<?= $p['id']; ?>"
