@@ -23,7 +23,7 @@ use CodeIgniter\Database\BaseUtils;
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <a href="<?= base_url('admin/users/data'); ?>" class="btn btn-sm bg-danger-focus bg-hover-danger-200 text-danger-600"><i class="ri-arrow-go-back-line"></i> Daftar Pengguna</a>
+                <a href="<?= base_url('sekolah/users/data'); ?>" class="btn btn-sm bg-danger-focus bg-hover-danger-200 text-danger-600"><i class="ri-arrow-go-back-line"></i> Daftar Pengguna</a>
             </div>
             <div class="card-header">
                 <h5 class="card-title mb-0">Form Tambah Pengguna</h5>
@@ -38,7 +38,7 @@ use CodeIgniter\Database\BaseUtils;
                         <div class="icon-field">
                             <select class="form-select" id="select-role">
                                 <option selected disabled>- Pilih Role -</option>
-                                <option value="1">Administrator Dinas</option>
+                                
                                 <option value="2">Operator Sekolah</option>
                                 <!-- <option value="3">Atlet</option> -->
                             </select>
@@ -52,7 +52,7 @@ use CodeIgniter\Database\BaseUtils;
             <div class="card-header">
                 <span class="mb-0 fw-bold">Role Administrator Dinas</span>
             </div>
-            <form action="<?= base_url('admin/users/add'); ?>" method="POST">
+            <form action="<?= base_url('sekolah/users/add'); ?>" method="POST">
                 <?= csrf_field(); ?>
                 <input type="hidden" name="role" value="1">
                 <div class="card-body">
@@ -98,7 +98,7 @@ use CodeIgniter\Database\BaseUtils;
             <div class="card-header">
                 <span class="mb-0 fw-bold">Role Operator Sekolah</span>
             </div>
-            <form action="<?= base_url('admin/users/add'); ?>" method="POST">
+            <form action="<?= base_url('sekolah/users/add'); ?>" method="POST">
                 <?= csrf_field(); ?>
                 <input type="hidden" name="role" value="2">
                 <div class="card-body">
@@ -162,7 +162,6 @@ use CodeIgniter\Database\BaseUtils;
 </div>
 
 <script>
-    let table = new DataTable('#dataTable');
     const selectRole = document.getElementById('select-role');
     const form1 = document.querySelector('.form-1');
     const form2 = document.querySelector('.form-2');

@@ -13,7 +13,7 @@ use function App\Controllers\isAdmin;
     <h6 class="fw-semibold mb-0"><?= $title; ?></h6>
     <ul class="d-flex align-items-center gap-2">
         <li class="fw-medium">
-            <a href="<?= site_url('admin/cabor/data'); ?>" class="d-flex align-items-center gap-1 hover-text-primary">
+            <a href="<?= site_url('admin/kompetisi/cabor'); ?>" class="d-flex align-items-center gap-1 hover-text-primary">
                 <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
                 <?= $title; ?>
             </a>
@@ -72,49 +72,119 @@ use function App\Controllers\isAdmin;
                                 <td class="align-middle">
                                     <a href="javascript:void(0)" class="btn btn-outline-primary col-12" data-bs-toggle="modal" data-bs-target="#modal-nocab-<?= $c['id'] ?>"><?= $c['nama']; ?></a>
                                     <!-- Modal Nomor Cabor -->
-                                    <div class="modal fade" id="modal-nocab-<?= $c['id'] ?>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="staticBackdropLabel">Data Nomor Cabor</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <div class="modal fade" id="modal-nocab-<?= $c['id'] ?>" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                                            <div class="modal-content border-0 shadow-sm rounded-4">
+
+                                                <!-- Header -->
+                                                <div class="modal-header border-0 pb-0">
+                                                    <div>
+                                                        <h5 class="modal-title fw-bold mb-1">
+                                                            Data Nomor Cabor
+                                                        </h5>
+                                                        <small class="text-muted">
+                                                            Kelola status nomor cabang olahraga
+                                                        </small>
+                                                    </div>
+
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                 </div>
-                                                <div class="modal-body">
-                                                    <table class="table table-bordered">
-                                                        <tr>
-                                                            <th>Nomor Cabor</th>
-                                                            <th class="text-center">Status</th>
-                                                            <th class="text-center">Aksi</th>
-                                                        </tr>
-                                                        <?php
-                                                        $i = 1;
-                                                        foreach ($nomcab as $nc): ?>
-                                                            <?php if ($c['id'] == $nc['cabor_id']):
-                                                            ?>
-                                                                <tr>
-                                                                    <td>
-                                                                        <?= $nc['nama'] . ' ' . $nc['jenjang'] . ' ' . $nc['kategori'] . ' ' . $nc['detail'] ?? '-'; ?>
-                                                                    </td>
-                                                                    <td class="text-center">
-                                                                        <span class="btn text-sm bg-<?= $nc['is_active'] == '1' ? 'success' : 'danger'; ?>-focus text-<?= $nc['is_active'] == '1' ? 'success' : 'danger'; ?>-main p-2">
-                                                                            <?= $nc['is_active'] == '1' ? 'Aktif' : 'Tidak Aktif '; ?>
-                                                                        </span>
-                                                                    </td>
-                                                                    <td class="text-center">
-                                                                        <button
-                                                                            data-id="<?= $nc['id']; ?>" data-status="<?= $nc['is_active']; ?>"
-                                                                            class="btn-status-nocab w-32-px h-32-px bg-<?= $nc['is_active'] == '1' ? 'danger' : 'success'; ?>-focus text-<?= $nc['is_active'] == '1' ? 'danger' : 'success'; ?>-main rounded-circle d-inline-flex align-items-center justify-content-center">
-                                                                            <iconify-icon icon="carbon:<?= $nc['is_active'] == '1' ? 'close-outline' : 'checkmark-outline'; ?>"></iconify-icon>
-                                                                        </button>
-                                                                    </td>
-                                                                </tr>
-                                                            <?php endif; ?>
-                                                        <?php endforeach; ?>
-                                                    </table>
+
+                                                <!-- Body -->
+                                                <div class="modal-body pt-3">
+
+                                                    <?php
+                                                    // grouping per jenjang
+                                                    $grouped = [];
+
+                                                    foreach ($nomcab as $nc) {
+                                                        if ($c['id'] == $nc['cabor_id']) {
+                                                            $grouped[$nc['jenjang']][] = $nc;
+                                                        }
+                                                    }
+                                                    ?>
+
+                                                    <?php foreach ($grouped as $jenjang => $items): ?>
+
+                                                        <div class="border rounded-4 p-3 mb-4">
+
+                                                            <!-- Header Jenjang -->
+                                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                                <div>
+                                                                    <h6 class="fw-semibold mb-0">
+                                                                        <?= $jenjang ?>
+                                                                    </h6>
+                                                                    <small class="text-muted">
+                                                                        <?= count($items) ?> nomor
+                                                                    </small>
+                                                                </div>
+
+                                                                <!-- Toggle per jenjang -->
+                                                                <button
+                                                                    class="btn-toggle-jenjang btn btn-sm btn-primary rounded-pill px-3"
+                                                                    data-jenjang="<?= $jenjang ?>">
+                                                                    Ganti Status <?= $jenjang; ?>
+                                                                </button>
+                                                            </div>
+
+                                                            <!-- List Item -->
+                                                            <div class="d-flex flex-column gap-2">
+
+                                                                <?php foreach ($items as $nc): ?>
+
+                                                                    <div class="border rounded-3 p-3 d-flex justify-content-between align-items-center">
+
+                                                                        <!-- Info -->
+                                                                        <div>
+                                                                            <div class="fw-medium">
+                                                                                <?= $nc['nama'] ?>
+                                                                            </div>
+
+                                                                            <small class="text-muted">
+                                                                                <?= $nc['kategori'] ?>
+                                                                                <?= !empty($nc['detail']) ? '• ' . $nc['detail'] : '' ?>
+                                                                            </small>
+                                                                        </div>
+
+                                                                        <!-- Action -->
+                                                                        <div class="d-flex align-items-center gap-3">
+
+                                                                            <!-- Badge -->
+                                                                            <span class="badge rounded-pill bg-<?= $nc['is_active'] == '1' ? 'success' : 'secondary' ?>">
+                                                                                <?= $nc['is_active'] == '1' ? 'Aktif' : 'Nonaktif' ?>
+                                                                            </span>
+
+                                                                            <!-- Toggle Item -->
+                                                                            <div class="form-check form-switch m-0">
+                                                                                <input
+                                                                                    class="form-check-input btn-status-nocab"
+                                                                                    type="checkbox"
+                                                                                    role="switch"
+                                                                                    data-id="<?= $nc['id']; ?>"
+                                                                                    <?= $nc['is_active'] == '1' ? 'checked' : ''; ?>>
+                                                                            </div>
+
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                <?php endforeach; ?>
+
+                                                            </div>
+
+                                                        </div>
+
+                                                    <?php endforeach; ?>
+
                                                 </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+
+                                                <!-- Footer -->
+                                                <div class="modal-footer border-0 pt-0">
+                                                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">
+                                                        Tutup
+                                                    </button>
                                                 </div>
+
                                             </div>
                                         </div>
                                     </div>
@@ -183,63 +253,161 @@ use function App\Controllers\isAdmin;
     });
 
     // toggle status nomor cabor
-    $(document).on('click', '.btn-status-nocab', function() {
-        let btn = $(this);
-        let nomorCaborId = btn.data('id');
-        let currentStatus = btn.data('status');
-        let newStatus = currentStatus == '1' ? '0' : '1';
+    // $(document).on('click', '.btn-status-nocab', function() {
+    //     let btn = $(this);
+    //     let nomorCaborId = btn.data('id');
+    //     let currentStatus = btn.data('status');
+    //     let newStatus = currentStatus == '1' ? '0' : '1';
 
-        let statusText = newStatus == '1' ? 'Aktif' : 'Tidak Aktif';
-        let statusClass = newStatus == '1' ? 'success' : 'danger';
-        let btnClass = newStatus == '1' ? 'danger' : 'success';
-        let icon = newStatus == '1' ? 'carbon:close-outline' : 'carbon:checkmark-outline';
+    //     let statusText = newStatus == '1' ? 'Aktif' : 'Tidak Aktif';
+    //     let statusClass = newStatus == '1' ? 'success' : 'danger';
+    //     let btnClass = newStatus == '1' ? 'danger' : 'success';
+    //     let icon = newStatus == '1' ? 'carbon:close-outline' : 'carbon:checkmark-outline';
 
-        Swal.fire({
-            title: `Yakin Ubah Status Menjadi ${statusText}?`,
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#93999f',
-            confirmButtonText: 'Ya, Ubah!',
-            cancelButtonText: 'Batal',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: "<?= base_url('api/toggle-nomor-cabor-status'); ?>",
-                    type: "POST",
-                    data: {
-                        id: nomorCaborId,
-                        status: newStatus
-                    },
-                    success: function() {
+    //     Swal.fire({
+    //         title: `Yakin Ubah Status Menjadi ${statusText}?`,
+    //         icon: "question",
+    //         showCancelButton: true,
+    //         confirmButtonColor: '#3085d6',
+    //         cancelButtonColor: '#93999f',
+    //         confirmButtonText: 'Ya, Ubah!',
+    //         cancelButtonText: 'Batal',
+    //     }).then((result) => {
+    //         if (result.isConfirmed) {
+    //             $.ajax({
+    //                 url: "<?= base_url('api/toggle-nomor-cabor-status'); ?>",
+    //                 type: "POST",
+    //                 data: {
+    //                     id: nomorCaborId,
+    //                     status: newStatus
+    //                 },
+    //                 success: function() {
 
-                        btn.data('status', newStatus);
+    //                     btn.data('status', newStatus);
 
-                        btn.closest('td')
-                            .prev('td')
-                            .find('span')
-                            .text(statusText)
-                            .removeClass('bg-success-focus bg-danger-focus text-success-main text-danger-main')
-                            .addClass(`bg-${statusClass}-focus text-${statusClass}-main`);
+    //                     btn.closest('td')
+    //                         .prev('td')
+    //                         .find('span')
+    //                         .text(statusText)
+    //                         .removeClass('bg-success-focus bg-danger-focus text-success-main text-danger-main')
+    //                         .addClass(`bg-${statusClass}-focus text-${statusClass}-main`);
 
-                        btn.removeClass('bg-success-focus bg-danger-focus text-success-main text-danger-main')
-                            .addClass(`bg-${btnClass}-focus text-${btnClass}-main`);
+    //                     btn.removeClass('bg-success-focus bg-danger-focus text-success-main text-danger-main')
+    //                         .addClass(`bg-${btnClass}-focus text-${btnClass}-main`);
 
-                        btn.find('iconify-icon').attr('icon', icon);
+    //                     btn.find('iconify-icon').attr('icon', icon);
 
-                        Swal.fire({
-                            title: 'Berhasil!',
-                            text: `Status Nomor Cabor Berhasil Diubah Menjadi ${statusText}.`,
-                            icon: 'success',
-                            confirmButtonColor: '#3085d6',
-                        });
-                    },
-                    error: function() {
-                        Swal.fire('Gagal!', 'Terjadi kesalahan saat mengubah status.', 'error');
+    //                     Swal.fire({
+    //                         title: 'Berhasil!',
+    //                         text: `Status Nomor Cabor Berhasil Diubah Menjadi ${statusText}.`,
+    //                         icon: 'success',
+    //                         confirmButtonColor: '#3085d6',
+    //                     });
+    //                 },
+    //                 error: function() {
+    //                     Swal.fire('Gagal!', 'Terjadi kesalahan saat mengubah status.', 'error');
+    //                 }
+    //             });
+    //         }
+    //     });
+    // });
+
+    $(document).on('change', '.btn-status-nocab', function() {
+
+        const checkbox = $(this);
+        const id = checkbox.data('id');
+        const status = checkbox.is(':checked') ? 1 : 0;
+
+        $.ajax({
+            url: '<?= site_url('api/toggle-nomor-cabor-per-item'); ?>',
+            type: 'POST',
+            data: {
+                id: id,
+                status: status
+            },
+
+            beforeSend: function() {
+
+                Swal.fire({
+                    title: 'Menyimpan...',
+                    text: 'Sedang memperbarui status',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
                     }
                 });
+
+            },
+
+            success: function(response) {
+
+                Swal.close();
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'Status berhasil diperbarui',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+
+                // cari badge terdekat
+                const badge = checkbox
+                    .closest('.d-flex.align-items-center.gap-3')
+                    .find('.badge');
+
+                if (status == 1) {
+
+                    badge
+                        .removeClass('bg-secondary')
+                        .addClass('bg-success')
+                        .text('Aktif');
+
+                } else {
+
+                    badge
+                        .removeClass('bg-success')
+                        .addClass('bg-secondary')
+                        .text('Nonaktif');
+
+                }
+
+            },
+
+            error: function() {
+
+                Swal.close();
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: 'Terjadi kesalahan saat update status'
+                });
+
+                // rollback switch
+                checkbox.prop('checked', !status);
+
+            }
+
+        });
+
+    });
+
+    $(document).on('click', '.btn-toggle-jenjang', function() {
+
+        let parent = $(this).closest('.border');
+        let switches = parent.find('.btn-status-nocab');
+
+        let allChecked = true;
+
+        switches.each(function() {
+            if (!$(this).is(':checked')) {
+                allChecked = false;
             }
         });
+
+        switches.prop('checked', !allChecked).trigger('change');
+
     });
 
     // edit cabor

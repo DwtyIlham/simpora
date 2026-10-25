@@ -1,5 +1,6 @@
 RewriteEngine On
+RewriteBase /silagapora/
 
-# jika request bukan folder /public
-RewriteCond %{REQUEST_URI} !^/simpora/public
-RewriteRule ^(.*)$ public/$1 [L]
+# Jika request bukan untuk folder /public, arahkan ke front controller
+RewriteCond %{REQUEST_URI} !^/silagapora/public
+RewriteRule ^(.*)$ public/index.php/$1 [L,QSA]

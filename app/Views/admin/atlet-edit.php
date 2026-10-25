@@ -60,6 +60,65 @@ use CodeIgniter\Database\BaseUtils;
                     </div>
 
                     <div class="col-6">
+                        <label class="form-label">Pilih Nomor</label>
+                        <div class="icon-field">
+                            <select name="nomor_cabor_1" class="form-select select2" data-placeholder="Pilih Nomor" required>
+                                <option></option>
+                                <?php foreach ($nomorCabor as $nc): ?>
+                                    <option value="<?= $nc['id']; ?>" <?= $atlet['nomor_cabor_1'] === $nc['id'] ? 'selected' : ''; ?>>
+                                        <?= implode(' ', array_filter([
+                                            $nc['nama'] ?? '',
+                                            $nc['jenis'] ?? '',
+                                            $nc['detail'] ?? '',
+                                            $nc['kategori'] ?? ''
+                                        ])); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <?php if ($atlet['nomor_cabor_2']): ?>
+                        <div class="col-6">
+                            <label class="form-label">Pilih Nomor</label>
+                            <div class="icon-field">
+                                <select name="nomor_cabor_2" class="form-select select2" data-placeholder="Pilih Nomor" required>
+                                    <option></option>
+                                    <?php foreach ($nomorCabor as $nc): ?>
+                                        <option value="<?= $nc['id']; ?>" <?= $atlet['nomor_cabor_2'] === $nc['id'] ? 'selected' : ''; ?>>
+                                            <?= implode(' ', array_filter([
+                                                $nc['nama'] ?? '',
+                                                $nc['jenis'] ?? '',
+                                                $nc['detail'] ?? '',
+                                                $nc['kategori'] ?? ''
+                                            ])); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                    <?php if ($atlet['nomor_cabor_3']): ?>
+                        <div class="col-6">
+                            <label class="form-label">Pilih Nomor</label>
+                            <div class="icon-field">
+                                <select name="nomor_cabor_3" class="form-select select2" data-placeholder="Pilih Nomor" required>
+                                    <option></option>
+                                    <?php foreach ($nomorCabor as $nc): ?>
+                                        <option value="<?= $nc['id']; ?>" <?= $atlet['nomor_cabor_3'] === $nc['id'] ? 'selected' : ''; ?>>
+                                            <?= implode(' ', array_filter([
+                                                $nc['nama'] ?? '',
+                                                $nc['jenis'] ?? '',
+                                                $nc['detail'] ?? '',
+                                                $nc['kategori'] ?? ''
+                                            ])); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="col-6">
                         <label class="form-label">NIK(*)</label>
                         <div class="icon-field">
                             <input type="text" name="nik" class="form-control" maxlength="16" minlength="16"
@@ -123,7 +182,7 @@ use CodeIgniter\Database\BaseUtils;
                     <div class="text-md text-neutral-500 border-bottom">LAMPIRAN</div>
 
                     <!-- File tidak menggunakan old(), karena file tidak bisa direstore -->
-                    <div class="col-6">
+                    <div class="col-6" style="display: none;">
                         <label class="form-label">Unggah KK (*)</label>
                         <input type="file" name="file_kk" class="form-control">
                         <?php if (!empty($atlet['file_kk'])): ?>
@@ -148,10 +207,10 @@ use CodeIgniter\Database\BaseUtils;
                     </div>
 
                     <div class="col-6">
-                        <label class="form-label">Unggah KTP/KIA (*)</label>
-                        <input type="file" name="file_ktp_kia" class="form-control">
-                        <?php if (!empty($atlet['file_ktp_kia'])): ?>
-                            <small> File Terunggah : <a href="<?= base_url('public/uploads/atlet/file_ktp_kia/') . $atlet['file_ktp_kia']; ?>" target="_blank"><span class="text-primary">KTP/KIA <i class="ri-file-check-line"></i></span></a></small>
+                        <label class="form-label">Unggah KTP/KIA/KK (*)</label>
+                        <input type="file" name="file_ktp_kia_kk" class="form-control">
+                        <?php if (!empty($atlet['file_ktp_kia_kk'])): ?>
+                            <small> File Terunggah : <a href="<?= base_url('public/uploads/atlet/file_ktp_kia_kk/') . $atlet['file_ktp_kia_kk']; ?>" target="_blank"><span class="text-primary">KTP/KIA/KK <i class="ri-file-check-line"></i></span></a></small>
                         <?php endif; ?>
                     </div>
 
@@ -160,6 +219,14 @@ use CodeIgniter\Database\BaseUtils;
                         <input type="file" name="file_foto" class="form-control">
                         <?php if (!empty($atlet['file_foto'])): ?>
                             <small> File Terunggah : <a href="<?= base_url('public/uploads/atlet/file_foto/') . $atlet['file_foto']; ?>" target="_blank"><span class="text-primary">Foto <i class="ri-file-check-line"></i></span></a></small>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label">Unggah Surat Keterangan (*)</label>
+                        <input type="file" name="file_suket" class="form-control">
+                        <?php if (!empty($atlet['file_suket'])): ?>
+                            <small> File Terunggah : <a href="<?= base_url('public/uploads/atlet/file_suket/') . $atlet['file_suket']; ?>" target="_blank"><span class="text-primary">Surat Keterangan <i class="ri-file-check-line"></i></span></a></small>
                         <?php endif; ?>
                     </div>
 

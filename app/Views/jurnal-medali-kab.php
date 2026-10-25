@@ -85,7 +85,7 @@ use function App\Controllers\isAdmin;
 <script src="<?= base_url('public/assets/js/gallery.js'); ?>"></script>
 
 <script>
-    let table = new DataTable('#dataTable', {
+    let table = new DataTable('#tableData', {
         responsive: true,
         columnDefs: [{
                 targets: 4,

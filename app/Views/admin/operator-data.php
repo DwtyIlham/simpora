@@ -24,7 +24,7 @@ use CodeIgniter\Database\BaseUtils;
         <div class="card basic-data-table mt-12">
             <div class="card-header d-flex justify-content-between align-items-center ">
                 <h5 class="card-title mb-0"><?= $title; ?></h5>
-                <a href="<?= base_url('admin/operator/add'); ?>" class="btn btn-primary-600"><i class="ri-add-box-line"></i> Tambah Operator</a>
+                <a href="<?= base_url('admin/operator/add'); ?>" class="btn btn-primary-600" style="display: none;"><i class="ri-add-box-line"></i> Tambah Operator</a>
             </div>
             <div class="card-body table-responsive">
                 <table class="table table-responsive table-bordered table-sm mb-0" id="dataTable" data-page-length='10' style="width: 100% !important;">
@@ -33,8 +33,8 @@ use CodeIgniter\Database\BaseUtils;
                             <th scope="col" class="text-center">#</th>
                             <th scope="col" class="text-center">Nama</th>
                             <th scope="col" class="text-center">Sekolah</th>
-                            <th scope="col" class="text-center">No. Whatsapp</th>
                             <th scope="col" class="text-center">Kecamatan</th>
+                            <th scope="col" class="text-center">Whatsapp</th>
                             <th scope="col" class="text-center">Tingkat</th>
                             <th scope="col" class="text-center">Aksi</th>
                         </tr>

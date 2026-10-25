@@ -30,13 +30,16 @@ class LoginFilter implements FilterInterface
         // halaman yang boleh diakses tanpa login
         $allowed = [
             '/',
-            '/simpora/',
-            '/simpora/auth/login',
+            '/silagapora/',
+            '/silagapora/auth/login',
             'login',
             '/auth/login',
             'auth/cek',
-            'simpora/register',
+            'silagapora/register',
+            'silagapora/auth/register-attempt',
+            '/register',
             'auth/register-attempt',
+            'api/verifikasi-piagam'
         ];
 
         // Normalize $allowed (remove leading/trailing slashes)
@@ -46,7 +49,7 @@ class LoginFilter implements FilterInterface
         $uri = trim(service('uri')->getPath(), '/');
 
         // Allow special routes first
-        if (str_starts_with($uri, 'simpora/api/validasi/qr-code-atlet/')) {
+        if (strpos($uri, 'silagapora/api/validasi/qr-code-atlet/') === 0) {
             return $request; // Allow access
         }
 

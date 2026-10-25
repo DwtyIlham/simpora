@@ -8,13 +8,17 @@ use function App\Controllers\isAdmin;
 <?= $this->extend('layout'); ?>
 <?= $this->section('content'); ?>
 
-<?php $role = session('user')['role_id'] == '1' ? 'admin' : 'sekolah' ?>
+<?php
+// Perbaikan: role_id 1 = admin, 4 = validator, selainnya = sekolah
+$roleId   = (string) (session('user')['role_id'] ?? '');
+$role     = $roleId === '1' ? 'admin' : ($roleId === '4' ? 'validator' : 'sekolah');
+?>
 
 <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-12">
     <h6 class="fw-semibold mb-0">Data Atlet Pelajar</h6>
     <ul class="d-flex align-items-center gap-2">
         <li class="fw-medium">
-            <a href="<?= site_url('admin/atlet/data'); ?>" class="d-flex align-items-center gap-1 hover-text-primary">
+            <a href="<?= site_url($role . '/atlet/data'); ?>" class="d-flex align-items-center gap-1 hover-text-primary">
                 <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
                 Data Atlet Pelajar
             </a>
@@ -32,7 +36,10 @@ use function App\Controllers\isAdmin;
                 <a href="<?= base_url($role . '/atlet/add'); ?>" class="btn btn-primary-600"><i class="ri-add-box-line"></i> Tambah Atlet</a>
             </div>
             <div class="card-body gy-3">
-                <div class="row">
+                <!-- ========================================================================= -->
+                <!-- COMPONENT FILTER DROPDOWN                                                 -->
+                <!-- ========================================================================= -->
+                <div class="row mb-3">
                     <div class="col-4">
                         <label class="form-label">Filter Cabor</label>
                         <span class="icon align-middle">
@@ -42,7 +49,7 @@ use function App\Controllers\isAdmin;
                             <select class="form-select select2" name="filter_cabor" id="filter_cabor" data-placeholder="Pilih Cabang Olahraga">
                                 <option value=""></option>
                                 <?php foreach ($cabor as $c): ?>
-                                    <option value="<?= $c['id']; ?>" data-nama="<?= $c['nama']; ?>"><?= $c['nama']; ?></option>
+                                    <option value="<?= $c['id']; ?>" data-nama="<?= esc($c['nama']); ?>"><?= esc($c['nama']); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -56,7 +63,7 @@ use function App\Controllers\isAdmin;
                             <select class="form-select select2" name="filter_sekolah" id="filter_sekolah" data-placeholder="Pilih Sekolah">
                                 <option value=""></option>
                                 <?php foreach ($sekolah as $s): ?>
-                                    <option value="<?= $s['id']; ?>" data-nama="<?= $s['nama']; ?>"><?= $s['nama']; ?></option>
+                                    <option value="<?= $s['id']; ?>" data-nama="<?= esc($s['nama']); ?>"><?= esc($s['nama']); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -68,17 +75,19 @@ use function App\Controllers\isAdmin;
                         </span>
                         <div class="icon-field">
                             <select class="form-select" name="filter_status" id="filter_status">
-                                <option selected>- Semua -</option>
-                                <option value="valid" data-status="valid">Valid</option>
-                                <!-- <option value="invalid" data-status="invalid">Invalid</option> -->
-                                <option value="pending" data-status="belum valid">Belum Valid</option>
+                                <option value="">- Semua -</option>
+                                <option value="sudah" data-status="sudah">Sudah</option>
+                                <option value="belum" data-status="belum">Belum</option>
+                                <option value="perbaikan" data-status="perbaikan">Perlu Perbaikan</option>
                             </select>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="card-body table-responsive">
-                <table class="table bordered-table mb-0" id="dataTable" data-page-length='10'>
+
+                <!-- ========================================================================= -->
+                <!-- STRUCTURE TABLE HTML                                                      -->
+                <!-- ========================================================================= -->
+                <table class="table bordered-table mb-0" id="atletTable">
                     <thead>
                         <tr>
                             <th class="text-center" scope="col">No.</th>
@@ -88,490 +97,281 @@ use function App\Controllers\isAdmin;
                             <th class="text-center" scope="col">Sekolah</th>
                             <th class="text-center" scope="col">JK</th>
                             <th class="text-center" scope="col">Cabor</th>
+                            <th class="text-center" scope="col">Nomor Lomba</th>
+                            <th class="text-center" scope="col">Jenjang</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $no = 1;
-                        $jenis_dok = ['akte_status', 'foto_status', 'ktp_kia_kk_status', 'nisn_status', 'ijazah_status', 'suket_status'];
-                        foreach ($atlet as $a):
-                            $err_validasi_dokumen = 0;
-                            foreach ($jenis_dok as $jd) {
-                                if ($jd !== 'ijazah_status') {
-                                    $a[$jd] === 'valid' ? $err_validasi_dokumen += 0 : $err_validasi_dokumen += 1;
-                                }
-                            }
-                        ?>
-                            <tr>
-                                <td class="text-center"><?= $no; ?></td>
-                                <td class="text-center">
-                                    <?php if (isAdmin()): ?>
-                                        <a href="javascript:void(0)" data-id="<?= $a['id']; ?>" data-bs-toggle="tooltip" data-bs-placement="top" title="Detail & Validasi" data-bs-title="Detail dan Validasi"
-                                            class="view-atlet w-32-px h-32-px bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center">
-                                            <iconify-icon icon="hugeicons:validation-approval"></iconify-icon>
-                                        </a>
-                                    <?php endif; ?>
-                                    <a href="<?= site_url('admin/atlet/edit/') . $a['id']; ?>" class="w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
-                                        <iconify-icon icon="lucide:edit"></iconify-icon>
-                                    </a>
-                                    <a id="<?= $a['id']; ?>" class="delete-atlet w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center">
-                                        <iconify-icon icon="mingcute:delete-2-line"></iconify-icon>
-                                    </a>
-                                </td>
-                                <td class="text-center">
-                                    <span class="badge badge-status-depan <?= $err_validasi_dokumen > 0 ? 'bg-warning text-dark' : 'bg-success text-light' ?>" data-id="<?= $a['id']; ?>">
-                                        <?= $err_validasi_dokumen > 0 ? 'Belum Valid' : 'Valid' ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <img src="<?= base_url('public'); ?>/uploads/atlet/file_foto/<?= $a['file_foto']; ?>" alt="Image" class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
-                                        <span class="text-wrap text-md mb-0 fw-medium flex-grow-1"><?= $a['nama']; ?></span>
-                                    </div>
-                                </td>
-                                <td><?= $a['sekolah']; ?></td>
-                                <td class="text-center"><?= $a['jenis_kelamin']; ?></td>
-                                <td><?= $a['cabor']; ?></td>
-                            </tr>
-                        <?php $no++;
-                        endforeach; ?>
+                        <!-- Data akan diisi secara dinamis oleh JavaScript Ajax -->
                     </tbody>
                 </table>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- MODAL DETAIL ATLET -->
-<div class="modal fade" id="viewAtletModal" tabindex="-1">
-    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
-        <div class="modal-content">
-
-            <div class="modal-header bg-primary-600 text-white">
-                <h5 class="modal-title text-light">Detail & Verifikasi Atlet</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body">
-                <div class="row g-4">
-
-                    <!-- DATA ATLET -->
-                    <div class="col-md-4">
-                        <div class="card shadow-sm">
-                            <div class="card-header bg-primary-light text-primary-600 text-white">
-                                <h6 class="mb-0">Data Atlet</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-2">
-                                    <label class="text-muted">Nama</label>
-                                    <div class="fw-bold" id="v-nama">-</div>
-                                </div>
-
-                                <div class="mb-2">
-                                    <label class="text-muted">NISN</label>
-                                    <div class="fw-bold" id="v-nisn">-</div>
-                                </div>
-
-                                <div class="mb-2">
-                                    <label class="text-muted">NIK</label>
-                                    <div class="fw-bold" id="v-nik">-</div>
-                                </div>
-
-                                <div class="mb-2">
-                                    <label class="text-muted">Sekolah</label>
-                                    <div class="fw-bold" id="v-sekolah">-</div>
-                                </div>
-
-                                <div class="mb-2">
-                                    <label class="text-muted">Cabor</label>
-                                    <div class="fw-bold" id="v-cabor">-</div>
-                                </div>
-
-                                <div class="mb-2">
-                                    <label class="text-muted">Jenis Kelamin</label>
-                                    <div class="fw-bold" id="v-jk">-</div>
-                                </div>
-
-                                <div class="mb-2">
-                                    <label class="text-muted">Tempat, Tanggal Lahir</label>
-                                    <div class="fw-bold" id="v-ttl">-</div>
-                                </div>
-
-                                <div class="mb-2">
-                                    <label class="text-muted">Alamat</label>
-                                    <div class="fw-bold" id="v-alamat">-</div>
-                                </div>
-                            </div>
-                            <button class="btn bg-danger-focus text-danger-main radius-8 px-20 py-11 d-flex align-items-center justify-content-center gap-2" data-bs-dismiss="modal">
-                                <iconify-icon icon="mingcute:square-arrow-left-line" class="text-xl"></iconify-icon> Kembali
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- FILE GALLERY -->
-                    <div class="col-md-8">
-                        <div class="card shadow-sm">
-                            <div class="card-header bg-primary-light text-white">
-                                <h6 class="mb-0">Berkas Terunggah</h6>
-                            </div>
-                            <div class="card-body" id="file-gallery">
-                                <p class="text-muted">Memuat data...</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Modal Catatan -->
-                    <div class="modal fade" id="modalNotes" tabindex="-1">
-                        <div class="modal-dialog bg-danger-focus">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title"></h5>
-                                </div>
-                                <div class="modal-body">
-                                    <textarea id="note-text" class="form-control" rows="4"></textarea>
-                                    <input type="hidden" id="note-type">
-                                </div>
-                                <div class="modal-footer">
-                                    <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                                    <button type="submit" class="btn btn-primary" id="save-note">Simpan</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<script src="<?= base_url('public/assets/js/gallery.js'); ?>"></script>
-
-<script>
-    let table = new DataTable('#dataTable', {
-        responsive: true,
-        columnDefs: [{
-                targets: 4,
-                name: 'filter-sekolah'
-            },
-            {
-                targets: 6,
-                name: 'filter-cabor'
-            },
-            {
-                targets: 2,
-                name: 'filter-status'
-            }
-        ]
-    });
-
-    $('#filter_cabor, #filter_sekolah, #filter_status').on('change', function() {
-
-        let cabor = $('#filter_cabor option:selected').data('nama');
-        let sekolah = $('#filter_sekolah option:selected').data('nama');
-        let status = $('#filter_status option:selected').data('status');
-
-        table.columns().search("");
-
-        if (cabor) {
-            table.column('filter-cabor:name').search(cabor, true, false);
-        }
-
-        if (sekolah) {
-            table.column('filter-sekolah:name').search(sekolah, true, false);
-        }
-
-        if (status) {
-            table.column('filter-status:name').search(status, true, false);
-        }
-
-        table.draw();
-    });
-
-    // view detail atlet
-    $('.view-atlet').click(function() {
-
-        const atletId = $(this).data('id');
-
-        function detectImageSize() {
-            // Cari semua link view-img yang belum punya ukuran
-            document.querySelectorAll('.view-img:not([data-pswp-width])').forEach(a => {
-
-                const img = new Image();
-                img.src = a.href;
-
-                img.onload = function() {
-                    a.setAttribute('data-pswp-width', this.width);
-                    a.setAttribute('data-pswp-height', this.height);
-                };
-            });
-        }
-
-        $.ajax({
-            url: "<?= site_url('api/get_detail_atlet'); ?>",
-            method: "GET",
-            data: {
-                id: atletId
-            },
-            success: function(res) {
-                // ============================================
-                // SET DATA ATLET
-                // ============================================
-                $("#v-nama").text(res.data.nama);
-                $("#v-nisn").text(res.data.nisn);
-                $("#v-nik").text(res.data.nik);
-                $("#v-sekolah").text(res.data.sekolah);
-                $("#v-cabor").text(res.data.cabor);
-                $("#v-jk").text(res.data.jenis_kelamin);
-                $("#v-ttl").text(res.data.tempat_lahir + ', ' + res.data.tanggal_lahir);
-                $("#v-alamat").text(res.data.alamat);
-
-                $('#viewAtletModal').modal('show');
-                $("#file-gallery").html("<p class='text-muted'>Loading...</p>");
-
-                // ============================================
-                // GALLERY FILE
-                // ============================================
-                let html = "";
-                if (res.data.file_akte)
-                    html += templateFile("Akte Kelahiran", `<?= base_url('public/uploads/atlet/file_akte/'); ?>` + res.data.file_akte, res.validasi.akte_status, "akte", atletId);
-
-                if (res.data.file_foto)
-                    html += templateFile("Foto Atlet", `<?= base_url('public/uploads/atlet/file_foto/'); ?>` + res.data.file_foto, res.validasi.foto_status, "foto", atletId);
-
-                if (res.data.file_ijazah)
-                    html += templateFile("Ijazah", `<?= base_url('public/uploads/atlet/file_ijazah/'); ?>` + res.data.file_ijazah, res.validasi.ijazah_status, "ijazah", atletId);
-
-                if (res.data.file_nisn)
-                    html += templateFile("NISN", `<?= base_url('public/uploads/atlet/file_nisn/'); ?>` + res.data.file_nisn, res.validasi.nisn_status, "nisn", atletId);
-
-                if (res.data.file_ktp_kia_kk)
-                    html += templateFile("KTP/KIA/KK", `<?= base_url('public/uploads/atlet/file_ktp_kia_kk/'); ?>` + res.data.file_ktp_kia_kk, res.validasi.ktp_kia_kk_status, "ktp_kia_kk", atletId);
-
-                if (res.data.file_suket)
-                    html += templateFile("Surat Keterangan", `<?= base_url('public/uploads/atlet/file_suket/'); ?>` + res.data.file_suket, res.validasi.suket_status, "suket", atletId);
-
-                $("#file-gallery").html(html);
-                detectImageSize();
-                reInitGallery();
-            }
-        });
-    });
-
-    $(document).on('click', '.validate-file, .invalidate-file', function() {
-
-        let atletId = $(this).data('atlet-id');
-        let type = $(this).data('type');
-
-        let dok = type + "_status";
-        let status = $(this).hasClass('validate-file') ? 'valid' : 'invalid';
-        let pesan = status === 'valid' ? 'Dokumen Berhasil Divalidasi.' : 'Status Dokumen Berhasil Diubah.';
-
-        Swal.fire({
-            title: status === 'valid' ? `Validasi dokumen ${type}?` : `Cabut validasi dokumen ${type}?`,
-            icon: status === 'valid' ? 'info' : 'warning',
-            showCancelButton: true,
-            confirmButtonColor: status === 'valid' ? 'rgba(8, 184, 108, 1)' : '#d33',
-            cancelButtonColor: '#93999f',
-            confirmButtonText: status === 'valid' ? 'Validasi' : 'Cabut Validasi',
-            cancelButtonText: 'Batal',
-        }).then((result) => {
-
-            if (result.isConfirmed) {
-                // loader
-                Swal.fire({
-                    title: 'Sedang memproses...',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-                // validasi dokumen
-                $.ajax({
-                    url: '<?= site_url('api/validasi-dokumen'); ?>',
-                    method: 'GET',
-                    data: {
-                        atletID: atletId,
-                        dok: dok,
-                        status: status,
-                    },
-                    success: function() {
-
-                        let badgeEl = $(`.badge-status[data-type="${type}"]`);
-
-                        if (status === 'valid') {
-                            badgeEl.removeClass().addClass('badge badge-status bg-success').text('Valid');
-                        } else {
-                            badgeEl.removeClass().addClass('badge badge-status bg-danger').text('Tidak Valid');
-                        }
-
-                        Swal.fire({
-                            title: pesan,
-                            icon: "success",
-                            allowOutsideClick: false,
-                        }).then((result) => {
-
-                            if (!result.isConfirmed) return;
-
-                            const dokumenWajib = [
-                                // 'kk_status',
-                                'akte_status',
-                                'foto_status',
-                                'ktp_kia_kk_status',
-                                'nisn_status',
-                                'suket_status'
-                            ];
-
-                            function isDokumenValid(data) {
-                                const wajibValid = dokumenWajib.every(key => data[key] === "valid");
-                                const ijazahOK = (data.ijazah_status === "valid" || data.ijazah_status === "pending");
-                                return wajibValid && ijazahOK;
-                            }
-
-                            const badgeDepan = $(`.badge-status-depan[data-id="${atletId}"]`);
-
-                            // loader
-                            // Swal.fire({
-                            //     title: 'Memeriksa status akhir...',
-                            //     allowOutsideClick: false,
-                            //     didOpen: () => Swal.showLoading()
-                            // });
-
-                            $.ajax({
-                                url: `<?= site_url('api/validasi-atlet'); ?>`,
-                                method: 'GET',
-                                data: {
-                                    atletID: atletId
+                <!-- ========================================================================= -->
+                <!-- JAVASCRIPT DATATABLES ASYNC & FILTER INTEGRATION                           -->
+                <!-- ========================================================================= -->
+                <script>
+                    $(document).ready(function() {
+                        // Inisialisasi DataTables Server-Side
+                        window.atletTable = new DataTable('#atletTable', {
+                            responsive: true,
+                            processing: true,
+                            serverSide: true,
+                            order: [], // Matikan sorting default di awal agar memuat lebih cepat
+                            ajax: {
+                                url: "<?= site_url('api/get-data-atlet-kab-v2') ?>", // Arahkan ke rute fungsi Api kamu
+                                type: "GET",
+                                data: function(d) {
+                                    // Mengirimkan parameter filter kustom ke server
+                                    d.filter_sekolah = $('#filter_sekolah').val();
+                                    d.filter_cabor = $('#filter_cabor').val();
+                                    d.filter_status = $('#filter_status').val();
                                 },
-                                success: function(data) {
-
-                                    const statusFinal = isDokumenValid(data) ? "valid" : "invalid";
-
-                                    $.ajax({
-                                        url: `<?= site_url('api/set-atlet-valid'); ?>`,
-                                        method: 'POST',
-                                        data: {
-                                            atletID: atletId,
-                                            status: statusFinal
-                                        },
-                                        complete: function() {
-                                            Swal.close(); // Tutup loader
-                                        }
-                                    });
-
-                                    if (statusFinal === "valid") {
-                                        badgeDepan
-                                            .removeClass()
-                                            .addClass('badge badge-status-depan bg-success')
-                                            .text('Valid');
-                                    } else {
-                                        badgeDepan
-                                            .removeClass()
-                                            .addClass('badge badge-status-depan bg-warning text-dark')
-                                            .text('Belum Valid');
-                                    }
+                                error: function(xhr, error, thrown) {
+                                    console.log("Pesan Error Server:", xhr.responseText);
                                 }
+                            },
+                            columnDefs: [{
+                                    targets: [0, 1, 2],
+                                    orderable: false,
+                                    className: "text-center"
+                                },
+                                {
+                                    targets: [5, 8],
+                                    className: "text-center"
+                                },
+                                {
+                                    targets: 4,
+                                    name: 'filter-sekolah'
+                                },
+                                {
+                                    targets: 6,
+                                    name: 'filter-cabor'
+                                },
+                                {
+                                    targets: 2,
+                                    name: 'filter-status'
+                                }
+                            ]
+                        });
+
+                        // Event handler: Reload tabel secara otomatis jika nilai dropdown berubah
+                        $('#filter_sekolah, #filter_cabor, #filter_status').change(function() {
+                            atletTable.ajax.reload();
+                        });
+
+                        // Re-init tooltip & icon setelah tabel digambar ulang
+                        atletTable.on('draw.dt', function() {
+                            document.querySelectorAll('#atletTable [data-bs-toggle="tooltip"]').forEach(function(el) {
+                                const existing = bootstrap.Tooltip.getInstance(el);
+                                if (existing) existing.dispose();
+                                new bootstrap.Tooltip(el);
+                            });
+
+                            if (window.Iconify) {
+                                requestAnimationFrame(function() {
+                                    Iconify.scan(document.getElementById('atletTable'));
+                                });
+                            }
+                        });
+                    });
+                </script>
+
+                <script>
+                    $(document).ready(function() {
+                        function statusMeta(status) {
+                        if (status === 'valid') {
+                            return { label: 'Valid', cls: 'bg-success text-light' };
+                        }
+                        if (status === 'invalid') {
+                            return { label: 'Perlu Perbaikan', cls: 'bg-danger text-light' };
+                        }
+                        return { label: 'Belum Dicek', cls: 'bg-warning text-dark' };
+                    }
+
+                    function updateRowBadge(atletId, statusFinal) {
+                        const $badge = $('.badge-status-depan[data-id="' + atletId + '"]');
+                        if (statusFinal === 'valid') {
+                            $badge.removeClass().addClass('badge badge-status-depan bg-success text-light').text('Sudah');
+                        } else if (statusFinal === 'invalid') {
+                            $badge.removeClass().addClass('badge badge-status-depan bg-danger text-light').text('Perlu Perbaikan');
+                        } else {
+                            $badge.removeClass().addClass('badge badge-status-depan bg-warning text-dark').text('Belum');
+                        }
+                    }
+
+                    function refreshVerification(atletId) {
+                        const bentuk = $('#viewAtletModal').data('bentuk') || '';
+
+                        return $.get(window.ATLET_VALIDASI_URL, { atletID: atletId }).then(function(data) {
+                            data = data || {};
+
+                            window.getRequiredDocs(bentuk).forEach(function(doc) {
+                                window.setDocCardStatus(doc.type, data[doc.key] || 'pending');
+                            });
+
+                            window.renderVerificationSummary(data, bentuk);
+
+                            const statusFinal = window.hitungStatusFinal(data, bentuk);
+                            return $.post(window.ATLET_SET_VALID_URL, {
+                                atletID: atletId,
+                                status: statusFinal
+                            }).then(function() {
+                                return statusFinal;
                             });
                         });
                     }
-                });
-            }
-        });
-    });
 
-    $(document).on("click", ".view-pdf", function() {
-        let url = $(this).data("file");
-        $("#previewContent").html(`
-            <iframe src="${url}" style="width:100%; height:80vh;" frameborder="0"></iframe>`);
-        $("#previewModal").modal("show");
-    });
+                    // Validasi Semua dari toolbar modal (satu request, satu loader)
+                    $('#btnValidateAll').off('click').on('click', function() {
+                        const atletId = $('#viewAtletModal').data('atlet-id');
+                        const btn = $(this);
+                        if (!atletId || btn.prop('disabled')) return;
 
-    // buka modal catatan
-    $(document).on('click', '.notes-file', function() {
+                        const originalHtml = btn.data('original-html') || btn.html();
+                        btn.data('original-html', originalHtml);
+                        btn.prop('disabled', true).html(
+                            '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Memproses...'
+                        );
 
-        $('.modal-title').text('Catatan ' + $(this).data('label'));
-        $('#modalNotes').modal('show');
+                        const bentuk = $('#viewAtletModal').data('bentuk') || '';
 
-        let atletID = $(this).data('id');
-        let type = $(this).data('type');
+                        $.ajax({
+                                url: window.ATLET_VALIDASI_SEMUA_URL,
+                                method: 'GET',
+                                data: { atletID: atletId },
+                                global: false
+                            })
+                            .done(function(res) {
+                                res = res || {};
+                                const validasi = res.validasi || {};
 
-        // Buat nama field catatan dan status
-        let dok_catatan = type + '_catatan';
+                                window.getRequiredDocs(bentuk).forEach(function(doc) {
+                                    window.setDocCardStatus(doc.type, validasi[doc.key] || 'pending');
+                                });
+                                window.renderVerificationSummary(validasi, bentuk);
 
-        // kosongkan textarea
-        $('#note-text').val('');
+                                if (res.status_final) {
+                                    updateRowBadge(atletId, res.status_final);
+                                }
 
-        // Ambil catatan lama dari DB
-        $.ajax({
-            url: `<?= site_url('api/get-catatan'); ?>`,
-            method: 'POST',
-            data: {
-                atlet_id: atletID,
-                dok_catatan: dok_catatan
-            },
-            success: function(res) {
-                if (res && res[dok_catatan]) {
-                    $('#note-text').val(res[dok_catatan]);
-                }
-            }
-        });
-
-        // Simpan ID dan field yang dipakai ke modal
-        $('#modalNotes').data('atlet-id', atletID);
-        $('#modalNotes').data('dok-catatan', dok_catatan);
-    });
-
-
-    // EVENT SUBMIT (HANYA DI-BIND SEKALI)
-    $('button[type="submit"]').off('click').on('click', function() {
-
-        let atletID = $('#modalNotes').data('atlet-id');
-        let dok_catatan = $('#modalNotes').data('dok-catatan');
-        let note_value = $('#note-text').val();
-
-        $.ajax({
-            url: `<?= site_url('api/simpan-catatan'); ?>`,
-            method: 'POST',
-            data: {
-                atlet_id: atletID,
-                dok_catatan: dok_catatan,
-                note_value: note_value
-            },
-            success: function(res) {
-                if (res.status === 'success') {
-                    Swal.fire({
-                        title: "Berhasil",
-                        text: res.message,
-                        icon: "success"
-                    }).then(() => {
-                        $('#modalNotes').modal('hide');
+                                window.showGalleryToast('Semua dokumen berhasil divalidasi.', 'success');
+                            })
+                            .fail(function() {
+                                window.showGalleryToast('Terjadi kesalahan saat memproses validasi.', 'danger');
+                            })
+                            .always(function() {
+                                btn.prop('disabled', false).html(originalHtml);
+                            });
                     });
-                }
-            }
-        });
-    });
 
+                    // view detail atlet
+                    $(document).on('click', '.view-atlet', function() {
+                        const atletId = $(this).data('id');
 
+                        function detectImageSize() {
+                            document.querySelectorAll('.view-img:not([data-pswp-width])').forEach(a => {
+                                const img = new Image();
+                                img.src = a.href;
+                                img.onload = function() {
+                                    a.setAttribute('data-pswp-width', this.width);
+                                    a.setAttribute('data-pswp-height', this.height);
+                                };
+                            });
+                        }
 
-    // delete atlet
-    $(document).on('click', '.delete-atlet', function() {
-        let atletId = $(this).attr('id');
+                        $.ajax({
+                            url: window.ATLET_DETAIL_URL,
+                            method: "GET",
+                            data: { id: atletId },
+                            success: function(res) {
+                                if (!res || res.status === 'error' || !res.data) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Gagal memuat detail atlet',
+                                        text: (res && res.message) ? res.message : 'Data atlet tidak ditemukan.'
+                                    });
+                                    return;
+                                }
 
-        Swal.fire({
-            title: "Yakin Hapus Data Atlet Tersebut?",
-            text: "Data yang dihapus tidak dapat dikembalikan!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#93999f',
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = "<?= base_url('admin/atlet/delete/'); ?>" + atletId;
-            }
-        });
-    });
-</script>
+                                const validasi = res.validasi || {};
+                                const statusValidasi = function(key) {
+                                    return validasi[key] || 'pending';
+                                };
+                                const bentuk = res.data.bentuk_pendidikan || '';
+
+                                $('#viewAtletModal')
+                                    .data('atlet-id', atletId)
+                                    .data('bentuk', bentuk);
+
+                                $("#v-nama").text(res.data.nama || '-');
+                                $("#v-header-nama").text(res.data.nama || '-');
+                                $("#v-nisn").text(res.data.nisn || '-');
+                                $("#v-header-nisn").text(res.data.nisn || '-');
+                                $("#v-header-sekolah").text(res.data.sekolah || '-');
+                                $("#v-nik").text(res.data.nik || '-');
+                                $("#v-sekolah").text(res.data.sekolah || '-');
+                                $("#v-cabor").text(res.data.cabor || '-');
+                                $("#v-nomor-lomba").text([
+                                    res.data.nomor_cabor,
+                                    res.data.jenis,
+                                    res.data.detail,
+                                    res.data.kategori
+                                ].filter(Boolean).join(' ') || '-');
+                                $("#v-jenjang").text(res.data.jenjang || '-');
+                                $("#v-jk").text(res.data.jenis_kelamin || '-');
+                                $("#v-ttl").text([res.data.tempat_lahir, res.data.tanggal_lahir].filter(Boolean).join(', ') || '-');
+                                $("#v-alamat").text(res.data.alamat || '-');
+
+                                $('#viewAtletModal').modal('show');
+                                $("#file-gallery").html("<p class='text-muted p-4'>Memuat berkas...</p>");
+
+                                const fileMap = {
+                                    akte_status: 'file_akte',
+                                    foto_status: 'file_foto',
+                                    ktp_kia_kk_status: 'file_ktp_kia_kk',
+                                    nisn_status: 'file_nisn',
+                                    ijazah_status: 'file_ijazah',
+                                    suket_status: 'file_suket'
+                                };
+
+                                const folderMap = {
+                                    akte_status: '<?= base_url('public/uploads/atlet/file_akte/'); ?>',
+                                    foto_status: '<?= base_url('public/uploads/atlet/file_foto/'); ?>',
+                                    ktp_kia_kk_status: '<?= base_url('public/uploads/atlet/file_ktp_kia_kk/'); ?>',
+                                    nisn_status: '<?= base_url('public/uploads/atlet/file_nisn/'); ?>',
+                                    ijazah_status: '<?= base_url('public/uploads/atlet/file_ijazah/'); ?>',
+                                    suket_status: '<?= base_url('public/uploads/atlet/file_suket/'); ?>'
+                                };
+
+                                let html = "";
+                                window.getRequiredDocs(bentuk).forEach(function(doc) {
+                                    const file = res.data[fileMap[doc.key]];
+                                    const status = statusValidasi(doc.key);
+
+                                    if (file) {
+                                        html += templateFile(doc.label, folderMap[doc.key] + file, status, doc.type, atletId, 'admin');
+                                    } else {
+                                        html += templateMissing(doc.label, doc.type, status);
+                                    }
+                                });
+
+                                $("#file-gallery").html(html);
+                                window.renderVerificationSummary(validasi, bentuk);
+                                detectImageSize();
+                                window.reInitGallery();
+                            }
+                        });
+                    });
+                });
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?= $this->include('partials/atlet-detail-modal', [
+    'canValidate' => true,
+    'role'        => 'admin',
+]); ?>
 
 <?= $this->endSection(); ?>

@@ -53,7 +53,7 @@
     <!-- Theme Customization Structure Start -->
     <div class="body-overlay"></div>
 
-    <button type="button"
+    <!-- <button type="button"
         class="theme-customization__button w-48-px h-48-px bg-primary-600 text-white rounded-circle d-flex justify-content-center align-items-center position-fixed end-0 bottom-0 mb-40 me-40 text-2xxl bg-hover-primary-700">
         <i class="ri-settings-3-line animate-spin"></i>
     </button>
@@ -158,7 +158,7 @@
             </div>
 
         </div>
-    </div>
+    </div> -->
     <!-- Theme Customization Structure End -->
 
     <section class="auth bg-base d-flex flex-wrap">
@@ -201,13 +201,13 @@
                         <!-- Text -->
                         <div class="text-center align-self-center">
                             <h2 class="mb-0">SILAGAPORA</h2>
-                            <small class="mb-0">SISTEM INFORMASI LOMBA DAN AGENDA<br /> DAN OLAHRAGA BANJARNEGARA</small>
+                            <small class="mb-0">SISTEM INFORMASI LOMBA DAN AGENDA<br /> KEPEMUDAAN OLAHRAGA BANJARNEGARA</small>
                         </div>
 
                     </div>
 
                 </div>
-                <form action="auth/login" method="post">
+                <form action="auth/login" method="post" class="mt-16">
                     <?= csrf_field(); ?>
                     <div class="icon-field mb-16">
                         <span class="icon top-50 translate-middle-y">
@@ -215,7 +215,7 @@
                         </span>
                         <input type="text" name="username" class="form-control h-56-px bg-neutral-50 radius-12" placeholder="Username">
                     </div>
-                    <div class="position-relative mb-20">
+                    <div class="position-relative">
                         <div class="icon-field">
                             <span class="icon top-50 translate-middle-y">
                                 <iconify-icon icon="solar:lock-password-outline"></iconify-icon>
@@ -224,7 +224,7 @@
                         </div>
                         <span class="toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-16 text-secondary-light" data-toggle="#your-password"></span>
                     </div>
-                    <div class="">
+                    <!-- <div class="">
                         <div class="d-flex justify-content-between gap-2">
                             <div class="form-check style-check d-flex align-items-center">
                                 <input class="form-check-input border border-neutral-300" type="checkbox" value="" id="remeber">
@@ -232,7 +232,7 @@
                             </div>
                             <a href="javascript:void(0)" class="text-primary-600 fw-medium">Forgot Password?</a>
                         </div>
-                    </div>
+                    </div> -->
 
                     <button type="submit" class="btn btn-primary text-sm btn-sm px-12 py-16 w-100 radius-12 mt-32">Log In</button>
 

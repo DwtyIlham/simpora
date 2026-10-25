@@ -19,6 +19,132 @@ use function App\Controllers\isAdmin;
     }
 </style>
 
+<style>
+    .idcard {
+        width: 8.5cm;
+        height: 13.5cm;
+        transform: none !important;
+        zoom: 1 !important;
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 10px 12px;
+        position: relative;
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        box-sizing: border-box;
+        position: relative;
+    }
+
+    /* Screen & export */
+    .idcard img.logo,
+    .idcard img.qrcode,
+    .idcard img.foto {
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* Print only */
+    @media print {
+        .idcard {
+            width: 8.5cm;
+            height: 13.5cm;
+        }
+    }
+
+
+    .idcard img {
+        image-rendering: crisp-edges;
+    }
+
+    .header {
+        background: linear-gradient(135deg, #003d86, #005fcb);
+        color: #fff;
+        padding: 10px 6px 14px;
+        border-radius: 10px;
+        /* height: 10vh; */
+    }
+
+    .logo {
+        width: 30px;
+        left: 10px;
+        top: 8px;
+        margin: 5px;
+    }
+
+    #logo-simpora {
+        filter: brightness(0) invert(1);
+    }
+
+    .event {
+        font-size: 16px;
+        line-height: 1.2;
+    }
+
+    .role {
+        font-size: 12px;
+        margin-top: -2px;
+        letter-spacing: 0.3px;
+    }
+
+    .foto-wrap .foto {
+        width: 3cm;
+        height: 4cm;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .nama {
+        font-size: 17px;
+        color: #002752;
+    }
+
+    .sekolah {
+        font-size: 13px;
+    }
+
+    .cabor {
+        font-size: 12px;
+    }
+
+    .qrcode {
+        padding: 4px;
+        width: 103px;
+        height: 103px;
+        /* right: 14px; */
+        bottom: 22px;
+    }
+
+    .qrcode-wrap {
+        position: relative;
+        display: inline-block;
+    }
+
+    .qr-loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 103px;
+        height: 103px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.75);
+        border-radius: 8px;
+        z-index: 10;
+    }
+
+    .footer {
+        width: 100%;
+        height: auto;
+        background: #003d86;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        border-radius: 0 0 12px 12px;
+    }
+</style>
+
 <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-12">
     <h6 class="fw-semibold mb-0"><?= $title; ?></h6>
     <ul class="d-flex align-items-center gap-2">
@@ -71,13 +197,7 @@ use function App\Controllers\isAdmin;
                                 <td class="align-middle" style="text-align: left;"><?= $p['sekolah_nama']; ?></td>
                                 <td class="text-center align-middle"><?= $p['cabor_nama']; ?></td>
                                 <td class="align-middle">
-                                    <?= $p['nomor_cabor_nama']; ?>
-                                    <?php $nocab = explode('||', $p['nomor_cabor']) ?? '-'; ?>
-                                    <?php if (!empty($nocab)):
-                                        foreach ($nocab as $i => $nc): ?>
-                                            <?= $nc ?><br />
-                                    <?php endforeach;
-                                    endif; ?>
+                                    <?= $p['nomor_cabor']; ?>
                                 </td>
                                 <td class="text-center align-middle m-auto">
                                     <a data-id="<?= $p['id']; ?>"
@@ -86,18 +206,16 @@ use function App\Controllers\isAdmin;
                                         <iconify-icon icon="lucide:id-card-lanyard"></iconify-icon>
                                     </a>
                                     <?php
-                                    $disable = is_array($nocab) && count($nocab) > 1;
-                                    if (!$disable): ?>
+                                    if ($p['banyak_no_cabor'] > 1): ?>
                                         <a href="#"
-                                            class="btn-add-atlet-multi-cabor w-32-px h-32-px bg-info-focus text-info-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                            data-peserta-id="<?= $p['id']; ?>" data-cabor-id="<?= $p['cabor_id']; ?>"
+                                            class="btn-add-atlet-multi-cabor w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                                            data-peserta-id="<?= $p['id']; ?>" data-cabor-id="<?= $p['cabor_id']; ?>" data-banyak-nocab="<?= $p['banyak_no_cabor']; ?>"
                                             data-bs-toggle="tooltip"
-                                            data-bs-title="<?= $disable ? 'Atlet sudah memiliki lebih dari 1 nomor cabor' : 'Tambah Atlet Multi Cabor'; ?>">
+                                            data-bs-title="Tambah Nomor Cabor">
 
                                             <iconify-icon icon="mdi:account-multiple-add"></iconify-icon>
                                         </a>
-                                    <?php else: '';
-                                    endif; ?>
+                                    <?php endif; ?>
                                     <a id="<?= $p['id']; ?>" data-kompetisi-id="<?= $p['kompetisi_id']; ?>" class="btn-delete w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center">
                                         <iconify-icon icon="mingcute:delete-2-line"></iconify-icon>
                                     </a>
@@ -169,132 +287,6 @@ use function App\Controllers\isAdmin;
                         </div>
                     </div>
                 </div>
-
-                <style>
-                    .idcard {
-                        width: 8.5cm;
-                        height: 13.5cm;
-                        transform: none !important;
-                        zoom: 1 !important;
-                        background: #ffffff;
-                        border-radius: 14px;
-                        padding: 10px 12px;
-                        position: relative;
-                        box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
-                        overflow: hidden;
-                        box-sizing: border-box;
-                        position: relative;
-                    }
-
-                    /* Screen & export */
-                    .idcard img.logo,
-                    .idcard img.qrcode,
-                    .idcard img.foto {
-                        max-width: 100%;
-                        height: auto;
-                    }
-
-                    /* Print only */
-                    @media print {
-                        .idcard {
-                            width: 8.5cm;
-                            height: 13.5cm;
-                        }
-                    }
-
-
-                    .idcard img {
-                        image-rendering: crisp-edges;
-                    }
-
-                    .header {
-                        background: linear-gradient(135deg, #003d86, #005fcb);
-                        color: #fff;
-                        padding: 10px 6px 14px;
-                        border-radius: 10px;
-                        /* height: 10vh; */
-                    }
-
-                    .logo {
-                        width: 30px;
-                        left: 10px;
-                        top: 8px;
-                        margin: 5px;
-                    }
-
-                    #logo-simpora {
-                        filter: brightness(0) invert(1);
-                    }
-
-                    .event {
-                        font-size: 16px;
-                        line-height: 1.2;
-                    }
-
-                    .role {
-                        font-size: 12px;
-                        margin-top: -2px;
-                        letter-spacing: 0.3px;
-                    }
-
-                    .foto-wrap .foto {
-                        width: 3cm;
-                        height: 4cm;
-                        object-fit: cover;
-                        border-radius: 8px;
-                    }
-
-                    .nama {
-                        font-size: 17px;
-                        color: #002752;
-                    }
-
-                    .sekolah {
-                        font-size: 13px;
-                    }
-
-                    .cabor {
-                        font-size: 12px;
-                    }
-
-                    .qrcode {
-                        padding: 4px;
-                        width: 103px;
-                        height: 103px;
-                        /* right: 14px; */
-                        bottom: 22px;
-                    }
-
-                    .qrcode-wrap {
-                        position: relative;
-                        display: inline-block;
-                    }
-
-                    .qr-loader {
-                        position: absolute;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                        width: 103px;
-                        height: 103px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        background: rgba(255, 255, 255, 0.75);
-                        border-radius: 8px;
-                        z-index: 10;
-                    }
-
-                    .footer {
-                        width: 100%;
-                        height: auto;
-                        background: #003d86;
-                        position: absolute;
-                        bottom: 0;
-                        left: 0;
-                        border-radius: 0 0 12px 12px;
-                    }
-                </style>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
@@ -324,13 +316,8 @@ use function App\Controllers\isAdmin;
                                 </h6>
 
                                 <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label small">Nama Cabor</label>
+                                    <div class="col-md-12">
                                         <input type="text" class="form-control bg-light" id="md-cabor-1" readonly>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label small">Nomor Cabor</label>
-                                        <input type="text" class="form-control bg-light" id="md-nocabor-1" readonly>
                                     </div>
                                 </div>
                             </div>
@@ -345,7 +332,7 @@ use function App\Controllers\isAdmin;
                                 </h6>
 
                                 <div class="row g-3">
-                                    <div class="col-6">
+                                    <div class="col-6" hidden>
                                         <label class="form-label">Cabor</label>
                                         <select class="form-select select2" id="md-multi-cabor" data-placeholder="Pilih Cabor" disabled>
                                             <option></option>
@@ -354,18 +341,13 @@ use function App\Controllers\isAdmin;
                                             <?php endforeach; ?>
                                         </select>
                                     </div>
-                                    <div class="col-md-12">
-                                        <label class="form-label">Nomor Cabor</label>
-                                        <select id="nomor_cabor" name="nocabor_baru" class="form-select select2" data-placeholder="Pilih Nomor Cabor" required>
-                                            <option></option>
-                                        </select>
-                                    </div>
+                                    <div id="container-nomor-cabor"></div>
                                 </div>
 
                                 <div class="alert alert-info bg-info-100 text-info-600 border-info-100 px-24 py-11 mb-0 radius-8 py-2 mt-3 d-flex align-items-center gap-2" role="alert">
                                     <iconify-icon icon="material-symbols:info" width="20" height="20"></iconify-icon>
                                     <span>
-                                        Cabor baru akan <strong>ditambahkan</strong> dan tidak menghapus data sebelumnya.
+                                        Pastikan anda mengklik tombol <strong>Simpan</strong> sebelum menutup form.
                                     </span>
                                 </div>
 
@@ -502,32 +484,124 @@ use function App\Controllers\isAdmin;
         });
     }
 
-    // modal atlet multi cabor
+    // fungsi generate field multi entry nomor cabor
     $('.btn-add-atlet-multi-cabor').on('click', function() {
-        let atlet = $(this).closest('tr').find('td').eq('1').text().trim();
+
         let peserta_id = $(this).data('peserta-id');
-        let cabor_1 = $(this).closest('tr').find('td').eq('3').text().trim();
-        let nocabor_1 = $(this).closest('tr').find('td').eq('4').text().trim();
         let cabor_id = $(this).data('cabor-id');
+        let atlet = $(this).closest('tr').find('td:nth-child(2)').text();
 
         $('#peserta_id').val(peserta_id);
+
+        $.ajax({
+            url: `<?= site_url('api/getDataPesertaAddCaborByID'); ?>`,
+            method: 'post',
+            data: {
+                peserta_id: peserta_id
+            },
+            dataType: 'json',
+            success: function(res) {
+
+                $('#md-cabor-1').val(res.cabor_nama);
+
+                let jumlah = parseInt(res.banyak_nomor_cabor);
+
+                // generate form
+                let html = '';
+                for (let i = 1; i <= jumlah; i++) {
+                    html += `
+            <div class="mb-3">
+                <label class="form-label">Nomor Cabor ${i}</label>
+                <select name="nomor_cabor_id_${i}"
+                        class="form-select select2 nomor-cabor-item"
+                        data-index="${i}"
+                        required>
+                    <option></option>
+                </select>
+            </div>
+        `;
+                }
+
+                $('#container-nomor-cabor').html(html);
+
+                initSelect2();
+
+                // kirim res ke loader
+                loadNomorCabor(cabor_id, res);
+            }
+        });
+
         $('#modal-add-atlet-multi-cabor-label').text('Form Multi Cabor - ' + atlet);
-        $('#md-cabor-1').val(cabor_1);
-        $('#md-nocabor-1').val(nocabor_1);
-        $('#md-multi-cabor').val(cabor_id).change();
         $('#modal-add-atlet-multi-cabor').modal('show');
     });
+
+    function loadNomorCabor(cabor_id, res) {
+
+        $.ajax({
+            url: "<?= site_url('api/getNomorCabor'); ?>",
+            method: 'POST',
+            data: {
+                cabor_id: cabor_id,
+                <?= csrf_token() ?>: "<?= csrf_hash() ?>"
+            },
+            dataType: 'json',
+            success: function(response) {
+
+                console.log(response);
+
+
+                $('.nomor-cabor-item').each(function() {
+
+                    let select = $(this);
+                    let index = select.data('index'); // ambil index
+
+                    select.empty();
+                    if (index > 1) {
+                        select.append('<option value="0" selected>- Pilih Nomor Cabor -</option>');
+                    }
+
+                    response.forEach(function(item) {
+                        select.append(`
+                        <option value="${item.id}">
+                            ${item.nama} ${item.kategori ?? ''} ${item.jenjang ?? ''}
+                        </option>
+                    `);
+                    });
+
+                    // SET SELECTED DARI DATABASE
+                    let selectedValue = res['nomor_cabor_id_' + index] ?? '';
+
+                    if (selectedValue) {
+                        select.val(selectedValue).trigger('change');
+                    }
+
+                });
+
+            }
+        });
+    }
+
+    function initSelect2() {
+        $('.select2').select2({
+            dropdownParent: $('#modal-add-atlet-multi-cabor'),
+            width: '100%',
+            placeholder: 'Pilih Nomor Cabor'
+        });
+    }
 
     // select2 modal
     $('#modal-add-atlet-multi-cabor').on('shown.bs.modal', function() {
         $('.select2').select2({
-            dropdownParent: $('#modal-add-atlet-multi-cabor')
+            dropdownParent: $('#modal-add-atlet-multi-cabor'),
+            width: '100%'
         });
     });
 
     // load nomor cabor berdasar cabor terpilih
     $('#md-multi-cabor').on('change', function() {
+
         let caborId = $(this).val();
+
         $.ajax({
             url: "<?= site_url('api/getNomorCabor'); ?>",
             method: 'POST',
@@ -537,21 +611,35 @@ use function App\Controllers\isAdmin;
             },
             dataType: 'json',
             success: function(response) {
-                let nomorCaborSelect = $('#nomor_cabor');
-                nomorCaborSelect.attr('disabled', false);
-                nomorCaborSelect.empty();
-                nomorCaborSelect.append('<option></option>'); // Placeholder
 
-                response.forEach(function(nomorCabor) {
-                    nomorCaborSelect.append(
-                        `<option value="${nomorCabor.id}">${nomorCabor.nama} ${nomorCabor.kategori} ${nomorCabor.jenjang}</option>`
-                    );
+                let selects = $('.nomor-cabor-item');
+
+                selects.each(function() {
+
+                    let select = $(this);
+
+                    select.attr('disabled', false);
+                    select.empty();
+                    select.append('<option></option>');
+
+                    response.forEach(function(nomorCabor) {
+                        select.append(
+                            `<option value="${nomorCabor.id ?? ''}">
+                            ${nomorCabor.nama ?? ''} 
+                            ${nomorCabor.kategori ?? ''} 
+                            ${nomorCabor.jenjang ?? ''}
+                        </option>`
+                        );
+                    });
+
                 });
+
             },
             error: function() {
                 alert('Gagal mengambil data nomor cabor.');
             }
         });
+
     });
 </script>
 

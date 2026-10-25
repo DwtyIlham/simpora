@@ -72,9 +72,10 @@
 
         <img src="<?= base_url('uploads/atlet/file_foto/' . $peserta['file_foto']) ?>" class="foto">
 
-        <div class="nama"><?= strtoupper($peserta['nama']) ?></div>
-        <div class="info">Atlet <?= strtoupper($peserta['sekolah']) ?></div>
-        <div class="info">Cabor: <?= strtoupper($peserta['cabor']) ?></div>
+        <div class="nama"><b><?= strtoupper($peserta['nama']) ?></b></div>
+        <div class="info"><b><?= strtoupper($peserta['sekolah']) ?></b></div>
+        <div class="info"><b><?= strtoupper($peserta['cabor']) ?></b></div>
+        <div class="info"><?= strtoupper($peserta['nomor_cabor']) ?></div>
 
         <div class="footer">
             <?= APP_NAME; ?> • Sistem Verifikasi Digital

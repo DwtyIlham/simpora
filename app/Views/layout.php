@@ -12,6 +12,38 @@
         height: 0;
         overflow: hidden;
     }
+
+    /* Memastikan transisi rotasi halus */
+    .pswp__img {
+        transition: transform 0.3s ease !important;
+    }
+
+    /* Mengatur posisi ikon agar pas di tengah button toolbar */
+    .pswp__button--rotate-button i {
+        line-height: 40px;
+        display: block;
+        text-align: center;
+    }
+
+    /* Memberikan background gelap transparan pada tombol agar ikon putih selalu terlihat */
+    .pswp__button {
+        background-color: rgba(0, 0, 0, 0.3) !important;
+        margin-left: 5px;
+        border-radius: 4px;
+        transition: background 0.2s ease;
+    }
+
+    /* Efek saat kursor di atas tombol */
+    .pswp__button:hover {
+        background-color: rgba(0, 0, 0, 0.6) !important;
+    }
+
+    /* Khusus untuk ikon Remix yang kita masukkan */
+    .pswp__button i {
+        color: #ffffff !important;
+        text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.8);
+        /* Tambahan shadow pada ikon */
+    }
 </style>
 
 <head>
@@ -27,6 +59,7 @@
     <link rel="stylesheet" href="<?= base_url('public'); ?>/assets/css/lib/apexcharts.css">
     <!-- Data Table css -->
     <link rel="stylesheet" href="<?= base_url('public'); ?>/assets/css/lib/dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.2.3/css/buttons.dataTables.css">
     <!-- Text Editor css -->
     <link rel="stylesheet" href="<?= base_url('public'); ?>/assets/css/lib/editor-katex.min.css">
     <link rel="stylesheet" href="<?= base_url('public'); ?>/assets/css/lib/editor.atom-one-dark.min.css">
@@ -57,7 +90,7 @@
     <link href="<?= base_url('public'); ?>/assets/css/photoswipe.css" rel="stylesheet" />
 
     <!-- main css -->
-    <link rel="stylesheet" href="<?= base_url('public'); ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?= base_url('public'); ?>/assets/css/style.css?v=3">
 </head>
 
 <body>
@@ -73,12 +106,12 @@
     </div>
     <!-- end loader -->
 
-    <button type="button"
+    <!-- <button type="button"
         class="theme-customization__button w-48-px h-48-px bg-primary-600 text-white rounded-circle d-flex justify-content-center align-items-center position-fixed end-0 bottom-0 mb-40 me-40 text-2xxl bg-hover-primary-700">
         <i class="ri-settings-3-line animate-spin"></i>
-    </button>
+    </button> -->
 
-    <div class="theme-customization-sidebar w-100 bg-base h-100vh overflow-y-auto position-fixed end-0 top-0 shadow-lg">
+    <!-- <div class="theme-customization-sidebar w-100 bg-base h-100vh overflow-y-auto position-fixed end-0 top-0 shadow-lg">
         <div class="d-flex align-items-center gap-3 py-16 px-24 justify-content-between border-bottom">
             <div>
                 <h6 class="text-sm dark:text-white">Theme Settings</h6>
@@ -179,97 +212,184 @@
             </div>
 
         </div>
-    </div>
+    </div> -->
     <!-- Theme Customization Structure End -->
 
     <?php
+    $user       = session('user') ?? [];
+    $role_id    = (string) ($user['role_id'] ?? '');
+    $role       = $role_id === '2' ? 'sekolah' : ($role_id === '4' ? 'validator' : 'admin');
+    $op_nama    = $user['nama'] ?? 'Pengguna';
+    $roleLabel  = $role === 'admin'
+        ? 'Administrator Dinas'
+        : ($role === 'validator' ? 'Validator' : 'Operator Sekolah');
+    $startsWith = static function ($haystack, $needle) {
+        return $needle === '' || strpos($haystack, $needle) === 0;
+    };
+    $dashboardUrl = base_url($role === 'admin' ? '/dashboard' : $role . '/dashboard');
+    $passwordUrl  = base_url($role . '/ganti-password') . '?id=' . urlencode((string) ($user['id'] ?? ''));
+    $initial      = strtoupper(substr($op_nama, 0, 1));
 
-    use function App\Controllers\isAdmin;
-
-    $role = session()->get('user')['role_id'] == '1' ? 'admin' : 'sekolah';
-    $op_nama = session('user')['nama'];
+    $uri = trim(uri_string(), '/');
+    $isDashboard  = $uri === '' || $uri === 'dashboard' || $uri === $role . '/dashboard';
+    $isAtlet      = $startsWith($uri, $role . '/atlet');
+    $isUsers      = $startsWith($uri, $role . '/users');
+    $isValidator  = $startsWith($uri, 'admin/validator');
+    $isKompetisi  = $startsWith($uri, $role . '/kompetisi') || $startsWith($uri, $role . '/cabor');
+    $isKompetisiData = $uri === $role . '/kompetisi/data'
+        || $startsWith($uri, $role . '/kompetisi/add')
+        || $startsWith($uri, $role . '/kompetisi/edit')
+        || $startsWith($uri, $role . '/kompetisi/peserta')
+        || $startsWith($uri, $role . '/kompetisi/delete');
+    $isPrestasi   = $startsWith($uri, $role . '/kompetisi/prestasi');
+    $isCabor      = $startsWith($uri, $role . '/kompetisi/cabor') || $startsWith($uri, $role . '/cabor');
+    $isNomorCabor = $startsWith($uri, $role . '/kompetisi/nomor-cabor') || $startsWith($uri, $role . '/nomorcabor');
+    $isJurnal     = $startsWith($uri, 'jurnal-medali');
+    $isRekap      = $uri === $role . '/rekap-data';
+    $isSetting    = $startsWith($uri, 'admin/setting');
+    $isPassword   = $startsWith($uri, $role . '/ganti-password');
+    $activeClass  = static fn(bool $active): string => $active ? 'active-page' : '';
+    $activeAria   = static fn(bool $active): string => $active ? ' aria-current="page"' : '';
     ?>
 
-    <aside class="sidebar">
-        <button type="button" class="sidebar-close-btn">
+    <aside class="sidebar" id="app-sidebar">
+        <button type="button" class="sidebar-close-btn" aria-label="Tutup menu">
             <iconify-icon icon="radix-icons:cross-2"></iconify-icon>
         </button>
-        <a href="<?= base_url('/dashboard'); ?>" class="d-flex justify-content-center align-items-center sidebar-logo">
-            <div class="d-flex justify-content-center align-items-center">
-                <img src="<?= base_url('public/assets/images/logo.jpeg'); ?>"
-                    alt="Site Logo"
-                    class="img-fluid rounded-circle light-logo">
-                <span class="light-logo fs-6">&nbsp;SILAGAPORA</span>
-            </div>
+        <a href="<?= $dashboardUrl; ?>" class="d-flex align-items-center sidebar-logo" aria-label="Ke dashboard">
+            <img src="<?= base_url('public/assets/images/logo.jpeg'); ?>"
+                alt="Logo SILAGAPORA"
+                class="img-fluid rounded-circle light-logo">
+            <img src="<?= base_url('public/assets/images/logo.jpeg'); ?>"
+                alt="Logo SILAGAPORA"
+                class="img-fluid rounded-circle logo-icon">
+            <span class="brand-text">
+                <span class="brand-title">SILAGAPORA</span>
+                <span class="brand-subtitle"><?= esc($roleLabel); ?></span>
+            </span>
         </a>
         <div class="sidebar-menu-area">
+            <div class="sidebar-profile" title="<?= esc($op_nama); ?>">
+                <span class="sidebar-avatar"><?= esc($initial); ?></span>
+                <span class="sidebar-profile-meta">
+                    <span class="sidebar-profile-name"><?= esc($op_nama); ?></span>
+                    <span class="sidebar-profile-role"><?= esc($roleLabel); ?></span>
+                </span>
+            </div>
+
             <ul class="sidebar-menu" id="sidebar-menu">
+                <li class="sidebar-menu-group-title">Menu Utama</li>
                 <li>
-                    <a href="<?= base_url('/dashboard'); ?>">
+                    <a href="<?= $dashboardUrl; ?>" class="<?= $activeClass($isDashboard); ?>"<?= $activeAria($isDashboard); ?> title="Dashboard">
                         <iconify-icon icon="solar:home-smile-angle-outline" class="menu-icon"></iconify-icon>
                         <span>Dashboard</span>
                     </a>
                 </li>
-                <li class="sidebar-menu-group-title">Menu <?= ucfirst($role); ?></li>
-                <li class="dropdown">
-                    <a href="javascript:void(0)">
-                        <iconify-icon icon="bi:pie-chart" class="menu-icon"></iconify-icon>
-                        <span>Data Keolahragaan</span>
+                <li>
+                    <a href="<?= base_url($role . '/atlet/data'); ?>" class="<?= $activeClass($isAtlet); ?>"<?= $activeAria($isAtlet); ?> title="Data Atlet">
+                        <iconify-icon icon="bi:people" class="menu-icon"></iconify-icon>
+                        <span>Data Atlet</span>
                     </a>
-                    <ul class="sidebar-submenu">
-                        <li>
-                            <a href="<?= base_url($role . '/atlet/data'); ?>"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Data Atlet</a>
-                        </li>
-                    </ul>
                 </li>
-                <?php if (isAdmin()): ?>
+
+                <?php if ($role === 'admin' || $role === 'validator'): ?>
+                    <li class="sidebar-menu-group-title">Manajemen</li>
                     <li>
-                        <a href="<?= base_url($role . '/users/data'); ?>">
+                        <a href="<?= base_url($role . '/users/data'); ?>" class="<?= $activeClass($isUsers); ?>"<?= $activeAria($isUsers); ?> title="Daftar Users">
                             <iconify-icon icon="bi:person-gear" class="menu-icon"></iconify-icon>
                             <span>Daftar Users</span>
                         </a>
                     </li>
+                    <?php if ($role === 'admin'): ?>
+                        <li>
+                            <a href="<?= base_url('admin/validator/data'); ?>" class="<?= $activeClass($isValidator); ?>"<?= $activeAria($isValidator); ?> title="Daftar Validator">
+                                <iconify-icon icon="bi:person-check" class="menu-icon"></iconify-icon>
+                                <span>Daftar Validator</span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
+                <?php endif; ?>
+
+                <?php if ($role === 'admin' || $role === 'sekolah'): ?>
+                    <li class="sidebar-menu-group-title">Kompetisi</li>
+                    <li class="dropdown <?= $isKompetisi ? 'open' : ''; ?>">
+                        <a href="javascript:void(0)" aria-expanded="<?= $isKompetisi ? 'true' : 'false'; ?>" title="Data Kompetisi">
+                            <iconify-icon icon="carbon:event" class="menu-icon"></iconify-icon>
+                            <span>Data Kompetisi</span>
+                        </a>
+                        <ul class="sidebar-submenu">
+                            <li>
+                                <a href="<?= base_url($role . '/kompetisi/data'); ?>" class="<?= $activeClass($isKompetisiData); ?>"<?= $activeAria($isKompetisiData); ?>>
+                                    <i class="ri-circle-fill circle-icon"></i><span>Kompetisi</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="<?= base_url($role . '/kompetisi/prestasi'); ?>" class="<?= $activeClass($isPrestasi); ?>"<?= $activeAria($isPrestasi); ?>>
+                                    <i class="ri-circle-fill circle-icon"></i><span>Prestasi</span>
+                                </a>
+                            </li>
+                            <?php if ($role === 'admin'): ?>
+                                <li>
+                                    <a href="<?= base_url('admin/kompetisi/cabor'); ?>" class="<?= $activeClass($isCabor); ?>"<?= $activeAria($isCabor); ?>>
+                                        <i class="ri-circle-fill circle-icon"></i><span>Cabang Olahraga</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="<?= base_url('admin/kompetisi/nomor-cabor'); ?>" class="<?= $activeClass($isNomorCabor); ?>"<?= $activeAria($isNomorCabor); ?>>
+                                        <i class="ri-circle-fill circle-icon"></i><span>No. Cabang Olahraga</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </li>
+                <?php elseif ($role === 'validator'): ?>
+                    <li class="sidebar-menu-group-title">Kompetisi</li>
                     <li>
-                        <a href="<?= base_url($role . '/operator/data'); ?>">
-                            <iconify-icon icon="streamline-freehand:meeting-co-working-2" class="menu-icon"></iconify-icon>
-                            <span>Daftar Operator</span>
+                        <a href="<?= base_url('validator/kompetisi/prestasi'); ?>" class="<?= $activeClass($isPrestasi); ?>"<?= $activeAria($isPrestasi); ?> title="Prestasi">
+                            <iconify-icon icon="lucide:medal" class="menu-icon"></iconify-icon>
+                            <span>Prestasi</span>
                         </a>
                     </li>
                 <?php endif; ?>
-                <li class="dropdown">
-                    <a href="javascript:void(0)">
-                        <iconify-icon icon="carbon:event" class="menu-icon"></iconify-icon>
-                        <span>Data Kompetisi</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li><a href="<?= base_url($role . '/kompetisi/data'); ?>"><iconify-icon icon="lucide:circle-star" class="menu-icon"></iconify-icon><span>Kompetisi</span></a></li>
-                        <li><a href="<?= base_url($role . '/kompetisi/prestasi'); ?>"> <iconify-icon icon="lucide:medal" class="menu-icon"></iconify-icon><span>Prestasi</span></a></li>
-                        <?php if (isAdmin()): ?>
-                            <li><a href="<?= base_url($role . '/kompetisi/cabor'); ?>"> <iconify-icon icon="material-symbols:run-circle-rounded" class="menu-icon"></iconify-icon><span>Cabang Olahraga</span></a></li>
-                            <li><a href="<?= base_url($role . '/kompetisi/nomor-cabor'); ?>"> <iconify-icon icon="lucide:medal" class="menu-icon"></iconify-icon><span>No. Cabang Olahraga</span></a></li>
-                        <?php endif; ?>
-                    </ul>
-                <li>
-                    <a href="<?= site_url('jurnal-medali'); ?>">
-                        <iconify-icon icon="material-symbols:trophy-outline-rounded" class="menu-icon"></iconify-icon>
-                        <span>Jurnal Medali</span>
-                    </a>
-                </li>
-                <?php if (isAdmin()): ?>
+
+                <?php if ($role === 'admin' || $role === 'validator'): ?>
+                    <li class="sidebar-menu-group-title">Laporan</li>
                     <li>
-                        <a href="<?= site_url('admin/setting'); ?>">
+                        <a href="<?= site_url('jurnal-medali'); ?>" class="<?= $activeClass($isJurnal); ?>"<?= $activeAria($isJurnal); ?> title="Jurnal Medali">
+                            <iconify-icon icon="material-symbols:trophy-outline-rounded" class="menu-icon"></iconify-icon>
+                            <span>Jurnal Medali</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= site_url($role . '/rekap-data'); ?>" class="<?= $activeClass($isRekap); ?>"<?= $activeAria($isRekap); ?> title="Rekap Data">
+                            <iconify-icon icon="material-symbols:download-for-offline-outline" class="menu-icon"></iconify-icon>
+                            <span>Rekap Data</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+
+                <?php if ($role === 'admin'): ?>
+                    <li class="sidebar-menu-group-title">Pengaturan</li>
+                    <li>
+                        <a href="<?= site_url('admin/setting'); ?>" class="<?= $activeClass($isSetting); ?>"<?= $activeAria($isSetting); ?> title="Setting">
                             <iconify-icon icon="material-symbols:settings-outline" class="menu-icon"></iconify-icon>
                             <span>Setting</span>
                         </a>
                     </li>
                 <?php endif; ?>
+
+                <li class="sidebar-menu-group-title">Akun</li>
                 <li>
-                    <a href="<?= site_url('admin/ganti-password?id=' . session('user')['id']); ?>">
+                    <a href="<?= $passwordUrl; ?>" class="<?= $activeClass($isPassword); ?>"<?= $activeAria($isPassword); ?> title="Ganti Password">
                         <iconify-icon icon="material-symbols:vpn-key-alert-outline" class="menu-icon"></iconify-icon>
                         <span>Ganti Password</span>
                     </a>
                 </li>
-                <li><a class="text-danger-500" href="<?= base_url('logout'); ?>"> <iconify-icon icon="carbon:exit" class="menu-icon"></iconify-icon></iconify-icon><span>Logout</span></a></li>
+                <li class="sidebar-logout">
+                    <a class="text-danger-500" href="<?= base_url('logout'); ?>" title="Logout">
+                        <iconify-icon icon="carbon:exit" class="menu-icon"></iconify-icon>
+                        <span>Logout</span>
+                    </a>
                 </li>
             </ul>
         </div>
@@ -280,17 +400,17 @@
             <div class="row align-items-center justify-content-between">
                 <div class="col-auto">
                     <div class="d-flex flex-wrap align-items-center gap-4">
-                        <button type="button" class="sidebar-toggle">
+                        <button type="button" class="sidebar-toggle" aria-controls="app-sidebar" aria-expanded="true" aria-label="Ciutkan menu">
                             <iconify-icon icon="heroicons:bars-3-solid" class="icon text-2xl non-active"></iconify-icon>
                             <iconify-icon icon="iconoir:arrow-right" class="icon text-2xl active"></iconify-icon>
                         </button>
-                        <button type="button" class="sidebar-mobile-toggle">
+                        <button type="button" class="sidebar-mobile-toggle" aria-controls="app-sidebar" aria-expanded="false" aria-label="Buka menu">
                             <iconify-icon icon="heroicons:bars-3-solid" class="icon"></iconify-icon>
                         </button>
-                        <form class="navbar-search">
-                            <input type="text" name="search" placeholder="Search">
-                            <iconify-icon icon="ion:search-outline" class="icon"></iconify-icon>
-                        </form>
+                        <span class="navbar-role-chip d-none d-lg-inline-flex">
+                            <iconify-icon icon="solar:shield-user-outline"></iconify-icon>
+                            <?= esc($roleLabel); ?>
+                        </span>
                     </div>
                 </div>
                 <div class="col-auto">
@@ -299,41 +419,32 @@
                             class="w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"></button>
 
                         <div class="dropdown">
-                            <button class="d-flex justify-content-center align-items-center rounded-circle" type="button"
-                                data-bs-toggle="dropdown">
-                                <img src="<?= base_url('public'); ?>/assets/images/user.png" alt="image" class="w-40-px h-40-px object-fit-cover rounded-circle">
+                            <button class="navbar-avatar-btn" type="button" data-bs-toggle="dropdown" aria-label="Menu pengguna" aria-expanded="false">
+                                <span class="navbar-avatar"><?= esc($initial); ?></span>
                             </button>
-                            <div class="dropdown-menu to-top dropdown-menu-sm">
-                                <div
-                                    class="py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
-                                    <div>
-                                        <h6 class="text-lg text-primary-light fw-semibold mb-2"><?= $op_nama; ?></h6>
-                                        <span class="text-secondary-light fw-medium text-sm"><?= ucfirst($role); ?></span>
-                                    </div>
-                                    <button type="button" class="hover-text-danger">
-                                        <iconify-icon icon="radix-icons:cross-1" class="icon text-xl"></iconify-icon>
-                                    </button>
+                            <div class="dropdown-menu to-top dropdown-menu-sm profile-dropdown">
+                                <div class="profile-dropdown-header">
+                                    <span class="profile-dropdown-avatar"><?= esc($initial); ?></span>
+                                    <span class="profile-dropdown-meta">
+                                        <strong><?= esc($op_nama); ?></strong>
+                                        <small><?= esc($roleLabel); ?></small>
+                                    </span>
                                 </div>
                                 <ul class="to-top-list">
                                     <li>
-                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3"
-                                            href="view-profile.html">
-                                            <iconify-icon icon="solar:user-linear" class="icon text-xl"></iconify-icon> My Profile</a>
+                                        <a class="dropdown-item profile-dropdown-link"
+                                            href="<?= $dashboardUrl; ?>">
+                                            <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-xl"></iconify-icon> Dashboard</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3"
-                                            href="email.html">
-                                            <iconify-icon icon="tabler:message-check" class="icon text-xl"></iconify-icon> Inbox</a>
+                                        <a class="dropdown-item profile-dropdown-link"
+                                            href="<?= $passwordUrl; ?>">
+                                            <iconify-icon icon="material-symbols:vpn-key-alert-outline" class="icon text-xl"></iconify-icon> Ganti Password</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3"
-                                            href="company.html">
-                                            <iconify-icon icon="icon-park-outline:setting-two" class="icon text-xl"></iconify-icon> Setting</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-danger d-flex align-items-center gap-3"
+                                        <a class="dropdown-item profile-dropdown-link text-danger-500"
                                             href="<?= base_url('logout'); ?>">
-                                            <iconify-icon icon="lucide:power" class="icon text-xl"></iconify-icon> Log Out</a>
+                                            <iconify-icon icon="lucide:power" class="icon text-xl"></iconify-icon> Logout</a>
                                     </li>
                                 </ul>
                             </div>
@@ -349,13 +460,24 @@
             <script src="<?= base_url('public'); ?>/assets/js/lib/jquery-3.7.1.min.js"></script>
             <!-- Bootstrap js -->
             <script src="<?= base_url('public'); ?>/assets/js/lib/bootstrap.bundle.min.js"></script>
-            <?php if (uri_string() === 'dashboard' || uri_string() === 'sekolah/dashboard'): ?>
+            <?php if (in_array(uri_string(), ['dashboard', 'sekolah/dashboard', 'validator/dashboard'], true)): ?>
                 <script src="<?= base_url('public/assets/js/lib/apexcharts.min.js'); ?>"></script>
             <?php endif; ?>
             <!-- Data Table js -->
             <script src="<?= base_url('public'); ?>/assets/js/lib/dataTables.min.js"></script>
+            <script src="https://cdn.datatables.net/buttons/3.2.3/js/dataTables.buttons.js"></script>
+            <script src="https://cdn.datatables.net/buttons/3.2.3/js/buttons.html5.js"></script>
+            <script src="https://cdn.datatables.net/buttons/3.2.3/js/buttons.print.js"></script>
+
+            <!-- Excel -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+            <!-- PDF -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
             <!-- Iconify Font js -->
-            <script src="<?= base_url('public'); ?>/assets/js/lib/iconify-icon.min.js"></script>
+            <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+            <!-- <script src="<?= base_url('public'); ?>/assets/js/lib/iconify-icon.min.js"></script> -->
             <!-- jQuery UI js -->
             <script src="<?= base_url('public'); ?>/assets/js/lib/jquery-ui.min.js" defer></script>
             <!-- Vector Map js -->
@@ -388,7 +510,7 @@
 
 
             <!-- main js -->
-            <script src="<?= base_url('public'); ?>/assets/js/app.js"></script>
+            <script src="<?= base_url('public'); ?>/assets/js/app.js?v=4"></script>
 
             <script>
                 // init tooltips
@@ -398,6 +520,25 @@
                         return new bootstrap.Tooltip(tooltipTriggerEl)
                     })
                 })
+            </script>
+
+            <script>
+                if (typeof table !== 'undefined' && table && typeof table.on === 'function') {
+                    table.on('draw.dt', function() {
+
+                        // re-init tooltip
+                        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+                            new bootstrap.Tooltip(el);
+                        });
+
+                        // re-render iconify
+                        if (window.Iconify) {
+                            requestAnimationFrame(() => {
+                                Iconify.scan(document.body);
+                            });
+                        }
+                    });
+                }
             </script>
 
             <script>
@@ -439,16 +580,22 @@
                     if (['kompetisi/peserta', 'kompetisi/prestasi/'].some(x =>
                             window.location.pathname.includes(x)
                         )) {
-                        let table = new DataTable('#dataTable', {
+                        const defaultOptions = {
                             responsive: true,
-                            columnDefs: [{
-                                    targets: 2,
-                                    name: 'filter-sekolah'
-                                },
-                                {
-                                    targets: 3,
-                                    name: 'filter-cabor'
-                                }
+                            columnDefs: []
+                        };
+
+                        // Konfigurasi tambahan dari view
+                        const viewOptions = window.dataTableOptions || {};
+
+                        const table = new DataTable('#dataTable', {
+                            ...defaultOptions,
+                            ...viewOptions,
+
+                            // Gabungkan columnDefs
+                            columnDefs: [
+                                ...defaultOptions.columnDefs,
+                                ...(viewOptions.columnDefs || [])
                             ]
                         });
 
@@ -482,8 +629,39 @@
                                     showHideAnimationType: 'fade'
                                 });
 
-                                lightbox.init();
+                                // --- TAMBAHKAN LOGIKA ROTASI DI SINI ---
+                                lightbox.on('uiRegister', function() {
+                                    lightbox.pswp.ui.registerElement({
+                                        name: 'rotate-button',
+                                        ariaLabel: 'Rotate',
+                                        order: 9, // Muncul di dekat tombol zoom/close
+                                        isButton: true,
+                                        html: '<i class="ri-clockwise-line" style="color:#f0f0f0; font-size: 20px;"></i>',
+                                        onClick: (event, el) => {
+                                            const pswp = lightbox.pswp;
+                                            // Ambil container gambar aktif
+                                            const img = pswp.currSlide.container.querySelector('.pswp__img');
 
+                                            if (img) {
+                                                // Ambil rotasi saat ini atau default 0
+                                                let rotation = parseInt($(img).data('rotation') || 0);
+                                                rotation += 90;
+
+                                                // Terapkan rotasi via CSS
+                                                $(img).css({
+                                                    'transform': `rotate(${rotation}deg)`,
+                                                    'transition': 'transform 0.3s ease'
+                                                });
+
+                                                // Simpan state rotasi terbaru
+                                                $(img).data('rotation', rotation);
+                                            }
+                                        }
+                                    });
+                                });
+                                // --- END LOGIKA ROTASI ---
+
+                                lightbox.init();
                                 $(this).data('pswp-initialized', true);
                             }
                         });
@@ -552,7 +730,7 @@
         <footer class="d-footer">
             <div class="row align-items-center justify-content-between">
                 <div class="col-auto">
-                    <p class="mb-0">© <?= date('Y'); ?> Dinas Pendidikan Pemuda dan Olahraga Kabupaten Banjarnegara</p>
+                    <p class="mb-0">© <?= date('Y'); ?> Dinas Pendidikan Kepemudaaan dan Olahraga Kabupaten Banjarnegara</p>
                 </div>
                 <div class="col-auto">
                     <p class="mb-0">Made with <span class="text-primary-600"><iconify-icon icon="lucide:heart" width="24" height="24" style="color:#dc2626;"></iconify-icon></span></p>

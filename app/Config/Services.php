@@ -2,7 +2,11 @@
 
 namespace Config;
 
+use App\Libraries\AppView;
 use CodeIgniter\Config\BaseService;
+use CodeIgniter\View\View;
+use Config\Paths;
+use Config\View as ViewConfig;
 
 /**
  * Services Configuration file.
@@ -19,14 +23,20 @@ use CodeIgniter\Config\BaseService;
  */
 class Services extends BaseService
 {
-    /*
-     * public static function example($getShared = true)
-     * {
-     *     if ($getShared) {
-     *         return static::getSharedInstance('example');
-     *     }
+    /**
+     * Renderer dengan dukungan data pada View::include().
      *
-     *     return new \CodeIgniter\Example();
-     * }
+     * @return View
      */
+    public static function renderer(?string $viewPath = null, ?ViewConfig $config = null, bool $getShared = true)
+    {
+        if ($getShared) {
+            return static::getSharedInstance('renderer', $viewPath, $config);
+        }
+
+        $viewPath = $viewPath ?: (new Paths())->viewDirectory;
+        $config ??= config(ViewConfig::class);
+
+        return new AppView($config, $viewPath, static::locator(), CI_DEBUG, static::logger());
+    }
 }

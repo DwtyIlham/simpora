@@ -122,27 +122,6 @@ use function App\Controllers\isAdmin;
                         </h5>
                     </div>
 
-                    <!-- KK -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">
-                            Unggah KK <span class="text-danger">*</span>
-                        </label>
-                        <small class="text-muted d-block mb-1">
-                            JPG, JPEG, PNG, WEBP • 100KB - 2MB
-                        </small>
-                        <input type="file" name="file_kk" class="form-control"
-                            accept=".jpg,.jpeg,.png,.webp" required>
-                        <?php if (!empty($atlet['file_kk'])): ?>
-                            <small class="d-block mt-1">
-                                <i class="ri-file-check-line text-success"></i>
-                                <a href="<?= base_url('public/uploads/atlet/file_kk/' . $atlet['file_kk']); ?>"
-                                    target="_blank" class="text-primary text-decoration-none">
-                                    Lihat KK
-                                </a>
-                            </small>
-                        <?php endif; ?>
-                    </div>
-
                     <!-- Akte -->
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">
@@ -188,19 +167,19 @@ use function App\Controllers\isAdmin;
                     <!-- KTP/KIA -->
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">
-                            Unggah KTP / KIA <span class="text-danger">*</span>
+                            Unggah KTP / KIA / KK<span class="text-danger">*</span>
                         </label>
                         <small class="text-muted d-block mb-1">
                             JPG, JPEG, PNG, WEBP • 100KB - 2MB
                         </small>
-                        <input type="file" name="file_ktp_kia" class="form-control"
+                        <input type="file" name="file_ktp_kia_kk" class="form-control"
                             accept=".jpg,.jpeg,.png,.webp" required>
-                        <?php if (!empty($atlet['file_ktp_kia'])): ?>
+                        <?php if (!empty($atlet['file_ktp_kia_kk'])): ?>
                             <small class="d-block mt-1">
                                 <i class="ri-file-check-line text-success"></i>
-                                <a href="<?= base_url('public/uploads/atlet/file_ktp_kia/' . $atlet['file_ktp_kia']); ?>"
+                                <a href="<?= base_url('public/uploads/atlet/file_ktp_kia_kk/' . $atlet['file_ktp_kia_kk']); ?>"
                                     target="_blank" class="text-primary text-decoration-none">
-                                    Lihat KTP/KIA
+                                    Lihat KTP/KIA/KK
                                 </a>
                             </small>
                         <?php endif; ?>
@@ -220,6 +199,25 @@ use function App\Controllers\isAdmin;
                                 <a href="<?= base_url('public/uploads/atlet/file_foto/' . $atlet['file_foto']); ?>"
                                     target="_blank" class="text-primary text-decoration-none">
                                     Lihat Foto
+                                </a>
+                            </small>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Suket -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Unggah Surat Keterangan<span class="text-danger">*</span></label>
+                        <small class="text-muted d-block mb-1">
+                            JPG, JPEG, PNG, WEBP • 100KB - 2MB
+                        </small>
+                        <input type="file" name="file_suket" class="form-control"
+                            accept=".jpg,.jpeg,.png,.webp" required>
+                        <?php if (!empty($atlet['file_suket'])): ?>
+                            <small class="d-block mt-1">
+                                <i class="ri-file-check-line text-success"></i>
+                                <a href="<?= base_url('public/uploads/atlet/file_suket/' . $atlet['file_suket']); ?>"
+                                    target="_blank" class="text-primary text-decoration-none">
+                                    Lihat Surat Keterangan (*)
                                 </a>
                             </small>
                         <?php endif; ?>
@@ -253,9 +251,5 @@ use function App\Controllers\isAdmin;
         </form>
     </div>
 </div>
-
-<script>
-    let table = new DataTable('#dataTable');
-</script>
 
 <?= $this->endSection(); ?>

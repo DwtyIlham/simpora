@@ -80,25 +80,6 @@ use CodeIgniter\Database\BaseUtils;
 </div>
 
 <script>
-    let table = new DataTable('#dataTable');
-    const selectRole = document.getElementById('select-role');
-    const form1 = document.querySelector('.form-1');
-    const form2 = document.querySelector('.form-2');
-    $('#select-role').on('change', function() {
-        const selectedValue = this.value;
-
-        if (selectedValue === '1') {
-            form1.classList.remove('d-none');
-            form2.classList.add('d-none');
-        } else if (selectedValue === '2') {
-            form2.classList.remove('d-none');
-            form1.classList.add('d-none');
-        } else {
-            form1.classList.add('d-none');
-            form2.classList.add('d-none');
-        }
-    });
-
     // load nomor cabor berdasar cabor terpilih
     $('#cabor').on('change', function() {
         let caborId = $(this).val();

@@ -31,6 +31,11 @@ class UsersModel extends Model
         return $this->where(['username' => $username], ['isActive' => '1'])->first();
     }
 
+    public function getUserValidatorByUsername($username)
+    {
+        return $this->where(['username' => $username], ['role_id' => 4], ['isActive' => '1'])->first();
+    }
+
     public function getSekolahNotRegistered()
     {
         $result = $this->db->table('sekolah s')
@@ -48,9 +53,29 @@ class UsersModel extends Model
 
     public function getDataOperator()
     {
-        $sql = $this->db->table('users u')->select('u.id, u.nama, u.no_wa, u.isActive, s.nama sekolah, s.kecamatan, s.bentuk_pendidikan')
-            ->join('sekolah s', 'u.sekolah_id = s.id')->where(['u.role_id' => '2'])
+        $sql = $this->db->table('users u')->select('u.*, s.nama sekolah, s.kecamatan, s.bentuk_pendidikan')
+            ->join('sekolah s', 'u.sekolah_id = s.id', 'left')
+            ->where(['u.isActive' => '1'])
+            ->orderBy('u.nama', 'ASC')
             ->get()->getResultArray();
+
+        return $sql;
+    }
+
+    public function getDataValidator()
+    {
+        $sql = $this->db->table('users u')
+            ->select('u.*')
+            ->select('GROUP_CONCAT(DISTINCT c.nama ORDER BY c.nama ASC SEPARATOR ", ") AS cabor')
+            ->select('GROUP_CONCAT(DISTINCT uv.cabor_id SEPARATOR ", ") AS cabor_id')
+            ->join('users_validator uv', 'uv.user_id = u.id')
+            ->join('cabor c', 'c.id = uv.cabor_id', 'left')
+
+            ->where('u.isActive', '1')
+            ->groupBy('uv.user_id')
+            ->orderBy('u.nama', 'ASC')
+            ->get()
+            ->getResultArray();
 
         return $sql;
     }

@@ -94,9 +94,11 @@ use function App\Controllers\isAdmin;
                                         data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat ID Card">
                                         <iconify-icon icon="lucide:id-card-lanyard"></iconify-icon>
                                     </a>
-                                    <a href="<?= site_url('admin/kompetisi/edit/') . $p['id']; ?>" class="btn-edit w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
-                                        <iconify-icon icon="lucide:edit"></iconify-icon>
-                                    </a>
+                                    <div hidden>
+                                        <a href="<?= site_url('admin/kompetisi/edit/') . $p['id']; ?>" class="btn-edit w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
+                                            <iconify-icon icon="lucide:edit"></iconify-icon>
+                                        </a>
+                                    </div>
                                     <a id="<?= $p['id']; ?>" data-kompetisi-id="<?= $p['kompetisi_id']; ?>" class="btn-delete w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center">
                                         <iconify-icon icon="mingcute:delete-2-line"></iconify-icon>
                                     </a>

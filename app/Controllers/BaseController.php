@@ -103,5 +103,41 @@ abstract class BaseController extends Controller
                 return false;
             }
         }
+
+        if (!function_exists('isValidator')) {
+            function isValidator()
+            {
+                return (session('user')['role_id'] ?? '') === '4';
+            }
+        }
+
+        if (!function_exists('isAdminOrValidator')) {
+            function isAdminOrValidator()
+            {
+                return isAdmin() || isValidator();
+            }
+        }
+
+        function tgl_indo($tanggal)
+        {
+            $bulan = [
+                1 => 'Januari',
+                'Februari',
+                'Maret',
+                'April',
+                'Mei',
+                'Juni',
+                'Juli',
+                'Agustus',
+                'September',
+                'Oktober',
+                'November',
+                'Desember'
+            ];
+
+            $pecah = explode('-', $tanggal);
+
+            return (int)$pecah[2] . ' ' . $bulan[(int)$pecah[1]] . ' ' . $pecah[0];
+        }
     }
 }

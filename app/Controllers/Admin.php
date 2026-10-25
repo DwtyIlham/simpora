@@ -7,6 +7,7 @@ use App\Models\CaborModel;
 use App\Models\UsersModel;
 use App\Models\KompModel;
 use App\Models\PesertaModel;
+use App\Models\PrestasiModel;
 use App\Models\Traits\UuidTrait;
 use Config\Encryption;
 use Config\Services;
@@ -20,6 +21,7 @@ class Admin extends BaseController
     protected $m_users;
     protected $m_komp;
     protected $m_peserta;
+    protected $m_prestasi;
 
     public function __construct()
     {
@@ -30,34 +32,35 @@ class Admin extends BaseController
         $this->m_users = new UsersModel();
         $this->m_komp = new KompModel();
         $this->m_peserta = new PesertaModel();
+        $this->m_prestasi = new PrestasiModel();
     }
 
 
-    public function api()
-    {
-        $client = Services::curlrequest();
-        $results = [];
+    // public function api()
+    // {
+    //     $client = Services::curlrequest();
+    //     $results = [];
 
-        for ($i = 51; $i <= 100; $i++) {
+    //     for ($i = 51; $i <= 100; $i++) {
 
-            $username = '198503122025211' . str_pad($i, 3, '0', STR_PAD_LEFT);
+    //         $username = '198503122025211' . str_pad($i, 3, '0', STR_PAD_LEFT);
 
-            $url = 'https://asndigital.bkn.go.id/api/forget-password?username=' . $username . '&token=$2b$10$zrhSYpWUPLyGhEHcxaAoj.QbpmKJTFkkP0E9AuCGQp5lmJ6x4Y0cq&captcha=tU8C';
+    //         $url = 'https://asndigital.bkn.go.id/api/forget-password?username=' . $username . '&token=$2b$10$zrhSYpWUPLyGhEHcxaAoj.QbpmKJTFkkP0E9AuCGQp5lmJ6x4Y0cq&captcha=tU8C';
 
-            // Send the GET request
-            $response = $client->get($url);
+    //         // Send the GET request
+    //         $response = $client->get($url);
 
-            // Capture details
-            $results[] = [
-                'username' => $username,
-                'url'      => $url,
-                'response' => $response->getBody(), // raw response
-                // 'json'   => json_decode($response->getBody(), true), // use if JSON
-            ];
-        }
+    //         // Capture details
+    //         $results[] = [
+    //             'username' => $username,
+    //             'url'      => $url,
+    //             'response' => $response->getBody(), // raw response
+    //             // 'json'   => json_decode($response->getBody(), true), // use if JSON
+    //         ];
+    //     }
 
-        return $this->response->setJSON($results);
-    }
+    //     return $this->response->setJSON($results);
+    // }
 
 
 
@@ -65,12 +68,15 @@ class Admin extends BaseController
     {
 
         return view('auth/login');
+        // return view('maintenance');
     }
 
     public function dashboard()
     {
+        $user = session()->get('user');
+
         $data = [
-            'data'  => $this->m_atlet->totalDataKomponen()
+            'data' => $this->m_atlet->getDashboardData('admin', $user['sekolah_id'] ?? null, $user['id'] ?? null)
         ];
         return view('dashboard', $data);
     }
@@ -296,6 +302,9 @@ class Admin extends BaseController
             'cabor' => $this->m_cabor->findAll()
         ];
 
+        $cabor_id = $data['atlet']['cabor_id'];
+        $data['nomorCabor'] = $this->m_cabor->getNomorForEditAtlet($cabor_id);
+
         return view('admin/atlet-edit', $data);
     }
 
@@ -309,6 +318,9 @@ class Admin extends BaseController
         $data = [
             'sekolah_id'    => $this->request->getPost('sekolah'),
             'cabor_id'      => $this->request->getPost('cabor'),
+            'nomor_cabor_1'      => $this->request->getPost('nomor_cabor_1'),
+            'nomor_cabor_2'      => $this->request->getPost('nomor_cabor_2') ?? null,
+            'nomor_cabor_3'      => $this->request->getPost('nomor_cabor_3') ?? null,
             'nik'           => $this->request->getPost('nik'),
             'nisn'          => $this->request->getPost('nisn'),
             'nama'          => $this->request->getPost('nama'),
@@ -450,15 +462,28 @@ class Admin extends BaseController
     public function dataUsers()
     {
         $data = [
-            'users'     => $this->db->table('users')->get()->getResultArray(),
+            // 'users'     => $this->db->table('users')->get()->getResultArray(),
+            'users'     => $this->m_users->getDataOperator(),
         ];
         return view('admin/users-data', $data);
+    }
+
+    public function dataValidators()
+    {
+        $data = [
+            // 'users'     => $this->db->table('users')->get()->getResultArray(),
+            'users'     => $this->m_users->getDataValidator(),
+            'cabor'     => $this->m_cabor->findAll(),
+        ];
+
+        return view('admin/validator-data', $data);
     }
 
     public function addDataUsers()
     {
         $data = [
             'users'     => $this->db->table('users')->get()->getResultArray(),
+            'cabor'     => $this->m_cabor->findAll(),
             'sekolah'   => $this->m_users->getSekolahNotRegistered()
         ];
         return view('admin/users-add', $data);
@@ -516,6 +541,49 @@ class Admin extends BaseController
         endif;
     }
 
+    public function addValidator()
+    {
+        $userId = Uuid::uuid4()->toString();
+        $cabor = $this->request->getPost('cabor');
+
+        $data = [
+            'id'       => $userId,
+            'nama'     => $this->request->getPost('nama'),
+            'role_id'  => 4,
+            'username' => $this->request->getPost('username'),
+            'password' => password_hash($this->request->getPost('password'), PASSWORD_BCRYPT),
+        ];
+
+        // cek username
+        $existingUser = $this->m_users->getUserByUsername($data['username']);
+        if ($existingUser) {
+            session()->setFlashdata('error', 'Username sudah terpakai. Silahkan gunakan username lain.');
+            return redirect()->to('/admin/users/add');
+        }
+
+        // insert user
+        $insert = $this->m_users->insert($data);
+
+        if ($insert) {
+            // insert ke users_validator
+            if (!empty($cabor) && is_array($cabor)) {
+                foreach ($cabor as $caborId) {
+                    $this->db->table('users_validator')->insert([
+                        'user_id'  => $userId,
+                        'cabor_id' => $caborId
+                    ]);
+                }
+            }
+
+            session()->setFlashdata('success', 'Validator berhasil ditambahkan.');
+            return redirect()->to('/admin/users/add');
+        }
+
+        // kalau gagal insert user
+        session()->setFlashdata('error', 'Gagal menambahkan validator. Silahkan coba lagi.');
+        return redirect()->to('/admin/users/add');
+    }
+
     public function deleteUser($id)
     {
         $this->m_users->delete($id);
@@ -535,20 +603,37 @@ class Admin extends BaseController
         return view('admin/kompetisi-data', $data);
     }
 
-    public function addDataKompetisi($id = '')
+    public function addDataKompetisi()
     {
         $data = [
             'title'     => 'Tambah Kompetisi'
+        ];
+
+        return view('admin/kompetisi-add', $data);
+    }
+
+    public function editDataKompetisi($id)
+    {
+        $data = [
+            'title'     => 'Ubah Kompetisi',
+            'id'        => $id
         ];
 
         if ($id) {
             $data['kompetisi'] = $this->m_komp->where('id', $id)->first();
         }
 
-        return view('admin/kompetisi-add', $data);
+        return view('admin/kompetisi-edit', $data);
     }
 
-    public function addDataKompetisi_attempt($id = null)
+    public function deleteKompetisi($id)
+    {
+        $this->m_komp->delete($id);
+        $this->session->setFlashdata('success', 'Kompetisi berhasil dihapus.');
+        return redirect()->to('/admin/kompetisi/data');
+    }
+
+    public function addDataKompetisi_attempt()
     {
         // Ambil input
         $data = [
@@ -562,24 +647,35 @@ class Admin extends BaseController
         ];
 
         // Jika $id kosong → Insert
-        if (empty($id)) {
-            if ($this->m_komp->insert($data)) {
-                session()->setFlashdata('success', 'Data Kompetisi Berhasil Disimpan.');
-            } else {
-                session()->setFlashdata('error', 'Data Kompetisi Gagal Disimpan.');
-            }
-
-            return redirect()->to('/admin/kompetisi/add');
+        if ($this->m_komp->insert($data)) {
+            session()->setFlashdata('success', 'Data Kompetisi Berhasil Disimpan.');
+        } else {
+            session()->setFlashdata('error', 'Data Kompetisi Gagal Disimpan.');
         }
 
-        // Jika $id ada → Update
+        return redirect()->to('admin/kompetisi/data');
+    }
+
+    public function editDataKompetisi_attempt($id)
+    {
+        // Ambil input
+        $data = [
+            'nama'          => $this->request->getPost('nama'),
+            'tingkat'       => $this->request->getPost('tingkat'),
+            'deskripsi'     => $this->request->getPost('deskripsi'),
+            'lokasi'        => $this->request->getPost('lokasi'),
+            'tgl_start'     => $this->request->getPost('tgl_start'),
+            'tgl_end'       => $this->request->getPost('tgl_end'),
+            'tgl_reg_end'   => $this->request->getPost('tgl_reg_end')
+        ];
+
         if ($this->m_komp->update($id, $data)) {
             session()->setFlashdata('success', 'Data Kompetisi Berhasil Diubah.');
         } else {
             session()->setFlashdata('error', 'Data Kompetisi Gagal Diubah.');
         }
 
-        return redirect()->to('/admin/kompetisi/data');
+        return redirect()->to('admin/kompetisi/data');
     }
 
     public function peserta($id_kompetisi)
@@ -646,6 +742,16 @@ class Admin extends BaseController
         return redirect()->to('/admin/kompetisi/peserta/' . $kompetisi_id);
     }
 
+    public function deletePrestasi($id, $kompetisi_id)
+    {
+        if ($this->m_prestasi->where('kompetisi_id', $kompetisi_id)->delete($id)) {
+            $this->session->setFlashdata('success', 'Data berhasil dihapus.');
+        } else {
+            $this->session->setFlashdata('error', 'Data gagal dihapus.');
+        }
+        return redirect()->to('admin/kompetisi/prestasi/' . encode_id($kompetisi_id));
+    }
+
     public function dataKompetisiPrestasi()
     {
         $data = [
@@ -661,10 +767,23 @@ class Admin extends BaseController
         $kompetisi = $this->m_komp->first($id_kompetisi)['nama'];
         $data = [
             'title'     => 'Data Prestasi ' . $kompetisi,
-            'peserta'   => $this->m_peserta->getDataPesertaPrestasi($id_kompetisi),
+            // 'peserta'   => $this->m_peserta->getDataPesertaPrestasi($id_kompetisi),
             'cabor'     => $this->m_cabor->findAll(),
+            'nomor_cabor'     => $this->db->table('nomor_cabor')->get()->getResultArray(),
             'sekolah'   => $this->db->table('sekolah')->get()->getResultArray(),
-            'id_kompetisi'  => $id_kompetisi
+            'id_kompetisi'  => $id_kompetisi,
+            'peserta' => $this->db->table('prestasi p')
+                ->select('a.id AS atlet_id, a.nama atlet_nama, s.nama sekolah_nama, c.nama cabor_nama, nc.nama nomor_cabor_nama, p.id, p.prestasi, p.kompetisi_id')
+                ->join('atlet a', 'a.id = p.atlet_id')
+                ->join('sekolah s', 's.id = a.sekolah_id')
+                // ->join('sekolah s', 's.id = a.sekolah_id OR s.npsn = a.npsn')
+                ->join('nomor_cabor nc', 'nc.id = p.nomor_cabor_id')
+                ->join('cabor c', 'c.id = nc.cabor_id')
+                ->join('kompetisi k', 'k.id = p.kompetisi_id')
+                ->where('p.kompetisi_id', $id_kompetisi)
+                // ->where('s.status_sekolah != ', 'Korwil')
+                ->orderBy('nc.id, p.id, a.id')
+                ->get()->getResultArray()
         ];
 
         return view('admin/prestasi-peserta', $data);
@@ -686,15 +805,37 @@ class Admin extends BaseController
 
     public function addDataPrestasi_attempt()
     {
-        $id = $this->request->getPost('peserta_id');
-        $kompetisi_id = $this->request->getPost('kompetisi_id');
-        $prestasi_id = $this->request->getPost('prestasi_id');
-        $data = ['prestasi' => $prestasi_id];
-        if ($this->m_peserta->where('kompetisi_id', $kompetisi_id)->update($id, $data)) {
-            session()->setFlashdata('success', 'Data Peserta Berhasil Disimpan.');
-        } else {
-            session()->setFlashdata('error', 'Data Peserta Gagal Disimpan');
+        // Karena form multiple, $atlet_ids sekarang berisi array, misalnya [1, 5, 8]
+        $atlet_ids      = $this->request->getPost('atlet_id');
+        $kompetisi_id   = $this->request->getPost('kompetisi_id');
+        $cabor_id       = $this->request->getPost('cabor');
+        $nomor_cabor_id = $this->request->getPost('nomor_lomba');
+        $prestasi_id    = $this->request->getPost('prestasi_id');
+
+        // Validasi sederhana memastikan ada atlet yang dipilih
+        if (empty($atlet_ids) || !is_array($atlet_ids)) {
+            return redirect()->back()->withInput()->with('error', 'Silakan pilih minimal satu atlet.');
         }
+
+        // Menyiapkan array multidimensi untuk insert massal
+        $batchData = [];
+        foreach ($atlet_ids as $id) {
+            $batchData[] = [
+                'atlet_id'       => $id,
+                'kompetisi_id'   => $kompetisi_id,
+                'cabor_id'       => $cabor_id,
+                'nomor_cabor_id' => $nomor_cabor_id,
+                'prestasi'       => $prestasi_id
+            ];
+        }
+
+        // Menggunakan insertBatch untuk memasukkan banyak baris sekaligus
+        if ($this->db->table('prestasi')->insertBatch($batchData)) {
+            session()->setFlashdata('success', 'Data Prestasi Atlet Berhasil Disimpan.');
+        } else {
+            session()->setFlashdata('error', 'Data Prestasi Atlet Gagal Disimpan.');
+        }
+
         return redirect()->to('admin/kompetisi/prestasi/' . encode_id($kompetisi_id));
     }
 
@@ -702,18 +843,19 @@ class Admin extends BaseController
     {
         $id = $this->request->getPost('peserta_id');
         $kompetisi_id = $this->request->getPost('kompetisi_id');
-        $prestasi_id = $this->request->getPost('prestasi_id');
-        $data = ['prestasi' => $prestasi_id];
+        $prestasi = $this->request->getPost('prestasi');
+        $data = ['prestasi' => $prestasi];
+
         $rules = [
             'peserta_id' => 'required|is_natural_no_zero',
-            'prestasi_id' => 'required|is_natural_no_zero'
+            'prestasi' => 'required|is_natural_no_zero'
         ];
 
         if (! $this->validate($rules)) {
             return redirect()->back()->withInput()->with('error', 'Data tidak valid');
         }
 
-        if ($this->m_peserta->update($id, $data)) {
+        if ($this->db->table('prestasi')->where('id', $id)->update($data)) {
             session()->setFlashdata('success', 'Data Peserta Berhasil Diperbarui.');
         } else {
             session()->setFlashdata('error', 'Data Peserta Gagal Diperbarui');
@@ -727,14 +869,49 @@ class Admin extends BaseController
             'data'  => $this->m_peserta->getDataPeserta($id_peserta)
         ];
 
+        // dd(dirname(__DIR__, 3) . '/public/assets/images/ttd.png');
+
         return view('piagam/piagam', $data);
+    }
+
+    public function piagam_batch($nomor_cabor_id)
+    {
+        $data = [
+            'data'  => $this->m_peserta->getDataPesertaBatch($nomor_cabor_id)
+        ];
+
+        // Konfigurasi Dompdf
+        $options = new \Dompdf\Options();
+        $options->set('isRemoteEnabled', true);
+        $options->set('chroot', FCPATH);
+
+        $dompdf = new \Dompdf\Dompdf($options);
+
+        // Muat view piagam yang sudah rapi 1 halaman kemarin
+        $html = view('piagam/piagam-batch', $data);
+
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        // FORCE DOWNLOAD DI SINI
+        return $dompdf->stream("Piagam_" . urlencode($data['data'][0]['cabor_nama'] . ' ' . $data['data'][0]['nomor_lomba']) . ".pdf", [
+            "Attachment" => true // Memaksa langsung download, bukan preview
+        ]);
+
+        // return view('piagam/piagam-batch', $data);
     }
 
     public function view_idcard_peserta($id_peserta)
     {
+        $peserta = $this->m_peserta->getDataPesertaIDCard($id_peserta);
+        if (empty($peserta)) {
+            return redirect()->to('admin/kompetisi/data')->with('error', 'Data peserta tidak ditemukan.');
+        }
+
         $data = [
             'title'     => 'Unduh ID Card Peserta',
-            'peserta'   => $this->m_peserta->getDataPesertaIDCard($id_peserta)
+            'peserta'   => $peserta
         ];
         return view('admin/preview-idcard', $data);
     }
@@ -748,6 +925,7 @@ class Admin extends BaseController
             'cabor' => $this->m_cabor->orderBy('nama')->findAll(),
             'nomcab'    => $this->m_cabor->getNomorCabor()
         ];
+
         return view('admin/cabor-data', $data);
     }
 
@@ -791,7 +969,8 @@ class Admin extends BaseController
         $data = [
             'title' => 'Data Nomor Cabang Olahraga',
             'nomcab'    => $this->m_cabor->getNomorCaborData(),
-            'cabor' => $this->m_cabor->orderBy('nama')->findAll()
+            'cabor' => $this->m_cabor->orderBy('nama')->findAll(),
+            'jenjang' => $this->db->table('jenjang')->get()->getResultArray()
         ];
 
         return view('admin/nomorcabor-data', $data);
@@ -801,13 +980,13 @@ class Admin extends BaseController
     {
         $cabor_id = $this->request->getPost('cabor_id');
         $nama = $this->request->getPost('nama');
-        $jenjang = $this->request->getPost('jenjang');
+        $jenjang_id = $this->request->getPost('jenjang_id');
         $kategori = $this->request->getPost('kategori');
         $detail = $this->request->getPost('detail');
         $data = [
             'cabor_id'  => $cabor_id,
             'nama'      => $nama,
-            'jenjang'   => $jenjang,
+            'jenjang_id'   => $jenjang_id,
             'kategori'  => $kategori,
             'detail'    => $detail
         ];
@@ -825,13 +1004,13 @@ class Admin extends BaseController
         $id = $this->request->getPost('id');
         $cabor_id = $this->request->getPost('cabor_id');
         $nama = $this->request->getPost('nama');
-        $jenjang = $this->request->getPost('jenjang');
+        $jenjang_id = $this->request->getPost('jenjang_id');
         $kategori = $this->request->getPost('kategori');
         $detail = $this->request->getPost('detail');
         $data = [
             'cabor_id'  => $cabor_id,
             'nama'      => $nama,
-            'jenjang'   => $jenjang,
+            'jenjang_id' => $jenjang_id,
             'kategori'  => $kategori,
             'detail'    => $detail
         ];
@@ -842,6 +1021,22 @@ class Admin extends BaseController
             session()->setFlashdata('success', 'Data Nomor Cabor Gagal Diubah.');
         }
         return redirect()->to('admin/kompetisi/nomor-cabor');
+    }
+
+    public function deletenomorcabor($id)
+    {
+        $deleted = $this->db
+            ->table('nomor_cabor')
+            ->where('id', $id)
+            ->delete();
+
+        if ($deleted) {
+            session()->setFlashdata('success', 'Data Nomor Cabor berhasil dihapus.');
+        } else {
+            session()->setFlashdata('error', 'Data Nomor Cabor gagal dihapus.');
+        }
+
+        return redirect()->to(base_url('admin/kompetisi/nomor-cabor'));
     }
     // End of Cabor
 
@@ -861,7 +1056,8 @@ class Admin extends BaseController
         $kompetisi = $this->m_komp->find($id_kompetisi)['nama'];
 
         $data = [
-            'title'     => 'JURNAL PEROLEHAN MEDALI ' . $kompetisi,
+            'title'      => 'JURNAL PEROLEHAN MEDALI ' . $kompetisi,
+            'kompetisi'  => $this->m_komp->findAll(),
             'prestasi'   => $this->m_peserta->getDataPesertaPrestasi($id_kompetisi)
         ];
 
@@ -871,20 +1067,55 @@ class Admin extends BaseController
 
     // End of Medali
 
+    // Area Pusat Unduhan
+    public function rekap_data()
+    {
+        $data = [
+            'title' => 'Rekapitulasi Data',
+            'atlet'     => $this->m_atlet->getAtletData(),
+            'cabor'    => $this->m_cabor->findAll(),
+            'jenjang'  => $this->db->table('jenjang')->get()->getResultArray(),
+            'sekolah'   => $this->db->table('sekolah')->get()->getResultArray()
+        ];
+
+        return view('admin/rekap-data', $data);
+    }
+    // End of Area Pusat Unduhan
+
     // Area Validasi Peserta
     public function validasi_peserta($id)
     {
-        $peserta = $this->m_peserta
-            ->from('peserta p')
-            ->select('p.*, a.file_foto, a.nama, s.nama sekolah, c.nama cabor, CONCAT(nc.nama, " ", nc.jenjang, " ", nc.kategori, " ", IFNULL(nc.detail, "")) AS nomor_cabor, k.nama kompetisi, k.deskripsi')
-            ->join('atlet a', 'a.id = p.atlet_id')
-            ->join('sekolah s', 's.id = a.sekolah_id')
-            ->join('cabor c', 'c.id = p.cabor_id')
-            ->join('nomor_cabor nc', 'nc.id = p.nomor_cabor_id')
-            ->join('kompetisi k', 'k.id = p.kompetisi_id')
-            ->where('p.id', $id)
-            ->first();
+        $peserta = $this->m_atlet
+            ->from('atlet a')
+            ->select('
+            a.id,
+            a.file_foto, 
+            a.nama, 
+            s.nama AS sekolah, 
+            c.nama AS cabor, 
 
+            GROUP_CONCAT(
+                DISTINCT nc.nama 
+                SEPARATOR "<br>"
+            ) AS nomor_cabor,
+
+            k.nama AS kompetisi, 
+            k.deskripsi
+        ')
+            ->join('sekolah s', 's.id = a.sekolah_id')
+            ->join('cabor c', 'c.id = a.cabor_id')
+
+            // MULTI NOMOR CABOR
+            ->join('nomor_cabor nc', '
+            nc.id = a.nomor_cabor_1 OR
+            nc.id = a.nomor_cabor_2 OR
+            nc.id = a.nomor_cabor_3
+        ', 'left')
+
+            ->join('kompetisi k', 'k.id = 1')
+            ->where('a.id', $id)
+            ->groupBy('a.id')
+            ->first();
 
         if (!$peserta) {
             return view('verifikasi_invalid');
@@ -975,10 +1206,5 @@ class Admin extends BaseController
             'success' => false,
             'message' => 'Gagal mengganti password.'
         ]);
-    }
-
-    public function coba()
-    {
-        return view('coba');
     }
 }

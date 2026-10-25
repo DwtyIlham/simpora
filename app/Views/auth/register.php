@@ -54,11 +54,11 @@
     <!-- Theme Customization Structure Start -->
     <div class="body-overlay"></div>
 
-    <button type="button"
+    <!-- <button type="button"
         class="theme-customization__button w-48-px h-48-px bg-primary-600 text-white rounded-circle d-flex justify-content-center align-items-center position-fixed end-0 bottom-0 mb-40 me-40 text-2xxl bg-hover-primary-700">
         <i class="ri-settings-3-line animate-spin"></i>
-    </button>
-    <div class="theme-customization-sidebar w-100 bg-base h-100vh overflow-y-auto position-fixed end-0 top-0 shadow-lg">
+    </button> -->
+    <!-- <div class="theme-customization-sidebar w-100 bg-base h-100vh overflow-y-auto position-fixed end-0 top-0 shadow-lg">
         <div class="d-flex align-items-center gap-3 py-16 px-24 justify-content-between border-bottom">
             <div>
                 <h6 class="text-sm dark:text-white">Theme Settings</h6>
@@ -159,7 +159,7 @@
             </div>
 
         </div>
-    </div>
+    </div> -->
     <!-- Theme Customization Structure End -->
 
     <section class="auth bg-base d-flex flex-wrap">
@@ -202,7 +202,7 @@
                     <!-- Text -->
                     <div class="text-center align-self-center">
                         <h2 class="mb-0">SILAGAPORA</h2>
-                        <small class="mb-0">SISTEM INFORMASI LOMBA DAN AGENDA<br /> DAN OLAHRAGA BANJARNEGARA</small>
+                        <small class="mb-0">SISTEM INFORMASI LOMBA DAN AGENDA<br /> KEPEMUDAAN OLAHRAGA BANJARNEGARA</small>
                     </div>
 
                 </div>
@@ -253,6 +253,7 @@
                         <span class="toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-16 text-secondary-light" data-toggle="#your-password"></span>
                     </div>
 
+                    <!-- disabled registrasi sekolah -->
                     <button type="submit" class="btn btn-primary text-sm btn-sm px-12 py-16 w-100 radius-12 mt-32">Daftar</button>
                 </form>
                 <div class="mt-32 text-center text-sm">

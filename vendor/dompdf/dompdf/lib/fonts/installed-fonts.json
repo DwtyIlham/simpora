@@ -1,0 +1,11 @@
+{
+    "crimson text": {
+        "italic": "C:\\xampp\\htdocs\\silagapora\\vendor\\dompdf\\dompdf\/lib\/fonts\/crimson_text_italic_8e3d0fda1db87e10724d6ee4dad637ff",
+        "normal": "C:\\xampp\\htdocs\\silagapora\\vendor\\dompdf\\dompdf\/lib\/fonts\/crimson_text_normal_bdc3f0e1ea6bf8b050d4c52f2999b1b3",
+        "bold": "crimson_text_bold_118fc4d93627e5f7cf05a7570deffdd6"
+    },
+    "noto serif": {
+        "normal": "C:\\xampp\\htdocs\\silagapora\\vendor\\dompdf\\dompdf\/lib\/fonts\/noto_serif_normal_f0203efaa67eaeb0c1287d435e65b41b",
+        "bold": "noto_serif_bold_e7edeb215ae4fda1e233560bdb1240fe"
+    }
+}

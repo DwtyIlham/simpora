@@ -5,7 +5,7 @@
   <h6 class="fw-semibold mb-0"><?= $title; ?></h6>
   <ul class="d-flex align-items-center gap-2">
     <li class="fw-medium">
-      <a href="<?= site_url('admin/kompetisi/data'); ?>" class="d-flex align-items-center gap-1 hover-text-primary">
+      <a href="<?= site_url('sekolah/kompetisi/data'); ?>" class="d-flex align-items-center gap-1 hover-text-primary">
         <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
         <?= $title; ?>
       </a>

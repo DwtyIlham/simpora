@@ -41,8 +41,10 @@ class Sekolah extends BaseController
 
     public function dashboard()
     {
+        $user = session()->get('user');
+
         $data = [
-            'data'  => $this->m_atlet->totalDataKomponen()
+            'data' => $this->m_atlet->getDashboardData('sekolah', $user['sekolah_id'] ?? null, $user['id'] ?? null)
         ];
         return view('dashboard', $data);
     }
@@ -53,7 +55,8 @@ class Sekolah extends BaseController
         $data = [
             'atlet'     => $this->m_atlet->getAtletDataBySekolah(),
             'cabor'    => $this->m_cabor->findAll(),
-            'sekolah'   => $this->db->table('sekolah')->get()->getResultArray(),
+            // 'sekolah'   => $this->db->table('sekolah')->get()->getResultArray(),
+            'sekolah' => $this->db->table('sekolah')->where('id', $this->sekolah_id)->get()->getFirstRow('array'),
             'admin_setting' => $this->db->table('admin_setting')->get()->getResultArray()
         ];
         // dd($data['atlet']);
@@ -80,7 +83,6 @@ class Sekolah extends BaseController
         // Menyiapkan data dasar dari POST request
         $data = [
             'sekolah_id'    => $this->request->getPost('sekolah'),
-            'cabor_id'      => $this->request->getPost('cabor'),
             'nik'           => $this->request->getPost('nik'),
             'nisn'          => $this->request->getPost('nisn'),
             'nama'          => $this->request->getPost('nama'),
@@ -88,6 +90,11 @@ class Sekolah extends BaseController
             'jenis_kelamin' => $this->request->getPost('jk'),
             'tanggal_lahir' => $this->request->getPost('tanggal_lahir'),
             'tempat_lahir'  => $this->request->getPost('tempat_lahir'),
+            // 'kategori_id'   => $this->request->getPost('kategori'),
+            'cabor_id'      => $this->request->getPost('cabor'),
+            'nomor_cabor_1' => $this->request->getPost('nomor_cabor_1'),
+            'nomor_cabor_2' => $this->request->getPost('nomor_cabor_2') ?? null,
+            'nomor_cabor_3' => $this->request->getPost('nomor_cabor_3') ?? null
         ];
 
         // Daftar file yang akan di-upload
@@ -207,6 +214,10 @@ class Sekolah extends BaseController
             'sekolah'   => $this->db->table('sekolah')->get()->getResultArray(),
         ];
 
+        $cabor_id = $data['atlet']['cabor_id'];
+        $data['nomorCabor'] = $this->m_cabor->getNomorForEditAtlet($cabor_id);
+        $data['banyakNoCabor'] = $this->m_cabor->getBanyakNomorCabor($id);
+
         return view('sekolah/atlet-edit', $data);
     }
 
@@ -220,6 +231,9 @@ class Sekolah extends BaseController
         $data = [
             'sekolah_id'    => $this->request->getPost('sekolah'),
             'cabor_id'      => $this->request->getPost('cabor'),
+            'nomor_cabor_1'      => $this->request->getPost('nomor_cabor_1'),
+            'nomor_cabor_2'      => $this->request->getPost('nomor_cabor_2') ?? null,
+            'nomor_cabor_3'      => $this->request->getPost('nomor_cabor_3') ?? null,
             'nik'           => $this->request->getPost('nik'),
             'nisn'          => $this->request->getPost('nisn'),
             'nama'          => $this->request->getPost('nama'),
@@ -228,7 +242,6 @@ class Sekolah extends BaseController
             'tanggal_lahir' => $this->request->getPost('tanggal_lahir'),
             'tempat_lahir'  => $this->request->getPost('tempat_lahir'),
         ];
-
 
         // File yang digunakan
         $files = [
@@ -331,6 +344,96 @@ class Sekolah extends BaseController
         return redirect()->to('/sekolah/atlet/data');
     }
 
+    // Unggah Ulang Berkas Terhapus
+    public function editDataAtletBerkas($id)
+    {
+        $data = [
+            'atlet' => $this->m_atlet->getAtletDetailByID($id),
+            'cabor'    => $this->m_cabor->findAll(),
+            'sekolah'   => $this->db->table('sekolah')->get()->getResultArray(),
+        ];
+
+        $cabor_id = $data['atlet']['cabor_id'];
+        $data['nomorCabor'] = $this->m_cabor->getNomorForEditAtlet($cabor_id);
+        $data['banyakNoCabor'] = $this->m_cabor->getBanyakNomorCabor($id);
+
+        return view('sekolah/atlet-edit-berkas', $data);
+    }
+
+    public function editDataAtletBerkas_attempt($id)
+    {
+        if (!$id) {
+            return redirect()->back()->with('error', 'ID Atlet tidak valid.');
+        }
+
+        // Ambil data lama untuk referensi penghapusan file lama
+        $oldData = $this->m_atlet->find($id);
+        if (!$oldData) {
+            return redirect()->back()->with('error', 'Data Atlet tidak ditemukan.');
+        }
+
+        // Inisialisasi array kosong untuk menampung hanya kolom file yang berubah
+        $dataUpdate = [];
+
+        $files = [
+            'file_akte',
+            'file_nisn',
+            'file_foto',
+            'file_ktp_kia_kk',
+            'file_ijazah',
+            'file_suket'
+        ];
+
+        foreach ($files as $fileKey) {
+            $file = $this->request->getFile($fileKey);
+
+            // Cek apakah ada file baru yang diunggah
+            if ($file && $file->isValid() && !$file->hasMoved()) {
+
+                // Validasi ukuran minimal 100KB (sesuai permintaan Anda sebelumnya)
+                if ($file->getSize() < 100 * 1024) {
+                    continue; // Skip file ini jika terlalu kecil, atau beri return error
+                }
+
+                $newName = $file->getRandomName();
+                $path = FCPATH . 'uploads/atlet/' . $fileKey;
+
+                // Buat folder jika belum ada
+                if (!is_dir($path)) {
+                    mkdir($path, 0777, true);
+                }
+
+                // Pindahkan file ke folder tujuan
+                if ($file->move($path, $newName)) {
+                    // HANYA masukkan nama file ke array update
+                    $dataUpdate[$fileKey] = $newName;
+
+                    // Hapus file lama dari folder agar tidak menumpuk (sampah)
+                    if (!empty($oldData[$fileKey])) {
+                        $oldFilePath = $path . '/' . $oldData[$fileKey];
+                        if (file_exists($oldFilePath)) {
+                            @unlink($oldFilePath);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Cek apakah ada file yang diproses
+        if (empty($dataUpdate)) {
+            return redirect()->back()->with('info', 'Tidak ada file baru yang diunggah.');
+        }
+
+        // Eksekusi update hanya untuk kolom file
+        if ($this->m_atlet->update($id, $dataUpdate)) {
+            return redirect()->to('/sekolah/atlet/data')->with('success', 'Nama berkas berhasil diperbarui.');
+        } else {
+            return redirect()->back()->with('error', 'Gagal memperbarui nama berkas di database.');
+        }
+    }
+
+    // end of unggah berkas terhapus
+
     public function deleteAtlet($id)
     {
         $files = [
@@ -360,7 +463,7 @@ class Sekolah extends BaseController
         } catch (\CodeIgniter\Database\Exceptions\DatabaseException $e) {
 
             // Cek apakah error karena foreign key (1451)
-            if (str_contains($e->getMessage(), '1451')) {
+            if (strpos($e->getMessage(), '1451') !== false) {
                 session()->setFlashdata(
                     'error',
                     'Data Atlet tidak bisa dihapus karena masih terdaftar sebagai peserta kompetisi. Hapus data peserta terlebih dahulu.'
@@ -403,7 +506,8 @@ class Sekolah extends BaseController
             // mencoba mengambil data dari form registrasi
             $data = [
                 'nama'          => $this->request->getPost('nama'),
-                'role_id'       => $this->request->getPost('role'),
+                // Operator sekolah hanya boleh membuat akun operator sekolah.
+                'role_id'       => '2',
                 'username'      => $this->request->getPost('username'),
                 'password'      => $this->request->getPost('password'),
                 'sekolah_id'    => $this->request->getPost('sekolah'),
@@ -433,7 +537,8 @@ class Sekolah extends BaseController
 
             $data = [
                 'nama'          => $this->request->getPost('nama'),
-                'role_id'       => $this->request->getPost('role_id'),
+                // Role akun sekolah tidak boleh diubah menjadi admin/validator.
+                'role_id'       => '2',
                 'username'      => $this->request->getPost('username'),
                 'sekolah_id'    => $this->request->getPost('sekolah'),
                 'no_wa'         => $this->request->getPost('no_wa'),
@@ -453,6 +558,65 @@ class Sekolah extends BaseController
         $this->m_users->delete($id);
         $this->session->setFlashdata('success', 'User berhasil dihapus.');
         return redirect()->to('/sekolah/users/data');
+    }
+
+    public function ganti_password()
+    {
+        $user_id = $this->request->getGet('id');
+        $data = [
+            'title'   => 'Ganti Password',
+            'user'    => $this->m_users->getUserById($user_id),
+            'user_id' => $user_id,
+        ];
+
+        return view('auth/ganti-password', $data);
+    }
+
+    public function ganti_password_attempt()
+    {
+        $user_id         = $this->request->getPost('user_id');
+        $currentPassword = $this->request->getPost('current_password');
+        $newPassword     = $this->request->getPost('new_password');
+        $confirmPassword = $this->request->getPost('confirm_password');
+
+        $user = $this->m_users->find($user_id);
+
+        if (!$user) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'User tidak ditemukan.',
+            ]);
+        }
+
+        if (!password_verify($currentPassword, $user['password'])) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Password saat ini salah.',
+            ]);
+        }
+
+        if ($newPassword !== $confirmPassword) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Konfirmasi password tidak cocok.',
+            ]);
+        }
+
+        $update = $this->m_users->update($user_id, [
+            'password' => password_hash($newPassword, PASSWORD_BCRYPT),
+        ]);
+
+        if ($update) {
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Password berhasil diganti.',
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'success' => false,
+            'message' => 'Gagal mengganti password.',
+        ]);
     }
     // End Area Users
 
@@ -514,6 +678,17 @@ class Sekolah extends BaseController
         return redirect()->to('/sekolah/kompetisi/data');
     }
 
+    public function deleteKompetisi($id)
+    {
+        if ($this->m_komp->delete($id)) {
+            session()->setFlashdata('success', 'Kompetisi berhasil dihapus.');
+        } else {
+            session()->setFlashdata('error', 'Kompetisi gagal dihapus.');
+        }
+
+        return redirect()->to('/sekolah/kompetisi/data');
+    }
+
     public function peserta($id_kompetisi)
     {
         $sekolah_id = session()->get('user')['sekolah_id'];
@@ -555,7 +730,7 @@ class Sekolah extends BaseController
                 'atlet_id'  => $atlet[$i],
                 'kompetisi_id'  => $kompetisi_id,
                 'cabor_id'  => $cabor_id,
-                'nomor_cabor_id' => $nomor_cabor_id
+                'nomor_cabor_id_1' => $nomor_cabor_id
             ];
             if ($this->m_peserta->insert($data)) {
                 session()->setFlashdata('success', 'Data Peserta Berhasil Disimpan.');
@@ -572,22 +747,24 @@ class Sekolah extends BaseController
     public function addPesertaMultiCabor()
     {
         $peserta_id = $this->request->getPost('peserta_id');
-        $nocaborBaru = $this->request->getPost('nocabor_baru');
 
         // Validasi sederhana
-        if (empty($peserta_id) || empty($nocaborBaru)) {
+        if (empty($peserta_id)) {
             session()->setFlashdata('error', 'Data tidak lengkap.');
             return redirect()->back();
         }
 
         $data = [
-            'nomor_cabor_id_2' => $nocaborBaru
+            'nomor_cabor_id_1' => $this->request->getPost('nomor_cabor_id_1') ?? null,
+            'nomor_cabor_id_2' => $this->request->getPost('nomor_cabor_id_2') ?? null,
+            'nomor_cabor_id_3' => $this->request->getPost('nomor_cabor_id_3') ?? null,
+            'nomor_cabor_id_4' => $this->request->getPost('nomor_cabor_id_4') ?? null
         ];
 
         if ($this->m_peserta->update($peserta_id, $data)) {
-            session()->setFlashdata('success', 'Data Peserta Berhasil Disimpan.');
+            session()->setFlashdata('success', 'Data Nomor Cabor Berhasil Disimpan.');
         } else {
-            session()->setFlashdata('error', 'Data Peserta Gagal Disimpan.');
+            session()->setFlashdata('error', 'Data Nomor Cabor Gagal Disimpan.');
         }
 
         return redirect()->back();
@@ -656,6 +833,30 @@ class Sekolah extends BaseController
         return redirect()->to('sekolah/kompetisi/prestasi/' . encode_id($kompetisi_id));
     }
 
+    public function editPrestasi_attempt()
+    {
+        $id = $this->request->getPost('peserta_id');
+        $kompetisi_id = $this->request->getPost('kompetisi_id');
+        $prestasi = $this->request->getPost('prestasi');
+        $data = ['prestasi' => $prestasi];
+
+        $rules = [
+            'peserta_id' => 'required|is_natural_no_zero',
+            'prestasi' => 'required|is_natural_no_zero'
+        ];
+
+        if (! $this->validate($rules)) {
+            return redirect()->back()->withInput()->with('error', 'Data tidak valid');
+        }
+
+        if ($this->db->table('prestasi')->where('id', $id)->update($data)) {
+            session()->setFlashdata('success', 'Data Prestasi Berhasil Diperbarui.');
+        } else {
+            session()->setFlashdata('error', 'Data Prestasi Gagal Diperbarui');
+        }
+        return redirect()->to('sekolah/kompetisi/prestasi/' . encode_id($kompetisi_id));
+    }
+
     public function view_piagam($id_peserta)
     {
         $data = [
@@ -667,9 +868,14 @@ class Sekolah extends BaseController
 
     public function view_idcard_peserta($id_peserta)
     {
+        $peserta = $this->m_peserta->getDataPesertaIDCard($id_peserta);
+        if (empty($peserta)) {
+            return redirect()->to('sekolah/kompetisi/data')->with('error', 'Data peserta tidak ditemukan.');
+        }
+
         $data = [
             'title'     => 'Unduh ID Card Peserta',
-            'peserta'   => $this->m_peserta->getDataPesertaIDCard($id_peserta)
+            'peserta'   => $peserta
         ];
         return view('sekolah/preview-idcard', $data);
     }

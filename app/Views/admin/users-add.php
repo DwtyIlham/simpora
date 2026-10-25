@@ -40,7 +40,7 @@ use CodeIgniter\Database\BaseUtils;
                                 <option selected disabled>- Pilih Role -</option>
                                 <option value="1">Administrator Dinas</option>
                                 <option value="2">Operator Sekolah</option>
-                                <!-- <option value="3">Atlet</option> -->
+                                <option value="4">Validator</option>
                             </select>
                         </div>
                     </div>
@@ -72,7 +72,8 @@ use CodeIgniter\Database\BaseUtils;
                                 <span class="icon">
                                     <iconify-icon icon="f7:textformat-abc"></iconify-icon>
                                 </span>
-                                <input type="text" name="username" class="form-control" placeholder="Masukkan Username" required>
+                                <input type="text" name="username" class="form-control username" placeholder="Masukkan Username" required>
+                                <small class="username-feedback"></small>
                             </div>
                         </div>
                         <div class="col-6">
@@ -85,7 +86,7 @@ use CodeIgniter\Database\BaseUtils;
                             </div>
                         </div>
                         <div class="col-12">
-                            <button role="submit" class="btn btn-primary-600 w-100"><i class="ri-save-line"></i> Simpan</button>
+                            <button role="submit" class="submitBtn btn btn-primary-600 w-100"><i class="ri-save-line"></i> Simpan</button>
                         </div>
                     </div>
                 </div>
@@ -129,7 +130,8 @@ use CodeIgniter\Database\BaseUtils;
                                 <span class="icon">
                                     <iconify-icon icon="f7:textformat-abc"></iconify-icon>
                                 </span>
-                                <input type="text" name="username" class="form-control" placeholder="Masukkan Username" required>
+                                <input type="text" name="username" class="form-control username" placeholder="Masukkan Username" required>
+                                <small class="username-feedback"></small>
                             </div>
                         </div>
                         <div class="col-4">
@@ -151,7 +153,62 @@ use CodeIgniter\Database\BaseUtils;
                             </div>
                         </div>
                         <div class="col-12">
-                            <button role="submit" class="btn btn-primary-600 w-100"><i class="ri-save-line"></i> Simpan</button>
+                            <button role="submit" class="submitBtn btn btn-primary-600 w-100"><i class="ri-save-line"></i> Simpan</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- End of Form Users Operator Sekolah -->
+
+        <!-- Form Users Validator Dinas -->
+        <div class="card mt-12 form-3 d-none">
+            <div class="card-header">
+                <span class="mb-0 fw-bold">Role Validator Dinas</span>
+            </div>
+            <form action="<?= base_url('admin/users/addValidator'); ?>" method="POST">
+                <?= csrf_field(); ?>
+                <input type="hidden" name="role" value="4">
+                <div class="card-body">
+                    <div class="row gy-3">
+                        <div class="col-6">
+                            <label class="form-label">Pilih Cabor</label>
+                            <select name="cabor[]" id="cabor" class="select2 form-select" data-placeholder="Pilih Cabor" multiple>
+                                <?php foreach ($cabor as $c): ?>
+                                    <option value="<?= $c['id']; ?>"><?= $c['nama']; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Nama Lengkap</label>
+                            <div class="icon-field">
+                                <span class="icon">
+                                    <iconify-icon icon="f7:person"></iconify-icon>
+                                </span>
+                                <input type="text" name="nama" class="form-control" placeholder="Masukkan Nama Lengkap" required>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Username</label>
+                            <div class="icon-field">
+                                <span class="icon">
+                                    <iconify-icon icon="f7:textformat-abc"></iconify-icon>
+                                </span>
+                                <input type="text" name="username" class="form-control username" placeholder="Masukkan Username" required>
+                                <small class="username-feedback"></small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Password</label>
+                            <div class="icon-field">
+                                <span class="icon">
+                                    <iconify-icon icon="f7:lock"></iconify-icon>
+                                </span>
+                                <input type="text" name="password" class="form-control" placeholder="Masukkan Password" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <button role="submit" class="submitBtn btn btn-primary-600 w-100"><i class="ri-save-line"></i> Simpan</button>
                         </div>
                     </div>
                 </div>
@@ -162,23 +219,57 @@ use CodeIgniter\Database\BaseUtils;
 </div>
 
 <script>
-    let table = new DataTable('#dataTable');
     const selectRole = document.getElementById('select-role');
     const form1 = document.querySelector('.form-1');
     const form2 = document.querySelector('.form-2');
+    const form3 = document.querySelector('.form-3');
     selectRole.addEventListener('change', function() {
         const selectedValue = this.value;
 
         if (selectedValue === '1') {
             form1.classList.remove('d-none');
             form2.classList.add('d-none');
+            form3.classList.add('d-none');
         } else if (selectedValue === '2') {
             form2.classList.remove('d-none');
             form1.classList.add('d-none');
+            form3.classList.add('d-none');
         } else {
             form1.classList.add('d-none');
             form2.classList.add('d-none');
+            form3.classList.remove('d-none');
         }
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('.username').on('keyup', function() {
+            const value = $(this).val();
+            const feedback = $('.username-feedback');
+            const submitBtn = $('.submitBtn');
+
+            const regex = /^[a-zA-Z0-9_]+$/;
+
+            if (value.length === 0) {
+                feedback.text('');
+                return;
+            }
+
+            if (value.length < 4) {
+                feedback.text('Minimal 4 karakter').css('color', 'red');
+                submitBtn.prop('disabled', true);
+            } else if (value.length > 20) {
+                feedback.text('Maksimal 20 karakter').css('color', 'red');
+                submitBtn.prop('disabled', true);
+            } else if (!regex.test(value)) {
+                feedback.text('Hanya huruf, angka, dan underscore (_)').css('color', 'red');
+                submitBtn.prop('disabled', true);
+            } else {
+                feedback.text('Username valid').css('color', 'green');
+                submitBtn.prop('disabled', false);
+            }
+        });
     });
 </script>
 

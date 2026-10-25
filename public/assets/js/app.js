@@ -1,54 +1,131 @@
 (function ($) {
   "use strict";
 
-  // sidebar submenu collapsible js
-  $(".sidebar-menu .dropdown").on("click", function () {
-    var item = $(this);
-    item.siblings(".dropdown").children(".sidebar-submenu").slideUp();
+  const sidebar = $(".sidebar");
+  const dashboardMain = $(".dashboard-main");
+  const desktopToggle = $(".sidebar-toggle");
 
-    item.siblings(".dropdown").removeClass("dropdown-open");
+  function closeMobileSidebar() {
+    if (!sidebar.hasClass("sidebar-open")) {
+      return;
+    }
 
-    item.siblings(".dropdown").removeClass("open");
+    sidebar.removeClass("sidebar-open");
+    $("body").removeClass("overlay-active");
+    $(".sidebar-mobile-toggle").attr("aria-expanded", "false");
+  }
 
-    item.children(".sidebar-submenu").slideToggle();
+  // Sidebar submenu collapsible (only the direct parent link)
+  $(".sidebar-menu .dropdown > a").on("click", function (event) {
+    event.preventDefault();
 
-    item.toggleClass("dropdown-open");
+    const parent = $(this).parent();
+    const submenu = parent.children(".sidebar-submenu");
+    const isOpen = parent.hasClass("open") || parent.hasClass("dropdown-open");
+
+    parent
+      .siblings(".dropdown")
+      .removeClass("open dropdown-open")
+      .children(".sidebar-submenu")
+      .stop(true, true)
+      .slideUp(180);
+    parent.siblings(".dropdown").children("a").attr("aria-expanded", "false");
+
+    if (isOpen) {
+      parent.removeClass("open dropdown-open");
+      submenu.stop(true, true).slideUp(180);
+      $(this).attr("aria-expanded", "false");
+    } else {
+      parent.addClass("open dropdown-open");
+      submenu.stop(true, true).slideDown(180);
+      $(this).attr("aria-expanded", "true");
+    }
   });
 
-  $(".sidebar-toggle").on("click", function () {
+  // Remember the desktop sidebar state.
+  if (
+    window.innerWidth >= 1200 &&
+    localStorage.getItem("silagapora.sidebar") === "collapsed"
+  ) {
+    sidebar.addClass("active");
+    dashboardMain.addClass("active");
+    desktopToggle.addClass("active");
+  }
+
+  desktopToggle.attr("aria-expanded", !sidebar.hasClass("active"));
+
+  desktopToggle.on("click", function () {
     $(this).toggleClass("active");
-    $(".sidebar").toggleClass("active");
-    $(".dashboard-main").toggleClass("active");
+    sidebar.toggleClass("active");
+    dashboardMain.toggleClass("active");
+    $(this).attr("aria-expanded", !sidebar.hasClass("active"));
+    localStorage.setItem(
+      "silagapora.sidebar",
+      sidebar.hasClass("active") ? "collapsed" : "expanded"
+    );
   });
 
   $(".sidebar-mobile-toggle").on("click", function () {
-    $(".sidebar").addClass("sidebar-open");
+    sidebar.addClass("sidebar-open");
     $("body").addClass("overlay-active");
+    $(this).attr("aria-expanded", "true");
   });
 
-  $(".sidebar-close-btn").on("click", function () {
-    $(".sidebar").removeClass("sidebar-open");
-    $("body").removeClass("overlay-active");
-  });
+  $(".sidebar-close-btn").on("click", closeMobileSidebar);
 
-  //to keep the current page active
-  $(function () {
-    for (
-      var nk = window.location,
-        o = $("ul#sidebar-menu a")
-          .filter(function () {
-            return this.href == nk;
-          })
-          .addClass("active-page") // anchor
-          .parent()
-          .addClass("active-page");
-      ;
-
-    ) {
-      // li
-      if (!o.is("li")) break;
-      o = o.parent().addClass("show").parent().addClass("open");
+  $("body").on("click", function (event) {
+    if ($(event.target).is("body.overlay-active")) {
+      closeMobileSidebar();
     }
+  });
+
+  $(document).on("keydown", function (event) {
+    if (event.key === "Escape") {
+      closeMobileSidebar();
+    }
+  });
+
+  $(window).on("resize", function () {
+    if (window.innerWidth >= 1200) {
+      closeMobileSidebar();
+    }
+  });
+
+  // Keep the current page active and open its parent menu.
+  $(function () {
+    const current = new URL(window.location.href);
+
+    $("ul#sidebar-menu a").each(function () {
+      const href = this.getAttribute("href");
+      if (!href || href === "#" || href.indexOf("javascript:") === 0) {
+        return;
+      }
+
+      const link = new URL(this.href, window.location.origin);
+      if (link.pathname !== current.pathname || link.search !== current.search) {
+        return;
+      }
+
+      const anchor = $(this);
+      anchor.addClass("active-page").attr("aria-current", "page");
+      anchor.parent().addClass("active-page");
+
+      const dropdown = anchor.closest(".dropdown");
+      if (dropdown.length) {
+        dropdown
+          .addClass("open")
+          .children("a")
+          .attr("aria-expanded", "true");
+        dropdown.children(".sidebar-submenu").show();
+      }
+
+      const activeItem = anchor.closest("li")[0];
+      if (activeItem) {
+        requestAnimationFrame(function () {
+          activeItem.scrollIntoView({ block: "nearest" });
+        });
+      }
+    });
   });
 
   /**
@@ -291,14 +368,21 @@
   const savedColor = localStorage.getItem("templateColor");
   if (savedColor && colors[savedColor]) {
     applyColor(savedColor);
-    document
-      .querySelector(`.color-picker-btn[data-color="${savedColor}"]`)
-      .classList.add("active");
+
+    const savedColorButton = document.querySelector(
+      `.color-picker-btn[data-color="${savedColor}"]`
+    );
+    if (savedColorButton) {
+      savedColorButton.classList.add("active");
+    }
   } else {
     // Default (blue)
-    document
-      .querySelector(`.color-picker-btn[data-color="blue"]`)
-      .classList.add("active");
+    const defaultColorButton = document.querySelector(
+      '.color-picker-btn[data-color="blue"]'
+    );
+    if (defaultColorButton) {
+      defaultColorButton.classList.add("active");
+    }
   }
   // =========================== Color Schema js End ================================
 

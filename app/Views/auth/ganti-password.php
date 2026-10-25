@@ -4,6 +4,9 @@ use CodeIgniter\Database\BaseUtils;
 
 use function App\Controllers\isAdmin;
 
+$sessionRole = (string) (session('user')['role_id'] ?? '');
+$passwordRole = $sessionRole === '1' ? 'admin' : ($sessionRole === '4' ? 'validator' : 'sekolah');
+$passwordAction = site_url($passwordRole . '/ganti-password-attempt');
 ?>
 <?= $this->extend('layout'); ?>
 <?= $this->section('content'); ?>
@@ -85,7 +88,7 @@ use function App\Controllers\isAdmin;
         var form = $(this);
         $.ajax({
             type: "POST",
-            url: "<?= site_url('admin/ganti-password-attempt'); ?>",
+            url: "<?= $passwordAction; ?>",
             data: form.serialize(),
             dataType: "json",
             beforeSend: function() {

@@ -22,13 +22,15 @@ use CodeIgniter\Database\BaseUtils;
 <div class="col-md-12">
     <div class="card">
         <div class="card-header">
-            <h5 class="card-title mb-0">Form Ubah Data Atlet Pelajar</h5>
+            <a href="<?= base_url('sekolah/atlet/data'); ?>" class="btn btn-sm bg-danger-focus bg-hover-danger-200 text-danger-600"><i class="ri-arrow-go-back-line"></i> Daftar Atlet</a>
+        </div>
+        <div class="card-header">
+            <h5 class="card-title mb-0">Form Ubah Data Atlet Pelajar - <?= $atlet['nama']; ?></h5>
         </div>
         <form action="<?= site_url('sekolah/atlet/edit/') . $atlet['id']; ?>" method="post" enctype="multipart/form-data">
             <div class="card-body">
                 <div class="row gy-3">
                     <?= csrf_field(); ?>
-
                     <div class="col-6">
                         <label class="form-label">Asal Sekolah</label>
                         <input type="text" class="form-control" value="<?= $atlet['sekolah']; ?>" readonly>
@@ -36,10 +38,11 @@ use CodeIgniter\Database\BaseUtils;
 
                     </div>
 
+                    <input type="hidden" name="cabor" value="<?= $atlet['cabor_id']; ?>">
                     <div class="col-6">
                         <label class="form-label">Pilih Cabor</label>
                         <div class="icon-field">
-                            <select name="cabor" class="form-select select2" data-placeholder="Pilih Cabang Olahraga" required>
+                            <select name="cabor" class="form-select select2" data-placeholder="Pilih Cabang Olahraga" disabled>
                                 <option></option>
                                 <?php foreach ($cabor as $c): ?>
                                     <option value="<?= $c['id']; ?>"
@@ -50,6 +53,33 @@ use CodeIgniter\Database\BaseUtils;
                             </select>
                         </div>
                     </div>
+
+                    <?php
+                    // Pastikan $banyakNoCabor adalah angka
+                    $jumlahLoop = (int)($banyakNoCabor['banyak_no_cabor'] ?? 0);
+
+                    for ($i = 1; $i <= $jumlahLoop; $i++):
+                    ?>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Pilih Nomor Cabor <?= $i; ?></label>
+                            <div class="icon-field">
+                                <select name="nomor_cabor_<?= $i; ?>" class="form-select select2" data-placeholder="Pilih Nomor" <?= $i === 1 ? 'required' : ''; ?>>
+                                    <option></option>
+                                    <?php foreach ($nomorCabor as $nc): ?>
+                                        <?php
+                                        // Ambil nilai yang sudah tersimpan jika ada, jika tidak ada set kosong
+                                        // Ini kunci agar tidak muncul error "Undefined array key"
+                                        $valTersimpan = $atlet['nomor_cabor_' . $i] ?? '';
+                                        $selected = ($valTersimpan == $nc['id']) ? 'selected' : '';
+                                        ?>
+                                        <option value="<?= $nc['id']; ?>" <?= $selected; ?>>
+                                            <?= trim($nc['nama'] . ' ' . ($nc['jenis'] ?? '') . ' ' . ($nc['detail'] ?? '') . ' ' . ($nc['kategori'] ?? '')) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                    <?php endfor; ?>
 
                     <div class="col-6">
                         <label class="form-label">NIK(*)</label>
@@ -79,7 +109,7 @@ use CodeIgniter\Database\BaseUtils;
                         <label class="form-label">Jenis Kelamin(*)</label>
                         <div class="icon-field">
                             <select class="form-select" name="jk" required>
-                                <option selected disabled> - Pilih Jenis Kelamin - </option>
+                                <option selected> - Pilih Jenis Kelamin - </option>
                                 <option value="L" <?= (old('jk') == 'L' || $atlet['jenis_kelamin'] == 'L')  ? 'selected' : '' ?>>Laki-Laki</option>
                                 <option value="P" <?= (old('jk') == 'P' || $atlet['jenis_kelamin'] == 'P')  ? 'selected' : '' ?>>Perempuan</option>
                             </select>
@@ -109,65 +139,72 @@ use CodeIgniter\Database\BaseUtils;
                                 value="<?= set_value('alamat', old('alamat') ?? $atlet['alamat']); ?>" placeholder="Masukkan Alamat Rumah" required>
                         </div>
                     </div>
+
+                    <div class="row gy-3 mt-2">
+                        <div class="text-md text-neutral-500 border-bottom">LAMPIRAN</div>
+
+                        <!-- File tidak menggunakan old(), karena file tidak bisa direstore -->
+                        <div class="col-6" style="display: none;">
+                            <label class="form-label">Unggah KK (*)</label>
+                            <input type="file" name="file_kk" class="form-control">
+                            <?php if (!empty($atlet['file_kk'])): ?>
+                                <small> File Terunggah : <a href="<?= base_url('public/uploads/atlet/file_kk/') . $atlet['file_kk']; ?>" target="_blank"><span class="text-primary">KK <i class="ri-file-check-line"></i></span></a></small>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="col-6">
+                            <label class="form-label">Unggah Akte (*)</label>
+                            <input type="file" name="file_akte" class="form-control">
+                            <?php if (!empty($atlet['file_akte'])): ?>
+                                <small> File Terunggah : <a href="<?= base_url('public/uploads/atlet/file_akte/') . $atlet['file_akte']; ?>" target="_blank"><span class="text-primary">Akte <i class="ri-file-check-line"></i></span></a></small>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="col-6">
+                            <label class="form-label">Unggah NISN (*)</label>
+                            <input type="file" name="file_nisn" class="form-control">
+                            <?php if (!empty($atlet['file_nisn'])): ?>
+                                <small> File Terunggah : <a href="<?= base_url('public/uploads/atlet/file_nisn/') . $atlet['file_nisn']; ?>" target="_blank"><span class="text-primary">NISN <i class="ri-file-check-line"></i></span></a></small>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="col-6">
+                            <label class="form-label">Unggah KTP/KIA/KK (*)</label>
+                            <input type="file" name="file_ktp_kia_kk" class="form-control">
+                            <?php if (!empty($atlet['file_ktp_kia_kk'])): ?>
+                                <small> File Terunggah : <a href="<?= base_url('public/uploads/atlet/file_ktp_kia_kk/') . $atlet['file_ktp_kia_kk']; ?>" target="_blank"><span class="text-primary">KTP/KIA/KK <i class="ri-file-check-line"></i></span></a></small>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="col-6">
+                            <label class="form-label">Unggah Foto</label>
+                            <input type="file" name="file_foto" class="form-control" accept="image/jpeg, image/png">
+                            <?php if (!empty($atlet['file_foto'])): ?>
+                                <small> File Terunggah : <a href="<?= base_url('public/uploads/atlet/file_foto/') . $atlet['file_foto']; ?>" target="_blank"><span class="text-primary">Foto <i class="ri-file-check-line"></i></span></a></small>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="col-6">
+                            <label class="form-label">Unggah Surat Keterangan (*)</label>
+                            <input type="file" name="file_suket" class="form-control">
+                            <?php if (!empty($atlet['file_suket'])): ?>
+                                <small> File Terunggah : <a href="<?= base_url('public/uploads/atlet/file_suket/') . $atlet['file_suket']; ?>" target="_blank"><span class="text-primary">Surat Keterangan <i class="ri-file-check-line"></i></span></a></small>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="col-6">
+                            <label class="form-label">Unggah Ijazah</label>
+                            <input type="file" name="file_ijazah" class="form-control">
+                            <?php if (!empty($atlet['file_ijazah'])): ?>
+                                <small> File Terunggah : <a href="<?= base_url('public/uploads/atlet/file_ijazah/') . $atlet['file_ijazah']; ?>" target="_blank"><span class="text-primary">Ijazah <i class="ri-file-check-line"></i></span></a></small>
+                            <?php endif; ?>
+                        </div>
+
+                    </div>
+                    <div class="mt-12">
+                        <button type="submit" class="btn btn-primary-600 w-100"><i class="ri ri-save-line"></i> Ubah</button>
+                    </div>
                 </div>
-
-                <div class="row gy-3 mt-2">
-                    <div class="text-md text-neutral-500 border-bottom">LAMPIRAN</div>
-
-                    <!-- File tidak menggunakan old(), karena file tidak bisa direstore -->
-                    <div class="col-6">
-                        <label class="form-label">Unggah KK (*)</label>
-                        <input type="file" name="file_kk" class="form-control">
-                        <?php if (!empty($atlet['file_kk'])): ?>
-                            <small> File Terunggah : <a href="<?= base_url('public/uploads/atlet/file_kk/') . $atlet['file_kk']; ?>" target="_blank"><span class="text-primary">KK <i class="ri-file-check-line"></i></span></a></small>
-                        <?php endif; ?>
-                    </div>
-
-                    <div class="col-6">
-                        <label class="form-label">Unggah Akte (*)</label>
-                        <input type="file" name="file_akte" class="form-control">
-                        <?php if (!empty($atlet['file_akte'])): ?>
-                            <small> File Terunggah : <a href="<?= base_url('public/uploads/atlet/file_akte/') . $atlet['file_akte']; ?>" target="_blank"><span class="text-primary">Akte <i class="ri-file-check-line"></i></span></a></small>
-                        <?php endif; ?>
-                    </div>
-
-                    <div class="col-6">
-                        <label class="form-label">Unggah NISN (*)</label>
-                        <input type="file" name="file_nisn" class="form-control">
-                        <?php if (!empty($atlet['file_nisn'])): ?>
-                            <small> File Terunggah : <a href="<?= base_url('public/uploads/atlet/file_nisn/') . $atlet['file_nisn']; ?>" target="_blank"><span class="text-primary">NISN <i class="ri-file-check-line"></i></span></a></small>
-                        <?php endif; ?>
-                    </div>
-
-                    <div class="col-6">
-                        <label class="form-label">Unggah KTP/KIA (*)</label>
-                        <input type="file" name="file_ktp_kia" class="form-control">
-                        <?php if (!empty($atlet['file_ktp_kia'])): ?>
-                            <small> File Terunggah : <a href="<?= base_url('public/uploads/atlet/file_ktp_kia/') . $atlet['file_ktp_kia']; ?>" target="_blank"><span class="text-primary">KTP/KIA <i class="ri-file-check-line"></i></span></a></small>
-                        <?php endif; ?>
-                    </div>
-
-                    <div class="col-6">
-                        <label class="form-label">Unggah Foto</label>
-                        <input type="file" name="file_foto" class="form-control" accept="image/jpeg, image/png">
-                        <?php if (!empty($atlet['file_foto'])): ?>
-                            <small> File Terunggah : <a href="<?= base_url('public/uploads/atlet/file_foto/') . $atlet['file_foto']; ?>" target="_blank"><span class="text-primary">Foto <i class="ri-file-check-line"></i></span></a></small>
-                        <?php endif; ?>
-                    </div>
-
-                    <div class="col-6">
-                        <label class="form-label">Unggah Ijazah</label>
-                        <input type="file" name="file_ijazah" class="form-control">
-                        <?php if (!empty($atlet['ijazah'])): ?>
-                            <small> File Terunggah : <a href="<?= base_url('public/uploads/atlet/file_ijazah/') . $atlet['file_ijazah']; ?>" target="_blank"><span class="text-primary">Ijazah <i class="ri-file-check-line"></i></span></a></small>
-                        <?php endif; ?>
-                    </div>
-
-                </div>
-                <div class="mt-12">
-                    <button type="submit" class="btn btn-primary-600 w-100"><i class="ri ri-save-line"></i> Ubah</button>
-                </div>
-            </div>
         </form>
     </div>
 </div>
