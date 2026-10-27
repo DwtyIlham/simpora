@@ -101,6 +101,57 @@ class PesertaModel extends Model
         return $sql->get()->getResultArray();
     }
 
+    public function getDataPesertaKompetisiBySekolah($id_kompetisi, $sekolah_id)
+    {
+        $sql = $this->db->table('kompetisi k')
+            ->select([
+                'k.nama AS kompetisi_nama',
+                'k.deskripsi',
+
+                'p.id',
+                'p.kompetisi_id',
+                'p.atlet_id',
+                'p.cabor_id',
+                'c.banyak_no_cabor',
+
+                'a.nama AS atlet_nama',
+                'a.nik',
+                'a.jenis_kelamin',
+                'a.tanggal_lahir',
+
+                's.nama AS sekolah_nama',
+                'c.nama AS cabor_nama',
+
+                // gabung nomor cabor
+                "GROUP_CONCAT(DISTINCT nc.nama SEPARATOR ', ') AS nomor_cabor",
+
+                'av.status_final'
+            ])
+            ->join('peserta p', 'p.kompetisi_id = k.id', 'left')
+            ->join('atlet a', 'a.id = p.atlet_id', 'left')
+            ->join(
+                'atlet_validasi av',
+                "av.atlet_id = p.atlet_id AND av.status_final = 'valid'",
+                'inner'
+            )
+            ->join('sekolah s', 's.id = a.sekolah_id', 'left')
+            ->join('cabor c', 'c.id = p.cabor_id', 'left')
+
+            // FIX DI SINI (pakai OR, bukan IN)
+            ->join('nomor_cabor nc', "
+            nc.id = p.nomor_cabor_id_1 OR
+            nc.id = p.nomor_cabor_id_2 OR
+            nc.id = p.nomor_cabor_id_3 OR
+            nc.id = p.nomor_cabor_id_4
+        ", 'left')
+
+            ->where('p.kompetisi_id', $id_kompetisi)
+            ->where('a.sekolah_id', $sekolah_id)
+            ->groupBy('p.id');
+
+        return $sql->get()->getResultArray();
+    }
+
     public function getDataPesertaPrestasi($id_kompetisi)
     {
         $sql = $this->db->table('kompetisi k')
@@ -120,36 +171,45 @@ class PesertaModel extends Model
 
     public function getDataPesertaPrestasiSekolah($id_kompetisi)
     {
-        $sql = $this->db->table('kompetisi k')
+        $sekolah_id = session()->get('user')['sekolah_id'] ?? null;
+
+        $sql = $this->db->table('prestasi p')
             ->select('
-                k.nama AS kompetisi_nama,k.deskripsi,a.*,a.nama AS atlet_nama,s.nama AS sekolah_nama,
-                c.nama AS cabor_nama,p.id,p.kompetisi_id,p.atlet_id,p.prestasi,av.status_final
+                k.nama AS kompetisi_nama, k.deskripsi, a.id AS atlet_id, a.nama AS atlet_nama,
+                s.nama AS sekolah_nama, c.nama AS cabor_nama, nc.nama AS nomor_cabor_nama,
+                p.id, p.kompetisi_id, p.prestasi, av.status_final
             ')
-            ->join('peserta p', 'p.kompetisi_id = k.id', 'left')
+            ->join('kompetisi k', 'k.id = p.kompetisi_id', 'left')
             ->join('atlet a', 'a.id = p.atlet_id', 'left')
-            ->join('atlet_validasi av', 'av.atlet_id = p.atlet_id', 'left')
+            ->join('atlet_validasi av', "av.atlet_id = p.atlet_id AND av.status_final = 'valid'", 'inner')
             ->join('sekolah s', 's.id = a.sekolah_id', 'left')
             ->join('cabor c', 'c.id = p.cabor_id', 'left')
-            ->where(['p.kompetisi_id' => $id_kompetisi, 'p.prestasi IS NOT NULL' => null, 'av.status_final' => 'valid', 'a.sekolah_id' => session()->get('user')['sekolah_id']]);
+            ->join('nomor_cabor nc', 'nc.id = p.nomor_cabor_id', 'left')
+            ->where('p.kompetisi_id', $id_kompetisi)
+            ->where('a.sekolah_id', $sekolah_id)
+            ->orderBy('nc.id, p.id, a.id');
 
         return $sql->get()->getResultArray();
     }
 
-    public function getPesertaKompetisiCaborSekolah($nomor_lomba, $sekolah_id)
+    public function getPesertaKompetisiCaborSekolah($cabor_id, $sekolah_id, $nomor_lomba_id = null)
     {
-        $query = $this->setTable('atlet a')
+        $builder = $this->setTable('atlet a')
             ->select('a.id, a.nama, c.nama cabor')
             ->join('cabor c', 'c.id = a.cabor_id')
             ->join('sekolah s', 'a.sekolah_id = s.id')
-            ->where('a.sekolah_id', $sekolah_id)
-            ->groupStart()
-            ->where('a.nomor_cabor_1', $nomor_lomba)
-            ->orWhere('a.nomor_cabor_2', $nomor_lomba)
-            ->orWhere('a.nomor_cabor_3', $nomor_lomba)
-            ->groupEnd()
-            ->findAll();
+            ->where('a.cabor_id', $cabor_id)
+            ->where('a.sekolah_id', $sekolah_id);
 
-        return $query;
+        if (! empty($nomor_lomba_id)) {
+            $builder->groupStart()
+                ->where('a.nomor_cabor_1', $nomor_lomba_id)
+                ->orWhere('a.nomor_cabor_2', $nomor_lomba_id)
+                ->orWhere('a.nomor_cabor_3', $nomor_lomba_id)
+                ->groupEnd();
+        }
+
+        return $builder->get()->getResultArray();
     }
 
     public function getDataPesertaIDCard($id_peserta)

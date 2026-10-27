@@ -162,9 +162,6 @@ use function App\Controllers\isAdmin;
 <div class="row gy-4">
     <div class="col-md-12">
         <div class="card basic-data-table mt-12">
-            <div class="card-header">
-                <a href="<?= base_url('sekolah/kompetisi/data'); ?>" class="btn btn-sm bg-danger-focus bg-hover-danger-200 text-danger-600"><i class="ri-arrow-go-back-line"></i> Daftar Kompetisi</a>
-            </div>
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0"><?= $title; ?></h5>
 
@@ -205,15 +202,14 @@ use function App\Controllers\isAdmin;
                                         data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat ID Card">
                                         <iconify-icon icon="lucide:id-card-lanyard"></iconify-icon>
                                     </a>
-                                    <?php
-                                    if ($p['banyak_no_cabor'] > 1): ?>
+                                    <?php if ((int) ($p['banyak_no_cabor'] ?? 0) >= 1): ?>
                                         <a href="#"
-                                            class="btn-add-atlet-multi-cabor w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                            data-peserta-id="<?= $p['id']; ?>" data-cabor-id="<?= $p['cabor_id']; ?>" data-banyak-nocab="<?= $p['banyak_no_cabor']; ?>"
+                                            class="btn-edit-nomor-lomba w-32-px h-32-px bg-warning-focus text-warning-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                                            data-peserta-id="<?= $p['id']; ?>" data-cabor-id="<?= $p['cabor_id']; ?>" data-banyak-nocab="<?= (int) ($p['banyak_no_cabor'] ?? 1); ?>"
                                             data-bs-toggle="tooltip"
-                                            data-bs-title="Tambah Nomor Cabor">
+                                            data-bs-title="Ubah Nomor Lomba">
 
-                                            <iconify-icon icon="mdi:account-multiple-add"></iconify-icon>
+                                            <iconify-icon icon="ri:edit-2-line"></iconify-icon>
                                         </a>
                                     <?php endif; ?>
                                     <a id="<?= $p['id']; ?>" data-kompetisi-id="<?= $p['kompetisi_id']; ?>" class="btn-delete w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center">
@@ -302,7 +298,7 @@ use function App\Controllers\isAdmin;
         <div class="modal-content">
             <form id="formAddMultiCabor" action="<?= site_url('sekolah/addPesertaMultiCabor'); ?>" method="post">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modal-add-atlet-multi-cabor-label">Tambah Atlet Multi Cabor</h5>
+                    <h5 class="modal-title" id="modal-add-atlet-multi-cabor-label">Ubah Nomor Lomba</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -485,7 +481,7 @@ use function App\Controllers\isAdmin;
     }
 
     // fungsi generate field multi entry nomor cabor
-    $('.btn-add-atlet-multi-cabor').on('click', function() {
+    $(document).on('click', '.btn-edit-nomor-lomba', function() {
 
         let peserta_id = $(this).data('peserta-id');
         let cabor_id = $(this).data('cabor-id');
@@ -531,7 +527,7 @@ use function App\Controllers\isAdmin;
             }
         });
 
-        $('#modal-add-atlet-multi-cabor-label').text('Form Multi Cabor - ' + atlet);
+        $('#modal-add-atlet-multi-cabor-label').text('Ubah Nomor Lomba - ' + atlet);
         $('#modal-add-atlet-multi-cabor').modal('show');
     });
 

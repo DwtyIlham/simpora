@@ -57,24 +57,24 @@ $roleLabelMap = [
 <div class="row gy-4">
     <div class="col-md-12 col-sm-6">
         <div class="card basic-data-table mt-12">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <h5 class="card-title mb-0">Data Pengguna Tersimpan</h5>
                 <?php if ($canAdd): ?>
                     <a href="<?= esc($addUrl); ?>" class="btn btn-primary-600"><i class="ri-add-box-line"></i> Tambah Pengguna</a>
                 <?php endif; ?>
             </div>
-            <div class="card-body table-responsive">
-                <table class="table table-sm table-bordered mb-0 user-table" id="dataTable" data-page-length='10'>
+            <div class="card-body table-responsive data-table-shell">
+                <table class="table table-sm table-bordered mb-0 user-table table-data table-data-wide" id="dataTable" data-page-length='10'>
                     <thead>
                         <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Nama Pengguna</th>
-                            <th scope="col">Akun</th>
-                            <?php if ($showSekolah): ?><th scope="col">Sekolah</th><?php endif; ?>
-                            <?php if ($showWhatsapp): ?><th scope="col">Whatsapp</th><?php endif; ?>
-                            <th scope="col">Role</th>
-                            <?php if ($canToggle): ?><th class="text-center" scope="col">Status</th><?php endif; ?>
-                            <th class="text-center" scope="col">Aksi</th>
+                            <th scope="col" class="col-no">#</th>
+                            <th scope="col" class="col-nama">Nama Pengguna</th>
+                            <th scope="col" class="col-akun">Akun</th>
+                            <?php if ($showSekolah): ?><th scope="col" class="col-sekolah">Sekolah</th><?php endif; ?>
+                            <?php if ($showWhatsapp): ?><th scope="col" class="col-wa">Whatsapp</th><?php endif; ?>
+                            <th scope="col" class="col-role">Role</th>
+                            <?php if ($canToggle): ?><th class="text-center col-status" scope="col">Status</th><?php endif; ?>
+                            <th class="text-center col-aksi" scope="col">Aksi</th>
                         </tr>
                     </thead>
                     <tbody style="font-size: 14px;">
@@ -261,6 +261,10 @@ $roleLabelMap = [
             });
         });
 
-        let table = new DataTable('#dataTable');
+        let table = new DataTable('#dataTable', {
+            responsive: false,
+            autoWidth: false,
+            order: [],
+        });
     });
 </script>

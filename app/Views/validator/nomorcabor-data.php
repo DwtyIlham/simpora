@@ -26,7 +26,7 @@ use function App\Controllers\isAdmin;
 <div class="row gy-4">
     <div class="col-md-12">
         <div class="card basic-data-table mt-12">
-            <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
                 <h5 class="card-title mb-0"><?= $title; ?></h5>
                 <?php if (in_array(session('user')['role_id'] ?? '', ['1', '4'], true)) : ?>
                     <a href="javascript:void(0)" class="btn btn-primary-600" data-bs-toggle="modal" data-bs-target="#modalAddNomorCabor"><i class="ri-add-box-line"></i> Tambah Nomor Cabor</a>
@@ -84,18 +84,18 @@ use function App\Controllers\isAdmin;
                     </div>
                 <?php endif; ?>
             </div>
-            <div class="card-body table-responsive">
-                <table id="dataTable" class="table" style="width:100%;">
+            <div class="card-body table-responsive data-table-shell">
+                <table id="dataTable" class="table table-data table-data-wide" style="width:100%;">
                     <thead>
                         <tr>
-                            <th class="text-start" width="20px">No.</th>
-                            <th class="text-start">Nama</th>
-                            <th class="text-start">Jenjang</th>
-                            <th class="text-start">Kategori</th>
-                            <th class="text-start">Detail</th>
-                            <th class="text-start">Cabor</th>
+                            <th class="text-start col-no" width="20px">No.</th>
+                            <th class="text-start col-nama">Nama</th>
+                            <th class="text-start col-jenjang">Jenjang</th>
+                            <th class="text-start col-kategori">Kategori</th>
+                            <th class="text-start col-detail">Detail</th>
+                            <th class="text-start col-cabor">Cabor</th>
                             <?php if (in_array(session('user')['role_id'] ?? '', ['1', '4'], true)): ?>
-                                <th class="text-center">Aksi</th>
+                                <th class="text-center col-aksi">Aksi</th>
                             <?php endif; ?>
                         </tr>
                     </thead>
@@ -191,7 +191,9 @@ use function App\Controllers\isAdmin;
 
 <script>
     let table = new DataTable('#dataTable', {
-        responsive: true
+        responsive: false,
+        autoWidth: false,
+        order: [],
     });
 
     $(document).on('shown.bs.modal', function() {

@@ -25,9 +25,6 @@ use function App\Controllers\isAdmin;
 <div class="col-md-12">
     <div class="card">
         <div class="card-header">
-            <a onclick="history.back(-1)" class="btn btn-sm bg-danger-focus bg-hover-danger-200 text-danger-600"><i class="ri-arrow-go-back-line"></i> Daftar Atlet</a>
-        </div>
-        <div class="card-header">
             <h5 class="card-title mb-0">Form Tambah Data Atlet Pelajar</h5>
         </div>
         <form action="<?= site_url('admin/atlet/add'); ?>" method="post" enctype="multipart/form-data">

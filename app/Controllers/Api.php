@@ -185,11 +185,18 @@ class Api extends BaseController
             $row[] = '<span class="badge badge-status-depan ' . $badgeClass . '" data-id="' . $a['id'] . '">' . $isNotValid . '</span>';
 
             // Render Kolom Nama & Foto Profil
-            $fotoUrl = base_url('public/uploads/atlet/file_foto/' . (!empty($a['file_foto']) ? $a['file_foto'] : 'default.png'));
+            $fotoFile = $a['file_foto'] ?? '';
+            $fotoPath = FCPATH . 'public/uploads/atlet/file_foto/' . $fotoFile;
+            $fotoUrl = ($fotoFile !== '' && is_file($fotoPath))
+                ? base_url('public/uploads/atlet/file_foto/' . $fotoFile)
+                : base_url('public/assets/images/user.png');
+            $namaAtlet = htmlspecialchars($a['nama'] ?? '-', ENT_QUOTES, 'UTF-8');
             $row[] = '
-            <div class="d-flex align-items-center">
-                <img src="' . $fotoUrl . '" class="w-40-px h-40-px rounded-circle me-12">
-                <span>' . htmlspecialchars($a['nama'] ?? '-', ENT_QUOTES, 'UTF-8') . '</span>
+            <div class="d-flex align-items-center atlet-name-cell">
+                <img src="' . $fotoUrl . '" class="w-40-px h-40-px rounded-circle me-12"
+                    alt="Foto ' . $namaAtlet . '" loading="lazy"
+                    onerror="this.onerror=null;this.src=\'' . base_url('public/assets/images/user.png') . '\';">
+                <span class="atlet-name-text" title="' . $namaAtlet . '">' . $namaAtlet . '</span>
             </div>';
 
             // Render Kolom Informasi Umum Tekstual
@@ -606,9 +613,10 @@ class Api extends BaseController
         return $this->response->setJSON($this->m_peserta->getDataAtletIDCard($id_atlet));
     }
 
-    public function getPesertaKompetisiCaborSekolah($nomor_lomba, $sekolah_id)
+    public function getPesertaKompetisiCaborSekolah($cabor_id, $sekolah_id)
     {
-        $result = $this->m_peserta->getPesertaKompetisiCaborSekolah($nomor_lomba, $sekolah_id);
+        $nomor_lomba_id = $this->request->getGet('nomor_lomba_id');
+        $result = $this->m_peserta->getPesertaKompetisiCaborSekolah($cabor_id, $sekolah_id, $nomor_lomba_id);
         return $this->response->setJSON($result);
     }
 
@@ -689,7 +697,7 @@ class Api extends BaseController
 
     public function getNomorLombaSekolah($cabor_id, $sekolah_id)
     {
-        $sql = $this->db->table('nomor_cabor nc')->select('nc.id, nc.nama')->join('cabor c', 'c.id = nc.cabor_id')->join('atlet a', 'a.cabor_id = nc.cabor_id')
+        $sql = $this->db->table('nomor_cabor nc')->select('nc.id, nc.nama')->join('cabor c', 'c.id = nc.cabor_id')->join('atlet a', "a.cabor_id = nc.cabor_id AND (a.nomor_cabor_1 = nc.id OR a.nomor_cabor_2 = nc.id OR a.nomor_cabor_3 = nc.id)", 'inner')
             ->where(['nc.cabor_id' => $cabor_id, 'a.sekolah_id' => $sekolah_id])
             ->groupBy('nc.id')
             ->get()->getResultArray('array');

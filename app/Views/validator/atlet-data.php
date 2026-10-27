@@ -35,8 +35,8 @@ $role     = $roleId === '1' ? 'admin' : ($roleId === '4' ? 'validator' : 'sekola
                 <h5 class="card-title mb-0">Data Atlet Pelajar</h5>
             </div>
             <div class="card-body gy-3">
-                <div class="row">
-                    <div class="col-4">
+                <div class="row g-3">
+                    <div class="col-12 col-md-6 col-xl-4">
                         <label class="form-label">Filter Cabor</label>
                         <span class="icon align-middle">
                             <iconify-icon icon="fluent:sport-24-regular" width="24" height="24"></iconify-icon>
@@ -50,7 +50,7 @@ $role     = $roleId === '1' ? 'admin' : ($roleId === '4' ? 'validator' : 'sekola
                             </select>
                         </div>
                     </div>
-                    <div class="col-4">
+                    <div class="col-12 col-md-6 col-xl-4">
                         <label class="form-label">Filter Sekolah</label>
                         <span class="icon align-middle">
                             <iconify-icon icon="icon-park-outline:school" width="20" height="20"></iconify-icon>
@@ -64,7 +64,7 @@ $role     = $roleId === '1' ? 'admin' : ($roleId === '4' ? 'validator' : 'sekola
                             </select>
                         </div>
                     </div>
-                    <div class="col-4">
+                    <div class="col-12 col-md-6 col-xl-4">
                         <label class="form-label">Filter Status</label>
                         <span class="icon align-middle">
                             <iconify-icon icon="icon-park-outline:validation" width="20" height="20"></iconify-icon>
@@ -80,19 +80,19 @@ $role     = $roleId === '1' ? 'admin' : ($roleId === '4' ? 'validator' : 'sekola
                     </div>
                 </div>
             </div>
-            <div class="card-body table-responsive">
-                <table class="table bordered-table mb-0" id="dataTable" data-page-length='10'>
+            <div class="card-body table-responsive atlet-table-shell">
+                <table class="table bordered-table table-atlet mb-0" id="dataTable" data-page-length='10'>
                     <thead>
                         <tr>
-                            <th class="text-center" scope="col">No.</th>
-                            <th class="text-center" scope="col">Aksi</th>
-                            <th class="text-center" scope="col">Validasi</th>
-                            <th class="text-center" scope="col">Nama</th>
-                            <th class="text-center" scope="col">Sekolah</th>
-                            <th class="text-center" scope="col">JK</th>
-                            <th class="text-center" scope="col">Cabor</th>
-                            <th class="text-center" scope="col">Nomor Lomba</th>
-                            <th class="text-center" scope="col">Jenjang</th>
+                            <th class="text-center col-no" scope="col">No.</th>
+                            <th class="text-center col-aksi" scope="col">Aksi</th>
+                            <th class="text-center col-validasi" scope="col">Validasi</th>
+                            <th class="text-center col-nama" scope="col">Nama</th>
+                            <th class="text-center col-sekolah" scope="col">Sekolah</th>
+                            <th class="text-center col-jk" scope="col">JK</th>
+                            <th class="text-center col-cabor" scope="col">Cabor</th>
+                            <th class="text-center col-nomor" scope="col">Nomor Lomba</th>
+                            <th class="text-center col-jenjang" scope="col">Jenjang</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -185,11 +185,21 @@ $role     = $roleId === '1' ? 'admin' : ($roleId === '4' ? 'validator' : 'sekola
 
                                 <!-- data -->
                                 <td>
-                                    <div class="d-flex align-items-center">
-                                        <img src="<?= base_url('public/uploads/atlet/file_foto/' . ($a['file_foto'] ?? 'default.png')); ?>"
-                                            class="w-40-px h-40-px rounded-circle me-12">
+                                    <div class="d-flex align-items-center atlet-name-cell">
+                                        <?php
+                                        $fotoFile = $a['file_foto'] ?? '';
+                                        $fotoPath = FCPATH . 'public/uploads/atlet/file_foto/' . $fotoFile;
+                                        $fotoUrl = ($fotoFile !== '' && is_file($fotoPath))
+                                            ? base_url('public/uploads/atlet/file_foto/' . $fotoFile)
+                                            : base_url('public/assets/images/user.png');
+                                        ?>
+                                        <img src="<?= $fotoUrl; ?>"
+                                            class="w-40-px h-40-px rounded-circle me-12"
+                                            alt="Foto <?= htmlspecialchars($a['nama'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                            loading="lazy"
+                                            onerror="this.onerror=null;this.src='<?= base_url('public/assets/images/user.png'); ?>';">
 
-                                        <span>
+                                        <span class="atlet-name-text" title="<?= htmlspecialchars($a['nama'] ?? '-', ENT_QUOTES, 'UTF-8'); ?>">
                                             <?= htmlspecialchars($a['nama'] ?? '-', ENT_QUOTES, 'UTF-8'); ?>
                                         </span>
                                     </div>
@@ -222,7 +232,14 @@ $role     = $roleId === '1' ? 'admin' : ($roleId === '4' ? 'validator' : 'sekola
 <script>
     $(document).ready(function() {
         let table = new DataTable('#dataTable', {
-        responsive: true
+        responsive: false,
+        autoWidth: false,
+        order: [],
+        columnDefs: [{
+            targets: [0, 1, 2],
+            orderable: false,
+            className: 'text-center'
+        }]
     });
 
     // hanya sekali

@@ -7,7 +7,6 @@
  *   $title    -> Judul halaman
  *   $kompetisi -> Array data kompetisi (untuk edit), null/empty untuk add
  *   $formUrl  -> URL action form (POST)
- *   $backUrl  -> URL kembali ke daftar kompetisi
  */
 
 ?>
@@ -24,11 +23,6 @@
             <li class="fw-medium text-secondary-light">-</li>
             <li class="fw-medium">SILAGAPORA</li>
         </ul>
-    </div>
-    <div>
-        <a href="<?= esc($backUrl ?? base_url('admin/kompetisi/data')); ?>" class="btn btn-sm bg-danger-focus bg-hover-danger-200 text-danger-600 radius-8">
-            <i class="ri-arrow-go-back-line"></i> Daftar Kompetisi
-        </a>
     </div>
 </div>
 

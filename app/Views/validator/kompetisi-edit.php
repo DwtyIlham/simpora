@@ -23,9 +23,6 @@ use CodeIgniter\Database\BaseUtils;
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <a href="<?= base_url('validator/kompetisi/data'); ?>" class="btn btn-sm bg-danger-focus bg-hover-danger-200 text-danger-600"><i class="ri-arrow-go-back-line"></i> Daftar Kompetisi</a>
-            </div>
-            <div class="card-header">
                 <h5 class="card-title mb-0">Form <?= $title; ?></h5>
             </div>
             <!-- Form kompetisi Administrator Dinas -->

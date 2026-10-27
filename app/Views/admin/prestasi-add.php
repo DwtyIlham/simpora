@@ -13,7 +13,7 @@ $role     = $roleId === '1' ? 'admin' : ($roleId === '4' ? 'validator' : 'sekola
     'sekolah'     => $sekolah ?? [],
     'cabor'       => $cabor ?? [],
     'formUrl'     => site_url('admin/kompetisi/prestasi-add'),
-    'backUrl'     => base_url('admin/kompetisi/data'),
+    'backUrl'     => base_url('admin/kompetisi/prestasi/' . \App\Controllers\encode_id($id_kompetisi ?? '')),
     'role'        => $role,
     'hasNomorLomba' => true,
 ]); ?>

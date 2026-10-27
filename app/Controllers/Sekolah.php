@@ -81,7 +81,7 @@ class Sekolah extends BaseController
     public function addDataAtlet_attempt()
     {
         // Menyiapkan data dasar dari POST request
-        $data = [
+        $data = $this->normalizeNomorCabor([
             'sekolah_id'    => $this->request->getPost('sekolah'),
             'nik'           => $this->request->getPost('nik'),
             'nisn'          => $this->request->getPost('nisn'),
@@ -93,9 +93,9 @@ class Sekolah extends BaseController
             // 'kategori_id'   => $this->request->getPost('kategori'),
             'cabor_id'      => $this->request->getPost('cabor'),
             'nomor_cabor_1' => $this->request->getPost('nomor_cabor_1'),
-            'nomor_cabor_2' => $this->request->getPost('nomor_cabor_2') ?? null,
-            'nomor_cabor_3' => $this->request->getPost('nomor_cabor_3') ?? null
-        ];
+            'nomor_cabor_2' => $this->request->getPost('nomor_cabor_2'),
+            'nomor_cabor_3' => $this->request->getPost('nomor_cabor_3'),
+        ]);
 
         // Daftar file yang akan di-upload
         $files = [
@@ -228,12 +228,12 @@ class Sekolah extends BaseController
         }
 
         // Data dasar
-        $data = [
+        $data = $this->normalizeNomorCabor([
             'sekolah_id'    => $this->request->getPost('sekolah'),
             'cabor_id'      => $this->request->getPost('cabor'),
             'nomor_cabor_1'      => $this->request->getPost('nomor_cabor_1'),
-            'nomor_cabor_2'      => $this->request->getPost('nomor_cabor_2') ?? null,
-            'nomor_cabor_3'      => $this->request->getPost('nomor_cabor_3') ?? null,
+            'nomor_cabor_2'      => $this->request->getPost('nomor_cabor_2'),
+            'nomor_cabor_3'      => $this->request->getPost('nomor_cabor_3'),
             'nik'           => $this->request->getPost('nik'),
             'nisn'          => $this->request->getPost('nisn'),
             'nama'          => $this->request->getPost('nama'),
@@ -241,7 +241,7 @@ class Sekolah extends BaseController
             'jenis_kelamin' => $this->request->getPost('jk'),
             'tanggal_lahir' => $this->request->getPost('tanggal_lahir'),
             'tempat_lahir'  => $this->request->getPost('tempat_lahir'),
-        ];
+        ]);
 
         // File yang digunakan
         $files = [
@@ -695,7 +695,7 @@ class Sekolah extends BaseController
         $kompetisi = $this->m_komp->find($id_kompetisi)['nama'];
         $data = [
             'title'     => 'DATA PESERTA KOMPETISI ' . $kompetisi,
-            'peserta'   => $this->m_peserta->getPesertaBySekolah($sekolah_id),
+            'peserta'   => $this->m_peserta->getDataPesertaKompetisiBySekolah($id_kompetisi, $sekolah_id),
             'cabor'     => $this->m_cabor->findAll(),
             'sekolah'     => $this->db->table('sekolah')->get()->getResultArray(),
             'id_kompetisi'  => $id_kompetisi
@@ -793,7 +793,7 @@ class Sekolah extends BaseController
     public function dataKompetisiPrestasiPeserta($id_kompetisi)
     {
         $id_kompetisi = decode_id($id_kompetisi);
-        $kompetisi = $this->m_komp->first($id_kompetisi)['nama'];
+        $kompetisi = $this->m_komp->find($id_kompetisi)['nama'];
         $data = [
             'title'     => 'Data Prestasi ' . $kompetisi,
             'peserta'   => $this->m_peserta->getDataPesertaPrestasiSekolah($id_kompetisi),
@@ -808,7 +808,7 @@ class Sekolah extends BaseController
     public function addDataPrestasi($id_kompetisi)
     {
         $id_kompetisi = decode_id($id_kompetisi);
-        $kompetisi = $this->m_komp->first($id_kompetisi)['nama'];
+        $kompetisi = $this->m_komp->find($id_kompetisi)['nama'];
         $data = [
             'title'         => 'Tambah Atlet Prestasi ' . $kompetisi,
             'sekolah'       => $this->db->table('sekolah')->get()->getResultArray(),

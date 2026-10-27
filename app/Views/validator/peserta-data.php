@@ -26,9 +26,6 @@ use function App\Controllers\isAdmin;
 <div class="row gy-4">
     <div class="col-md-12">
         <div class="card basic-data-table mt-12">
-            <div class="card-header">
-                <a href="<?= base_url('admin/kompetisi/data'); ?>" class="btn btn-sm bg-danger-focus bg-hover-danger-200 text-danger-600"><i class="ri-arrow-go-back-line"></i> Daftar Kompetisi</a>
-            </div>
             <?php if (!isAdmin()) : ?>
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h5 class="card-title mb-0"><?= $title; ?></h5>

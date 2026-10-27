@@ -440,9 +440,6 @@ $daftarBerkas = [
             Lengkapi data atlet dalam 3 langkah: identitas, berkas pendukung, lalu pilih cabang olahraga.
         </p>
     </div>
-    <a href="<?= site_url('sekolah/atlet/data'); ?>" class="btn btn-sm bg-danger-focus bg-hover-danger-200 text-danger-600 radius-8">
-        <i class="ri-arrow-go-back-line"></i> Kembali ke Daftar
-    </a>
 </div>
 
 <div class="row gy-4">
@@ -706,10 +703,10 @@ $daftarBerkas = [
                 <div class="wizard-footer">
                     <div class="d-flex align-items-center gap-2">
                         <button type="button" class="btn btn-outline-secondary d-none" id="backStep1">
-                            <i class="ri-arrow-left-line"></i> Kembali
+                            <i class="ri-arrow-left-line"></i> Sebelumnya
                         </button>
                         <button type="button" class="btn btn-outline-secondary d-none" id="backStep2">
-                            <i class="ri-arrow-left-line"></i> Kembali
+                            <i class="ri-arrow-left-line"></i> Sebelumnya
                         </button>
                     </div>
                     <div class="ms-auto d-flex align-items-center gap-2">

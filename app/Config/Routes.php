@@ -186,4 +186,5 @@ $routes->get('api/verifikasi-piagam/(:segment)', 'Api::validasi_piagam/$1');
 $routes->post('auth/login', 'Auth::login');
 $routes->post('auth/register-attempt', 'Auth::register_attempt');
 $routes->get('/register', 'Auth::register');
+$routes->get('login', 'Auth::loginForm');
 $routes->get('/logout', 'Auth::logout');

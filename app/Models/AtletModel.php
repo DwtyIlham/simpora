@@ -19,6 +19,37 @@ class AtletModel extends Model
 
     protected $beforeInsert = ['insertUUID'];
 
+    /**
+     * Ringkasan rekap atlet sesuai cabor yang boleh diakses user.
+     * $caborIds kosong = semua cabor (admin).
+     */
+    public function getRekapSummary(array $caborIds = []): array
+    {
+        $builder = $this->db->table('atlet a')
+            ->select("
+                COUNT(*) AS total,
+                SUM(CASE WHEN av.status_final = 'valid' THEN 1 ELSE 0 END) AS lengkap,
+                SUM(CASE WHEN av.status_final = 'pending' THEN 1 ELSE 0 END) AS pending,
+                SUM(CASE WHEN av.status_final = 'invalid' THEN 1 ELSE 0 END) AS invalid,
+                SUM(CASE WHEN av.status_final IS NULL OR av.status_final = '' THEN 1 ELSE 0 END) AS belum_dicek
+            ", false)
+            ->join('atlet_validasi av', 'av.atlet_id = a.id', 'left');
+
+        if (! empty($caborIds)) {
+            $builder->whereIn('a.cabor_id', $caborIds);
+        }
+
+        $row = $builder->get()->getRowArray() ?? [];
+
+        return [
+            'total'       => (int) ($row['total'] ?? 0),
+            'lengkap'     => (int) ($row['lengkap'] ?? 0),
+            'pending'     => (int) ($row['pending'] ?? 0),
+            'invalid'     => (int) ($row['invalid'] ?? 0),
+            'belum_dicek' => (int) ($row['belum_dicek'] ?? 0),
+        ];
+    }
+
     public function getAtletData()
     {
         $sql = $this->db->table('atlet a')

@@ -17,6 +17,11 @@ class Auth extends BaseController
     }
     public function index()
     {
+        return view('auth/landing');
+    }
+
+    public function loginForm()
+    {
         return view('auth/login');
     }
 
@@ -109,7 +114,7 @@ class Auth extends BaseController
                     } else {
                         $this->session->setFlashdata('error', $errors[1]);
                     }
-                    return redirect()->to('/');
+                    return redirect()->to('/')->withInput();
                 }
             } else {
                 $this->session->setFlashdata('error', $errors[1]);
@@ -137,7 +142,7 @@ class Auth extends BaseController
         $ip = $this->request->getIPAddress();
 
         $cache = cache();
-        $key = 'register_' . $ip;
+        $key = 'register_' . md5($ip);
 
         $count = $cache->get($key) ?? 0;
 
@@ -172,6 +177,7 @@ class Auth extends BaseController
 
         if (!$this->validate($rules)) {
             $this->session->setFlashdata('error', 'Data tidak valid.');
+            $this->session->setFlashdata('errors', $this->validator->getErrors());
             return redirect()->to('/register')->withInput();
         }
 
@@ -195,6 +201,7 @@ class Auth extends BaseController
         if ($existingUser) {
 
             $this->session->setFlashdata('error', 'Username sudah terpakai.');
+            $this->session->setFlashdata('errors', ['username' => 'Username sudah terpakai.']);
             return redirect()->to('/register')->withInput();
         }
 

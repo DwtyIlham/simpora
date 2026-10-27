@@ -26,7 +26,7 @@ use function App\Controllers\isAdmin;
 <div class="row gy-4">
     <div class="col-md-12">
         <div class="card basic-data-table mt-12">
-            <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
                 <h5 class="card-title mb-0"><?= $title; ?></h5>
                 <?php if (isAdmin()) : ?>
                     <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#modalAddCabor" class="btn btn-primary-600"><i class="ri-add-box-line"></i> Tambah Cabor</a>
@@ -53,14 +53,14 @@ use function App\Controllers\isAdmin;
                     </div>
                 <?php endif; ?>
             </div>
-            <div class="card-body table-responsive">
-                <table id="dataTable" class="table" style="width:100%;">
+            <div class="card-body table-responsive data-table-shell">
+                <table id="dataTable" class="table table-data" style="width:100%;">
                     <thead>
                         <tr>
-                            <th class="text-start" width="20px">No.</th>
-                            <th class="text-start" width="80%">Nama</th>
+                            <th class="text-start col-no" width="20px">No.</th>
+                            <th class="text-start col-nama" width="80%">Nama</th>
                             <?php if (isAdmin()): ?>
-                                <th class="text-center">Aksi</th>
+                                <th class="text-center col-aksi">Aksi</th>
                             <?php endif; ?>
                         </tr>
                     </thead>
@@ -179,7 +179,9 @@ use function App\Controllers\isAdmin;
 
 <script>
     let table = new DataTable('#dataTable', {
-        responsive: true
+        responsive: false,
+        autoWidth: false,
+        order: [],
     });
 
     // toggle status nomor cabor

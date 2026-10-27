@@ -45,6 +45,37 @@ abstract class BaseController extends Controller
     protected $md5key;
 
     /**
+     * Rapikan nomor cabor atlet sebelum disimpan: buang nomor kosong/'0' dan
+     * nomor yang sama di kolom lain (mis. nomor_cabor_1 = nomor_cabor_2),
+     * lalu isi ulang kolom 1-3 secara berurutan tanpa kosong di tengah.
+     *
+     * Tanpa ini, satu atlet bisa menghasilkan 2-3 baris rekap dengan nomor yang
+     * sama karena nomornya tersimpan dobel di beberapa kolom.
+     */
+    protected function normalizeNomorCabor(array $data): array
+    {
+        $unik = [];
+
+        foreach (['nomor_cabor_1', 'nomor_cabor_2', 'nomor_cabor_3'] as $field) {
+            $nilai = trim((string) ($data[$field] ?? ''));
+
+            if ($nilai === '' || $nilai === '0') {
+                continue;
+            }
+
+            if (! in_array($nilai, $unik, true)) {
+                $unik[] = $nilai;
+            }
+        }
+
+        $data['nomor_cabor_1'] = $unik[0] ?? null;
+        $data['nomor_cabor_2'] = $unik[1] ?? null;
+        $data['nomor_cabor_3'] = $unik[2] ?? null;
+
+        return $data;
+    }
+
+    /**
      * @return void
      */
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)

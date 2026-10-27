@@ -32,6 +32,7 @@ class LoginFilter implements FilterInterface
             '/',
             '/silagapora/',
             '/silagapora/auth/login',
+            'silagapora/login',
             'login',
             '/auth/login',
             'auth/cek',

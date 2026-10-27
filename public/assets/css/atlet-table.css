@@ -1,0 +1,210 @@
+/* ==========================================================================
+   Optimasi tabel Data Atlet (admin, validator, sekolah)
+   - Desktop: tabel ringkas, tidak meluber keluar card.
+   - Mobile: tabel bisa digeser horizontal tanpa merusak layout halaman.
+   ========================================================================== */
+
+.atlet-table-shell {
+    position: relative;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+    border-radius: 10px;
+}
+
+.atlet-table-shell::-webkit-scrollbar {
+    height: 8px;
+}
+
+.atlet-table-shell::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.atlet-table-shell::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 999px;
+}
+
+.table-atlet {
+    width: 100%;
+    min-width: 100%;
+    table-layout: fixed;
+    border-spacing: 0;
+    border-collapse: separate;
+}
+
+.table-atlet thead th {
+    background-color: #f8fafc !important;
+    color: #64748b !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+    vertical-align: middle;
+    padding: 11px 12px !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.table-atlet tbody td {
+    padding: 10px 12px !important;
+    font-size: 13px;
+    line-height: 1.35;
+    color: #334155;
+    vertical-align: middle;
+    word-break: break-word;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.table-atlet tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.table-atlet tbody tr:hover td {
+    background-color: #f8fbff;
+}
+
+.table-atlet .badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: .38em .62em;
+    white-space: nowrap;
+}
+
+.table-atlet .table-action,
+.table-atlet .w-32-px {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+}
+
+.table-atlet .atlet-thumb,
+.table-atlet img.w-40-px,
+.table-atlet .atlet-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex: 0 0 36px;
+    background: #eef2f7;
+}
+
+.table-atlet .atlet-name-cell {
+    min-width: 0;
+}
+
+.table-atlet .atlet-name-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.table-atlet .atlet-meta {
+    margin-top: 2px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 11px;
+    color: #94a3b8;
+    white-space: nowrap;
+}
+
+.table-atlet .cell-center {
+    text-align: center;
+}
+
+.table-atlet .cell-nowrap {
+    white-space: nowrap;
+}
+
+/* Lebar kolom proporsional untuk admin & validator */
+.table-atlet .col-no       { width: 5%; }
+.table-atlet .col-aksi     { width: 15%; }
+.table-atlet .col-validasi { width: 9%; }
+.table-atlet .col-nama     { width: 21%; }
+.table-atlet .col-sekolah  { width: 17%; }
+.table-atlet .col-jk       { width: 4%; }
+.table-atlet .col-cabor    { width: 9%; }
+.table-atlet .col-nomor    { width: 12%; }
+.table-atlet .col-jenjang  { width: 8%; }
+
+.table-atlet th.col-no,
+.table-atlet th.col-jk,
+.table-atlet th.col-jenjang,
+.table-atlet th.col-validasi {
+    white-space: nowrap;
+}
+
+.table-atlet th.col-jenjang,
+.table-atlet th.col-validasi {
+    font-size: 10px !important;
+    letter-spacing: 0 !important;
+}
+
+/* Variasi kolom halaman sekolah */
+.table-atlet.table-atlet-sekolah .col-validasi { width: 10%; }
+.table-atlet.table-atlet-sekolah .col-nama { width: 22%; }
+.table-atlet.table-atlet-sekolah .col-sekolah { width: 18%; }
+.table-atlet.table-atlet-sekolah .col-cabor { width: 10%; }
+.table-atlet.table-atlet-sekolah .col-nomor { width: 16%; }
+
+.table-atlet th.col-aksi,
+.table-atlet td:nth-child(2) {
+    white-space: nowrap;
+}
+
+/* Toolbar DataTables lebih rapi di layar kecil */
+@media (max-width: 767.98px) {
+    .atlet-table-shell {
+        margin-inline: -.25rem;
+        border-radius: 0;
+    }
+
+    .atlet-table-shell::before {
+        content: "Geser tabel ke samping untuk melihat kolom lainnya \2192";
+        display: block;
+        margin: 0 0 .55rem;
+        padding: .4rem .6rem;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        color: #64748b;
+        font-size: .7rem;
+        line-height: 1.4;
+    }
+
+    .table-atlet {
+        min-width: 920px;
+    }
+
+    .dt-container .dt-layout-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: .5rem;
+    }
+
+    .dt-container .dt-layout-cell {
+        width: 100%;
+    }
+
+    .dt-container .dt-length,
+    .dt-container .dt-search {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+    }
+
+    .dt-container .dt-search input {
+        width: 100%;
+    }
+
+    .dt-container .dt-paging .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}

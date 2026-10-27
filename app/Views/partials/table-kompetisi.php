@@ -70,21 +70,21 @@ $pesertaUrl = $pesertaUrl ?? base_url($role . '/kompetisi/peserta/');
 <div class="row gy-4">
     <div class="col-md-12">
         <div class="card basic-data-table mt-12">
-            <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
                 <h5 class="card-title mb-0"><?= esc($title ?? 'Data Kompetisi'); ?></h5>
             </div>
-            <div class="card-body table-responsive">
-                <table id="tableData" class="display table table-bordered table-hover table-striped kompetisi-table" style="width:100%;">
+            <div class="card-body table-responsive data-table-shell">
+                <table id="tableData" class="display table table-bordered table-hover table-striped kompetisi-table table-data table-data-wide" style="width:100%;">
                     <thead>
                         <tr>
-                            <th style="width:5%" class="text-center">No.</th>
-                            <th style="width:15%" class="text-start">Nama</th>
-                            <th style="width:35%" class="text-start">Deskripsi</th>
-                            <th style="width:10%" class="text-center">Tgl Mulai</th>
-                            <th style="width:10%" class="text-center">Tgl Selesai</th>
-                            <th style="width:10%" class="text-center">Tingkat</th>
+                            <th style="width:5%" class="text-center col-no">No.</th>
+                            <th style="width:15%" class="text-start col-nama">Nama</th>
+                            <th style="width:35%" class="text-start col-deskripsi">Deskripsi</th>
+                            <th style="width:10%" class="text-center col-tanggal">Tgl Mulai</th>
+                            <th style="width:10%" class="text-center col-tanggal">Tgl Selesai</th>
+                            <th style="width:10%" class="text-center col-tingkat">Tingkat</th>
                             <?php if ($canViewPeserta || $canEdit || $canDelete): ?>
-                                <th style="width:15%" class="text-center">Aksi</th>
+                                <th style="width:15%" class="text-center col-aksi">Aksi</th>
                             <?php endif; ?>
                         </tr>
                     </thead>
@@ -134,20 +134,9 @@ $pesertaUrl = $pesertaUrl ?? base_url($role . '/kompetisi/peserta/');
 <script>
     $(function() {
         let table = new DataTable('#tableData', {
-            responsive: true,
-            columnDefs: [{
-                    targets: 4,
-                    name: 'filter-sekolah'
-                },
-                {
-                    targets: 6,
-                    name: 'filter-cabor'
-                },
-                {
-                    targets: 2,
-                    name: 'filter-status'
-                }
-            ]
+            responsive: false,
+            autoWidth: false,
+            order: [],
         });
 
         // delete kompetisi

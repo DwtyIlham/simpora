@@ -1,359 +1,402 @@
-<!-- meta tags and other links -->
+<?php
+$flashError   = session()->getFlashdata('error');
+$flashSuccess = session()->getFlashdata('success');
+$errors       = session()->getFlashdata('errors') ?? [];
+?>
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
-
-
-<!-- Mirrored from wowdash.wowtheme7.com/demo/sign-in.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 19 Nov 2025 07:07:33 GMT -->
-
+<html lang="id" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SILAGAPORA - KAB. BANJARNEGARA</title>
-    <link rel="icon" type="image/png" href="assets/images/icon.png" sizes="16x16">
-    <!-- remix icon font css  -->
-    <link rel="stylesheet" href="assets/css/remixicon.css">
-    <!-- BootStrap css -->
-    <link rel="stylesheet" href="assets/css/lib/bootstrap.min.css">
-    <!-- Apex Chart css -->
-    <link rel="stylesheet" href="assets/css/lib/apexcharts.css">
-    <!-- Data Table css -->
-    <link rel="stylesheet" href="assets/css/lib/dataTables.min.css">
-    <!-- Text Editor css -->
-    <link rel="stylesheet" href="assets/css/lib/editor-katex.min.css">
-    <link rel="stylesheet" href="assets/css/lib/editor.atom-one-dark.min.css">
-    <link rel="stylesheet" href="assets/css/lib/editor.quill.snow.css">
-    <!-- Date picker css -->
-    <link rel="stylesheet" href="assets/css/lib/flatpickr.min.css">
-    <!-- Calendar css -->
-    <link rel="stylesheet" href="assets/css/lib/full-calendar.css">
-    <!-- Vector Map css -->
-    <link rel="stylesheet" href="assets/css/lib/jquery-jvectormap-2.0.5.css">
-    <!-- Popup css -->
-    <link rel="stylesheet" href="assets/css/lib/magnific-popup.css">
-    <!-- Slick Slider css -->
-    <link rel="stylesheet" href="assets/css/lib/slick.css">
-    <!-- prism css -->
-    <link rel="stylesheet" href="assets/css/lib/prism.css">
-    <!-- file upload css -->
-    <link rel="stylesheet" href="assets/css/lib/file-upload.css">
+    <title>Registrasi - SILAGAPORA Banjarnegara</title>
+    <link rel="icon" type="image/png" href="<?= base_url('public/assets/images/icon.png'); ?>" sizes="16x16">
+    <link rel="stylesheet" href="<?= base_url('public/assets/css/lib/bootstrap.min.css'); ?>">
+    <link rel="stylesheet" href="<?= base_url('public/assets/css/remixicon.css'); ?>">
+    <link rel="stylesheet" href="<?= base_url('public/assets/css/select2.min.css'); ?>">
+    <link rel="stylesheet" href="<?= base_url('public/assets/css/select2-bootstrap-5-theme.min.css'); ?>">
+    <link rel="stylesheet" href="<?= base_url('public/assets/css/style.css'); ?>?v=3">
+    <script src="<?= base_url('public/assets/js/lib/iconify-icon.min.js'); ?>"></script>
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 48%, #ecfdf5 100%);
+        }
 
-    <link rel="stylesheet" href="assets/css/lib/audioplayer.css">
+        .register-layout {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: minmax(280px, 0.9fr) minmax(360px, 1.1fr);
+        }
 
-    <!-- SWAL -->
-    <link rel="stylesheet" href="<?= base_url('public'); ?>/assets/css/sweetalert2.min.css">
-    <!-- Select2 -->
-    <link rel="stylesheet" href="<?= base_url('public'); ?>/assets/css/select2.min.css">
-    <!-- Select2 BS 5 -->
-    <link rel="stylesheet" href="<?= base_url('public'); ?>/assets/css/select2-bootstrap-5-theme.min.css">
-    <!-- main css -->
-    <link rel="stylesheet" href="assets/css/style.css">
+        .register-visual {
+            position: relative;
+            overflow: hidden;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .register-visual img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.34;
+        }
+
+        .register-visual__content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .register-visual__brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .register-visual__brand img {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 6px;
+        }
+
+        .register-visual h1 {
+            font-size: 1.9rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin: 0 0 10px;
+        }
+
+        .register-visual p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin: 0;
+            max-width: 360px;
+        }
+
+        .register-panel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .register-card {
+            width: 100%;
+            max-width: 520px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.1);
+            padding: 24px;
+        }
+
+        .register-card h2 {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .register-card .subtitle {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+        }
+
+        .register-card .form-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .register-card .form-control,
+        .register-card .form-select {
+            min-height: 42px;
+            border-radius: 10px;
+            background: #f8fafc;
+            font-size: 0.95rem;
+        }
+
+        .select2-container .select2-selection--single {
+            min-height: 42px !important;
+            border-radius: 10px !important;
+            background: #f8fafc !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+            line-height: 40px !important;
+            font-size: 0.95rem;
+        }
+
+        .register-card .btn-submit {
+            height: 44px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .register-card .invalid-feedback {
+            display: block;
+            font-size: 0.8rem;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        @media (max-width: 991.98px) {
+            .register-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .register-visual {
+                min-height: 120px;
+                padding: 16px;
+            }
+
+            .register-visual h1 {
+                font-size: 1.3rem;
+                margin-bottom: 4px;
+            }
+
+            .register-visual p {
+                font-size: 0.82rem;
+                margin-bottom: 0;
+            }
+
+            .register-visual__brand {
+                margin-bottom: 10px;
+            }
+
+            .register-panel {
+                padding: 16px 12px;
+            }
+
+            .register-card {
+                padding: 16px;
+            }
+
+            .register-card .mb-2 {
+                margin-bottom: 0.5rem !important;
+            }
+
+            .register-card .mb-3 {
+                margin-bottom: 0.6rem !important;
+            }
+        }
+    </style>
 </head>
-
 <body>
-
-    <!-- Theme Customization Structure Start -->
-    <div class="body-overlay"></div>
-
-    <!-- <button type="button"
-        class="theme-customization__button w-48-px h-48-px bg-primary-600 text-white rounded-circle d-flex justify-content-center align-items-center position-fixed end-0 bottom-0 mb-40 me-40 text-2xxl bg-hover-primary-700">
-        <i class="ri-settings-3-line animate-spin"></i>
-    </button> -->
-    <!-- <div class="theme-customization-sidebar w-100 bg-base h-100vh overflow-y-auto position-fixed end-0 top-0 shadow-lg">
-        <div class="d-flex align-items-center gap-3 py-16 px-24 justify-content-between border-bottom">
-            <div>
-                <h6 class="text-sm dark:text-white">Theme Settings</h6>
-                <p class="text-xs mb-0 text-neutral-500 dark:text-neutral-200">Customize and preview instantly</p>
-            </div>
-            <button data-slot="button"
-                class="theme-customization-sidebar__close text-neutral-900 bg-transparent text-hover-primary-600 d-flex text-xl">
-                <i class="ri-close-fill"></i>
-            </button>
-        </div>
-
-        <div class="d-flex flex-column gap-48 p-24 overflow-y-auto flex-grow-1">
-
-            <div class="theme-setting-item">
-                <h6 class="fw-medium text-primary-light text-md mb-3">Theme Mode</h6>
-                <div class="d-grid grid-cols-3 gap-3 dark-light-mode">
-                    <button type="button"
-                        class="theme-btn theme-setting-item__btn d-flex align-items-center justify-content-center h-64-px rounded-3 text-xl active"
-                        data-theme="light">
-                        <i class="ri-sun-line"></i>
-                    </button>
-                    <button type="button"
-                        class="theme-btn theme-setting-item__btn d-flex align-items-center justify-content-center h-64-px rounded-3 text-xl"
-                        data-theme="dark">
-                        <i class="ri-moon-line"></i>
-                    </button>
-                    <button type="button"
-                        class="theme-btn theme-setting-item__btn d-flex align-items-center justify-content-center h-64-px rounded-3 text-xl"
-                        data-theme="system">
-                        <i class="ri-computer-line"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="theme-setting-item">
-                <h6 class="fw-medium text-primary-light text-md mb-3">Page Direction</h6>
-                <div class="d-grid grid-cols-2 gap-3">
-                    <button type="button"
-                        class="theme-setting-item__btn ltr-mode-btn d-flex align-items-center justify-content-center gap-2 h-56-px rounded-3 text-xl">
-                        <span><i class="ri-align-item-left-line"></i></span>
-                        <span class="h6 text-sm font-medium mb-0">LTR</span>
-                    </button>
-
-                    <button type="button"
-                        class="theme-setting-item__btn rtl-mode-btn d-flex align-items-center justify-content-center gap-2 h-56-px rounded-3 text-xl">
-                        <span class="h6 text-sm font-medium mb-0">RTL</span>
-                        <span><i class="ri-align-item-right-line"></i></span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="theme-setting-item">
-                <h6 class="fw-medium text-primary-light text-md mb-3">Color Schema</h6>
-                <div class="d-grid grid-cols-3 gap-3">
-                    <button type="button"
-                        class="color-picker-btn d-flex flex-column justify-content-center align-items-center"
-                        data-color="blue">
-                        <span class="color-picker-btn__box h-40-px w-100 rounded-3"
-                            style="background-color: #2563eb;"></span>
-                        <span class="fw-medium mt-1" style="color: #2563eb;">Blue</span>
-                    </button>
-                    <button type="button"
-                        class="color-picker-btn d-flex flex-column justify-content-center align-items-center"
-                        data-color="red">
-                        <span class="color-picker-btn__box h-40-px w-100 rounded-3"
-                            style="background-color: #dc2626;"></span>
-                        <span class="fw-medium mt-1" style="color: #dc2626;">Red</span>
-                    </button>
-                    <button type="button"
-                        class="color-picker-btn d-flex flex-column justify-content-center align-items-center"
-                        data-color="green">
-                        <span class="color-picker-btn__box h-40-px w-100 rounded-3"
-                            style="background-color: #16a34a;"></span>
-                        <span class="fw-medium mt-1" style="color: #16a34a;">Green</span>
-                    </button>
-                    <button type="button"
-                        class="color-picker-btn d-flex flex-column justify-content-center align-items-center"
-                        data-color="yellow">
-                        <span class="color-picker-btn__box h-40-px w-100 rounded-3"
-                            style="background-color: #ff9f29;"></span>
-                        <span class="fw-medium mt-1" style="color: #ff9f29;">Yellow</span>
-                    </button>
-                    <button type="button"
-                        class="color-picker-btn d-flex flex-column justify-content-center align-items-center"
-                        data-color="cyan">
-                        <span class="color-picker-btn__box h-40-px w-100 rounded-3"
-                            style="background-color: #00b8f2;"></span>
-                        <span class="fw-medium mt-1" style="color: #00b8f2;">Cyan</span>
-                    </button>
-                    <button type="button"
-                        class="color-picker-btn d-flex flex-column justify-content-center align-items-center"
-                        data-color="violet">
-                        <span class="color-picker-btn__box h-40-px w-100 rounded-3"
-                            style="background-color: #7c3aed;"></span>
-                        <span class="fw-medium mt-1" style="color: #7c3aed;">Violet</span>
-                    </button>
-                </div>
-            </div>
-
-        </div>
-    </div> -->
-    <!-- Theme Customization Structure End -->
-
-    <section class="auth bg-base d-flex flex-wrap">
-        <div class="auth-left d-lg-block d-none">
-            <div class="d-flex align-items-center flex-column h-100 justify-content-center">
-                <!-- <img src="assets/images/auth/auth-img.png" alt="Image"> -->
-                <img src="assets/images/login-image.jpg" alt="Image">
-            </div>
-        </div>
-        <div class="auth-right py-32 px-24 d-flex flex-column justify-content-center">
-            <?php
-            $success = session()->getFlashdata('success');
-            $error   = session()->getFlashdata('error');
-
-            if ($success || $error): ?>
-                <div class="p-16 radius-8 border-start-width-3-px border-top-0 border-end-0 border-bottom-0 <?= $success ? 'bg-success-50 border-success-main' : 'bg-danger-50 border-danger-main'; ?>">
-
-                    <?php if ($success): ?>
-                        <h6 class="text-success text-md mb-8"><?= esc($success); ?></h6>
-                        <span class="text-success mb-0">- Berhasil</span>
-
-                    <?php else: ?>
-                        <h6 class="text-danger text-md mb-8"><?= esc($error); ?></h6>
-                        <span class="text-danger mb-0">- Gagal</span>
-
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
-
-            <div class="max-w-464-px mx-auto w-100">
-                <div class="d-flex align-items-center justify-content-center flex-wrap gap-3 p-3">
-
-                    <!-- Logo -->
-                    <div class="text-center" style="max-width: 25%;">
-                        <img src="<?= base_url('public/assets/images/logo.jpeg'); ?>"
-                            alt="Logo BNA"
-                            class="img-fluid rounded" style="width: 100%; height: auto; object-fit: cover;">
+    <main class="register-layout">
+        <section class="register-visual">
+            <img src="<?= base_url('public/assets/images/bg-login.jpg'); ?>" alt="SILAGAPORA">
+            <div class="register-visual__content">
+                <div class="register-visual__brand">
+                    <img src="<?= base_url('public/assets/images/logo.jpeg'); ?>" alt="Logo SILAGAPORA">
+                    <div>
+                        <div class="fw-bold">SILAGAPORA</div>
+                        <div class="small opacity-75">Kabupaten Banjarnegara</div>
                     </div>
+                </div>
+                <h1>Buat Akun Operator Sekolah</h1>
+                <p>Daftarkan sekolah Anda untuk mengelola data atlet, kompetisi, dan prestasi secara digital.</p>
+            </div>
+        </section>
 
-                    <!-- Text -->
-                    <div class="text-center align-self-center">
-                        <h2 class="mb-0">SILAGAPORA</h2>
-                        <small class="mb-0">SISTEM INFORMASI LOMBA DAN AGENDA<br /> KEPEMUDAAN OLAHRAGA BANJARNEGARA</small>
+        <section class="register-panel">
+            <div class="register-card">
+                <h2>Registrasi</h2>
+                <p class="subtitle">Lengkapi data berikut untuk membuat akun baru.</p>
+
+                <?php if ($flashError): ?>
+                    <div class="alert alert-danger py-2 mb-3" role="alert">
+                        <i class="ri-error-warning-line me-1"></i> <?= esc($flashError); ?>
                     </div>
+                <?php endif; ?>
 
-                </div>
-                <div class="card-header mb-8">
-                    <span class="card-title fw-bold text-center mb-12">Registrasi Akun Operator Sekolah</span>
-                </div>
-                <form action="<?= site_url('auth/register-attempt'); ?>" method="post">
+                <?php if ($flashSuccess): ?>
+                    <div class="alert alert-success py-2 mb-3" role="alert">
+                        <i class="ri-checkbox-circle-line me-1"></i> <?= esc($flashSuccess); ?>
+                    </div>
+                <?php endif; ?>
+
+                <form action="<?= site_url('auth/register-attempt'); ?>" method="post" id="registerForm" novalidate>
                     <?= csrf_field(); ?>
                     <input type="hidden" name="role" value="2">
-                    <div class="icon-field mb-16">
-                        <span class="icon top-50 translate-middle-y">
-                            <iconify-icon icon="mage:user"></iconify-icon>
-                        </span>
-                        <select name="sekolah" id="sekolah" class="select2 form-select" data-placeholder="Pilih Sekolah" required>
-                            <option></option>
+
+                    <div class="mb-2">
+                        <label for="sekolah" class="form-label">Sekolah</label>
+                        <select name="sekolah" id="sekolah" class="form-select select2" data-placeholder="Pilih Sekolah" required>
+                            <option value=""></option>
                             <?php foreach ($sekolah as $s): ?>
-                                <option value="<?= $s['id']; ?>"><?= $s['nama']; ?></option>
+                                <option value="<?= $s['id']; ?>" <?= (string) old('sekolah') === (string) $s['id'] ? 'selected' : ''; ?>>
+                                    <?= esc($s['nama']); ?>
+                                </option>
                             <?php endforeach; ?>
                         </select>
-                    </div>
-                    <div class="icon-field mb-16">
-                        <div class="icon-field">
-                            <span class="icon">
-                                <iconify-icon icon="mage:whatsapp"></iconify-icon>
-                            </span>
-                            <input type="text" name="no_wa" class="form-control" placeholder="Masukkan Nomor Whatsapp (08xxx)" required>
-                        </div>
-                    </div>
-                    <div class="icon-field mb-16">
-                        <span class="icon top-50 translate-middle-y">
-                            <iconify-icon icon="mage:user"></iconify-icon>
-                        </span>
-                        <input type="text" name="username" class="form-control h-56-px radius-12" placeholder="Username" autocomplete="off" required>
-                    </div>
-                    <div class="icon-field mb-16">
-                        <span class="icon top-50 translate-middle-y">
-                            <iconify-icon icon="mage:note-with-text"></iconify-icon>
-                        </span>
-                        <input type="text" name="nama" class="form-control h-56-px radius-12" placeholder="Nama Lengkap" autocomplete="off" required>
-                    </div>
-                    <div class="position-relative mb-10">
-                        <div class="icon-field">
-                            <span class="icon top-50 translate-middle-y">
-                                <iconify-icon icon="solar:lock-password-outline"></iconify-icon>
-                            </span>
-                            <input type="password" name="password" class="form-control h-56-px radius-12" id="your-password" placeholder="Password">
-                        </div>
-                        <span class="toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-16 text-secondary-light" data-toggle="#your-password"></span>
+                        <?php if (isset($errors['sekolah'])): ?>
+                            <div class="invalid-feedback"><?= esc($errors['sekolah']); ?></div>
+                        <?php endif; ?>
                     </div>
 
-                    <!-- disabled registrasi sekolah -->
-                    <button type="submit" class="btn btn-primary text-sm btn-sm px-12 py-16 w-100 radius-12 mt-32">Daftar</button>
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label for="nama" class="form-label">Nama Lengkap</label>
+                            <div class="icon-field">
+                                <span class="icon top-50 translate-middle-y">
+                                    <iconify-icon icon="mage:user"></iconify-icon>
+                                </span>
+                                <input type="text"
+                                       name="nama"
+                                       id="nama"
+                                       class="form-control"
+                                       placeholder="Nama lengkap"
+                                       value="<?= esc(old('nama') ?? ''); ?>"
+                                       autocomplete="name"
+                                       required>
+                            </div>
+                            <?php if (isset($errors['nama'])): ?>
+                                <div class="invalid-feedback"><?= esc($errors['nama']); ?></div>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="username" class="form-label">Username</label>
+                            <div class="icon-field">
+                                <span class="icon top-50 translate-middle-y">
+                                    <iconify-icon icon="mage:user"></iconify-icon>
+                                </span>
+                                <input type="text"
+                                       name="username"
+                                       id="username"
+                                       class="form-control"
+                                       placeholder="Username"
+                                       value="<?= esc(old('username') ?? ''); ?>"
+                                       autocomplete="username"
+                                       required>
+                            </div>
+                            <?php if (isset($errors['username'])): ?>
+                                <div class="invalid-feedback"><?= esc($errors['username']); ?></div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label for="no_wa" class="form-label">Nomor WhatsApp</label>
+                            <div class="icon-field">
+                                <span class="icon top-50 translate-middle-y">
+                                    <iconify-icon icon="mage:whatsapp"></iconify-icon>
+                                </span>
+                                <input type="text"
+                                       name="no_wa"
+                                       id="no_wa"
+                                       class="form-control"
+                                       placeholder="08xxxxxxxxxx"
+                                       value="<?= esc(old('no_wa') ?? ''); ?>"
+                                       autocomplete="tel"
+                                       required>
+                            </div>
+                            <?php if (isset($errors['no_wa'])): ?>
+                                <div class="invalid-feedback"><?= esc($errors['no_wa']); ?></div>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="position-relative">
+                                <div class="icon-field">
+                                    <span class="icon top-50 translate-middle-y">
+                                        <iconify-icon icon="solar:lock-password-outline"></iconify-icon>
+                                    </span>
+                                    <input type="password"
+                                           name="password"
+                                           id="password"
+                                           class="form-control"
+                                           placeholder="Minimal 6 karakter"
+                                           autocomplete="new-password"
+                                           required>
+                                </div>
+                                <span class="toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-12 text-secondary-light"
+                                      data-toggle="#password"
+                                      aria-label="Tampilkan password"></span>
+                            </div>
+                            <?php if (isset($errors['password'])): ?>
+                                <div class="invalid-feedback"><?= esc($errors['password']); ?></div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-submit w-100" id="registerButton">
+                        <span class="register-button__text">Daftar</span>
+                        <span class="register-button__spinner d-none">
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Memproses...
+                        </span>
+                    </button>
+
+                    <div class="mt-3 text-center text-sm">
+                        <p class="mb-0 text-secondary-light">
+                            Sudah punya akun?
+                            <a href="<?= site_url('/'); ?>" class="text-primary-600 fw-semibold">Masuk di sini</a>
+                        </p>
+                    </div>
                 </form>
-                <div class="mt-32 text-center text-sm">
-                    <p class="mb-0">Sudah punya akun ? Silahkan login <a href="<?= base_url('/'); ?>" class="text-primary-600 fw-semibold text-primary-main bg-info-focus px-4">disini <i class="ri-arrow-right-line"></i>.</a></p>
-                </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
-    <!-- jQuery library js -->
-    <script src="assets/js/lib/jquery-3.7.1.min.js"></script>
-    <!-- Bootstrap js -->
-    <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
-    <!-- Apex Chart js -->
-    <script src="assets/js/lib/apexcharts.min.js"></script>
-    <!-- Data Table js -->
-    <script src="assets/js/lib/dataTables.min.js"></script>
-    <!-- Iconify Font js -->
-    <script src="assets/js/lib/iconify-icon.min.js"></script>
-    <!-- jQuery UI js -->
-    <script src="assets/js/lib/jquery-ui.min.js"></script>
-    <!-- Vector Map js -->
-    <script src="assets/js/lib/jquery-jvectormap-2.0.5.min.js"></script>
-    <script src="assets/js/lib/jquery-jvectormap-world-mill-en.js"></script>
-    <!-- Popup js -->
-    <script src="assets/js/lib/magnifc-popup.min.js"></script>
-    <!-- Slick Slider js -->
-    <script src="assets/js/lib/slick.min.js"></script>
-    <!-- prism js -->
-    <script src="assets/js/lib/prism.js"></script>
-    <!-- file upload js -->
-    <script src="assets/js/lib/file-upload.js"></script>
-    <!-- audioplayer -->
-    <script src="assets/js/lib/audioplayer.js"></script>
-
-    <!-- swal -->
-    <script src="<?= base_url('public'); ?>/assets/js/sweetalert2.all.min.js"></script>
-    <!-- Select2 -->
-    <script src="<?= base_url('public'); ?>/assets/js/select2.full.min.js"></script>
-
-    <!-- main js -->
-    <script src="assets/js/app.js"></script>
-
+    <script src="<?= base_url('public/assets/js/lib/jquery-3.7.1.min.js'); ?>"></script>
+    <script src="<?= base_url('public/assets/js/lib/bootstrap.bundle.min.js'); ?>"></script>
+    <script src="<?= base_url('public/assets/js/select2.full.min.js'); ?>"></script>
+    <script src="<?= base_url('public/assets/js/lib/iconify-icon.min.js'); ?>"></script>
     <script>
-        window.onload = function() {
-            // select2
-            $('.select2').each(function() {
-                let parentWidth = $(this).parent().width(); // ambil lebar px
-                $(this).select2({
-                    theme: "bootstrap-5",
-                    width: parentWidth + 'px',
-                    placeholder: $(this).data('placeholder'),
-                    allowClear: true
+        (function () {
+            const form = document.getElementById('registerForm');
+            const button = document.getElementById('registerButton');
+            const text = button.querySelector('.register-button__text');
+            const spinner = button.querySelector('.register-button__spinner');
+
+            $('.select2').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: function () {
+                    return $(this).data('placeholder');
+                },
+                allowClear: true
+            });
+
+            document.querySelectorAll('.toggle-password').forEach(function (toggle) {
+                toggle.addEventListener('click', function () {
+                    const input = document.querySelector(this.getAttribute('data-toggle'));
+                    if (!input) return;
+                    this.classList.toggle('ri-eye-off-line');
+                    input.type = input.type === 'password' ? 'text' : 'password';
                 });
             });
 
-            $(window).on('resize', function() {
-                $('.select2').each(function() {
-                    let parentWidth = $(this).parent().width();
-                    $(this).next('.select2-container').css('width', parentWidth + 'px');
-                });
+            form.addEventListener('submit', function () {
+                button.disabled = true;
+                text.classList.add('d-none');
+                spinner.classList.remove('d-none');
             });
-
-
-            <?php if (session()->getFlashdata('success')) : ?>
-                swal.fire({
-                    title: "Berhasil",
-                    text: "<?= session()->getFlashdata('success') ?>",
-                    icon: "success",
-                    button: "OK",
-                });
-            <?php endif; ?>
-            <?php if (session()->getFlashdata('error')) : ?>
-                swal.fire({
-                    title: "Error",
-                    text: "<?= session()->getFlashdata('error') ?>",
-                    icon: "error",
-                    button: "OK",
-                });
-            <?php endif; ?>
-        };
-        // ================== Password Show Hide Js Start ==========
-        function initializePasswordToggle(toggleSelector) {
-            $(toggleSelector).on('click', function() {
-                $(this).toggleClass("ri-eye-off-line");
-                var input = $($(this).attr("data-toggle"));
-                if (input.attr("type") === "password") {
-                    input.attr("type", "text");
-                } else {
-                    input.attr("type", "password");
-                }
-            });
-        }
-        // Call the function
-        initializePasswordToggle('.toggle-password');
-        // ========================= Password Show Hide Js End ===========================
+        })();
     </script>
-
 </body>
-
-<!-- Mirrored from wowdash.wowtheme7.com/demo/sign-in.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 19 Nov 2025 07:07:33 GMT -->
-
 </html>

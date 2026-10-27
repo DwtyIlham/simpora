@@ -21,6 +21,7 @@ $role     = $roleId === '1' ? 'admin' : ($roleId === '4' ? 'validator' : 'sekola
     'canAdd'     => false,
     'canEdit'    => false,
     'canDelete'  => false,
+    'canViewPeserta' => true,
     'canBatch'   => false,
     'addUrl'     => base_url('sekolah/kompetisi/prestasi-add/' . ($id_kompetisi ? encode_id($id_kompetisi) : '')),
     'deleteUrl'  => base_url('sekolah/kompetisi/peserta/delete/'),

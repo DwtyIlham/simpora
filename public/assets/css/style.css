@@ -16366,3 +16366,26 @@ td.fc-header-center {
 
 
 /* === footer css end === */
+
+/* Lightweight CSS-only spinner loader. */
+.loading {
+    transition: opacity .18s ease;
+}
+
+.loader-spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid rgba(37, 99, 235, .18);
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: loader-spin .7s linear infinite;
+}
+
+@keyframes loader-spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .loader-spinner { animation: none; border-top-color: rgba(37, 99, 235, .55); }
+    .loading { transition: none; }
+}

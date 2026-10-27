@@ -43,20 +43,350 @@ class Download extends BaseController
         return "$tgl $bln $thn";
     }
 
+    /**
+     * Cabor yang ditugaskan ke validator yang sedang login.
+     * Kosong untuk admin.
+     */
+    private function getAssignedCaborIds(): array
+    {
+        $user = session()->get('user') ?? [];
+
+        if (($user['role_id'] ?? '') !== '4' || empty($user['id'])) {
+            return [];
+        }
+
+        $rows = $this->db->table('users_validator')
+            ->select('cabor_id')
+            ->where('user_id', $user['id'])
+            ->get()
+            ->getResultArray();
+
+        return array_values(array_filter(array_column($rows, 'cabor_id')));
+    }
+
+    /**
+     * Menentukan cabor yang boleh diproses.
+     * - admin: kosong = semua cabor
+     * - validator: kosong = semua cabor yang ditugaskan, cabor lain ditolak
+     *
+     * @return array{ids: array, error: string|null}
+     */
+    private function resolveCaborScope(?string $caborId): array
+    {
+        $caborId  = trim((string) $caborId);
+        $user     = session()->get('user') ?? [];
+        $assigned = $this->getAssignedCaborIds();
+        $isValidator = ($user['role_id'] ?? '') === '4';
+
+        if ($isValidator) {
+            if (empty($assigned)) {
+                return ['ids' => [], 'error' => 'Akun validator ini belum memiliki cabang olahraga.'];
+            }
+
+            if ($caborId !== '' && !in_array($caborId, $assigned, true)) {
+                return ['ids' => [], 'error' => 'Anda tidak memiliki akses ke cabang olahraga tersebut.'];
+            }
+
+            return ['ids' => $caborId !== '' ? [$caborId] : $assigned, 'error' => null];
+        }
+
+        return ['ids' => $caborId !== '' ? [$caborId] : [], 'error' => null];
+    }
+
+    private function getCaborNames(array $caborIds): string
+    {
+        if (empty($caborIds)) {
+            return 'SEMUA CABOR';
+        }
+
+        $names = $this->db->table('cabor')
+            ->select('nama')
+            ->whereIn('id', $caborIds)
+            ->orderBy('nama', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        return implode(', ', array_column($names, 'nama'));
+    }
+
+    private function getPenanggungJawab(array $caborIds): string
+    {
+        // Rekap semua cabor tidak perlu menampilkan seluruh nama validator.
+        if (empty($caborIds)) {
+            return 'PANITIA';
+        }
+
+        $builder = $this->db->table('users u')
+            ->select('u.nama')
+            ->distinct()
+            ->join('users_validator uv', 'uv.user_id = u.id');
+
+        if (!empty($caborIds)) {
+            $builder->whereIn('uv.cabor_id', $caborIds);
+        }
+
+        $names = array_column($builder->get()->getResultArray(), 'nama');
+
+        if (!empty($names)) {
+            return implode(', ', $names);
+        }
+
+        $user = session()->get('user') ?? [];
+
+        return $user['nama'] ?? '';
+    }
+
+    private function applyCaborScope($builder, array $caborIds, string $column = 'a.cabor_id')
+    {
+        if (!empty($caborIds)) {
+            $builder->whereIn($column, $caborIds);
+        }
+
+        return $builder;
+    }
+
+    /**
+     * Ringkasan untuk kartu statistik halaman rekap. $caborIds kosong = semua cabor.
+     * Angkanya berupa jumlah BARIS rekap (satu atlet bisa 2-3 baris karena nomor cabor),
+     * sama dengan isi tabel hasil rekap.
+     */
+    public function rekapSummary(array $caborIds = []): array
+    {
+        return $this->getRekapCounts($caborIds);
+    }
+
+    /**
+     * Hitung jumlah baris rekap (satu atlet bisa lebih dari 1 baris karena
+     * punya beberapa nomor cabor) per status verifikasi untuk kartu statistik
+     * di halaman rekap. Urutan/join-nya sama dengan query preview() supaya
+     * total di kartu selalu sama dengan jumlah baris tabel hasil rekap.
+     */
+    private function getRekapCounts(array $caborIds = []): array
+    {
+        $builder = $this->db->table('atlet a')
+            ->select('
+                a.id,
+                a.nomor_cabor_1, a.nomor_cabor_2, a.nomor_cabor_3,
+                s.bentuk_pendidikan,
+                av.akte_status, av.foto_status, av.ijazah_status,
+                av.ktp_kia_kk_status, av.nisn_status, av.suket_status
+            ')
+            ->join('sekolah s', 's.id = a.sekolah_id')
+            ->join('atlet_validasi av', 'av.atlet_id = a.id', 'left');
+
+        if (! empty($caborIds)) {
+            $builder->whereIn('a.cabor_id', $caborIds);
+        }
+
+        // Nomor cabor harus milik cabor atlet itu sendiri (sama dengan preview()).
+        $builder->join('nomor_cabor nc1', 'nc1.id = a.nomor_cabor_1 AND nc1.cabor_id = a.cabor_id', 'left')
+            ->join('nomor_cabor nc2', 'nc2.id = a.nomor_cabor_2 AND nc2.cabor_id = a.cabor_id', 'left')
+            ->join('nomor_cabor nc3', 'nc3.id = a.nomor_cabor_3 AND nc3.cabor_id = a.cabor_id', 'left')
+            ->groupBy('a.id');
+
+        $counts = [
+            'total'       => 0,
+            'lengkap'     => 0,
+            'pending'     => 0,
+            'invalid'     => 0,
+            'belum_dicek' => 0,
+        ];
+
+        foreach ($builder->get()->getResultArray() as $row) {
+            $jumlahBaris = count($this->uniqueNomorFields($row)) ?: 1;
+            $status      = $this->statusFromDocs($row, (string) ($row['bentuk_pendidikan'] ?? ''));
+
+            $counts['total'] += $jumlahBaris;
+
+            $key = [
+                'Lengkap'       => 'lengkap',
+                'Belum Lengkap' => 'pending',
+                'Tidak Valid'   => 'invalid',
+                'Belum Dicek'   => 'belum_dicek',
+            ][$status] ?? 'pending';
+
+            $counts[$key] += $jumlahBaris;
+        }
+
+        return $counts;
+    }
+
+    /**
+     * Jumlah nomor cabor valid (yang masih ada di tabel nomor_cabor dan
+     * memang milik cabor atlet) untuk satu baris data atlet.
+     */
+    private function countValidNomor(array $row): int
+    {
+        return count($this->uniqueNomorFields($row));
+    }
+
+    /**
+     * Ambil nomor cabor atlet tanpa duplikat.
+     * Nomor yang sama bisa tersimpan di lebih dari satu kolom (mis. nomor_cabor_1
+     * dan nomor_cabor_2 berisi nomor yang sama) — itu dulu membuat atlet muncul
+     * dua kali di hasil rekap.
+     */
+    private function uniqueNomorFields(array $row): array
+    {
+        $unik = [];
+
+        foreach (['nomor_cabor_1', 'nomor_cabor_2', 'nomor_cabor_3'] as $field) {
+            $nilai = $row[$field] ?? null;
+
+            if ($nilai === null) {
+                continue;
+            }
+
+            $nilai = trim((string) $nilai);
+
+            // nilai kosong / '0' berarti tidak ada nomor.
+            if ($nilai === '' || $nilai === '0') {
+                continue;
+            }
+
+            if (! in_array($nilai, $unik, true)) {
+                $unik[] = $nilai;
+            }
+        }
+
+        return $unik;
+    }
+
+    /**
+     * Status verifikasi dari status dokumen (sama persis dengan preview()).
+     */
+    private function statusFromDocs(array $row, string $bentukPendidikan): string
+    {
+        $bentuk = strtoupper(trim($bentukPendidikan));
+
+        $requiredDocs = [
+            'akte_status',
+            'foto_status',
+            'ktp_kia_kk_status',
+            'nisn_status',
+            'suket_status',
+        ];
+
+        if (! in_array($bentuk, ['SD', 'MI'], true)) {
+            $requiredDocs[] = 'ijazah_status';
+        }
+
+        $hasInvalid  = false;
+        $hasPending  = false;
+        $hasDecision = false;
+        $allValid    = true;
+
+        foreach ($requiredDocs as $doc) {
+            $value = strtolower(trim((string) ($row[$doc] ?? '')));
+
+            if ($value === 'valid' || $value === 'invalid') {
+                $hasDecision = true;
+            }
+
+            if ($value === 'invalid') {
+                $hasInvalid = true;
+                $allValid = false;
+                break;
+            }
+
+            if ($value === 'pending' || $value === '') {
+                $hasPending = true;
+                $allValid = false;
+            }
+
+            if (! in_array($value, ['valid', 'pending', 'invalid'], true)) {
+                $allValid = false;
+            }
+        }
+
+        if ($hasInvalid) {
+            return 'Tidak Valid';
+        }
+
+        if ($hasPending) {
+            return 'Belum Lengkap';
+        }
+
+        if ($allValid || ! $hasDecision) {
+            return 'Lengkap';
+        }
+
+        return 'Belum Dicek';
+    }
+
+    /**
+     * Halaman rekap hanya untuk admin dan validator.
+     */
+    private function guardRekapAccess(): ?\CodeIgniter\HTTP\ResponseInterface
+    {
+        $user   = session()->get('user') ?? [];
+        $roleId = (string) ($user['role_id'] ?? '');
+
+        if (in_array($roleId, ['1', '4'], true)) {
+            return null;
+        }
+
+        return $this->response->setStatusCode(403)->setJSON([
+            'status'  => 'error',
+            'message' => 'Akses ditolak. Halaman rekap hanya untuk admin dan validator.',
+        ]);
+    }
+
+    private function guardValidatorScope(): void
+    {
+        $user = session()->get('user') ?? [];
+
+        if (($user['role_id'] ?? '') === '4' && empty($this->getAssignedCaborIds())) {
+            exit('Akun validator ini belum memiliki cabang olahraga.');
+        }
+    }
+
+    private function matchesStatusFilter(string $verifikasi, string $status): bool
+    {
+        if ($status === '') {
+            return true;
+        }
+
+        $map = [
+            'valid'     => 'Lengkap',
+            'pending'   => 'Belum Lengkap',
+            'invalid'   => 'Tidak Valid',
+            'unchecked' => 'Belum Dicek',
+        ];
+
+        return isset($map[$status]) && $verifikasi === $map[$status];
+    }
+
+    /**
+     * Batas jumlah baris per halaman pada hasil rekap (mencegah data terpotong oleh
+     * batas waktu eksekusi PHP ketika rekap seluruh cabor di-generate sekaligus).
+     */
+    private const PREVIEW_PAGE_SIZE = 200;
+
     public function preview()
     {
+        if ($guard = $this->guardRekapAccess()) {
+            return $guard;
+        }
+
         $request = service('request');
 
-        $cabor_id  = $request->getPost('cabor_id');
+        $cabor_id   = trim((string) $request->getPost('cabor_id'));
         $jenjang_id = $request->getPost('jenjang_id');
-        $status   = $request->getPost('status');
+        $status     = (string) ($request->getPost('status') ?? '');
+        $searchNama = trim((string) $request->getPost('search_nama'));
+        $page       = max(1, (int) ($request->getPost('page') ?? 1));
 
-        if (!$cabor_id) {
+        $scope = $this->resolveCaborScope($cabor_id);
+
+        if ($scope['error'] !== null) {
             return $this->response->setJSON([
-                'status' => 'error',
-                'message' => 'Cabor wajib dipilih'
+                'status'  => 'error',
+                'message' => $scope['error'],
             ]);
         }
+
+        $caborIds = $scope['ids'];
 
         // =========================
         // QUERY
@@ -75,19 +405,20 @@ class Download extends BaseController
             av.nisn_status,
             av.suket_status,
 
-            c.nama AS cabor,
-            u.nama AS penanggung_jawab
+            c.nama AS cabor
         ");
 
         $builder->join('sekolah s', 's.id = a.sekolah_id');
         $builder->join('cabor c', 'c.id = a.cabor_id');
         $builder->join('atlet_validasi av', 'av.atlet_id = a.id', 'left');
-        $builder->join('users_validator uv', 'uv.cabor_id = c.id', 'left');
-        $builder->join('users u', 'u.id = uv.user_id', 'left');
 
-        $builder->where('a.cabor_id', $cabor_id);
+        $this->applyCaborScope($builder, $caborIds);
+
+        if ($searchNama !== '') {
+            $builder->like('a.nama', $searchNama);
+        }
+
         $builder->orderBy('a.nama ASC, sekolah ASC');
-        // $builder->groupBy('a.id');
 
         $rows = $builder->get()->getResultArray();
 
@@ -125,6 +456,8 @@ class Download extends BaseController
         $total = 0;
         $lengkap = 0;
         $belum = 0;
+        $tidakValid = 0;
+        $belumDicek = 0;
 
         $jenis_dok = [
             'akte_status',
@@ -137,22 +470,35 @@ class Download extends BaseController
 
         foreach ($rows as $r) {
 
-            $nomorFields = [
-                $r['nomor_cabor_1'] ?? null,
-                $r['nomor_cabor_2'] ?? null,
-                $r['nomor_cabor_3'] ?? null
-            ];
+            $nomorFields = $this->uniqueNomorFields($r);
+
+            // Atlet tanpa nomor cabor tetap ditampilkan pada rekap seluruh data.
+            if (empty($nomorFields)) {
+                $nomorFields = [null];
+            }
 
             foreach ($nomorFields as $nc_id) {
 
-                if (empty($nc_id)) continue;
+                $nama_nomor = '';
+                $jenjang = '';
+                $jenjang_current_id = null;
+                $detail = '';
+                $jenis = '';
+                $kategori = '';
 
-                $nama_nomor = $mapNomor[$nc_id] ?? '';
-                $jenjang  = $mapJenjang[$nc_id] ?? '';
-                $jenjang_current_id = $mapJenjangId[$nc_id] ?? null;
-                $detail   = $mapDetail[$nc_id] ?? '';
-                $jenis   = $mapJenis[$nc_id] ?? '';
-                $kategori  = $mapKategori[$nc_id] ?? '';
+                if (!empty($nc_id)) {
+                    // Nomor cabor yang sudah dihapus tidak dihitung sebagai baris rekap.
+                    if (!array_key_exists($nc_id, $mapNomor)) {
+                        continue;
+                    }
+
+                    $nama_nomor = $mapNomor[$nc_id] ?? '';
+                    $jenjang  = $mapJenjang[$nc_id] ?? '';
+                    $jenjang_current_id = $mapJenjangId[$nc_id] ?? null;
+                    $detail   = $mapDetail[$nc_id] ?? '';
+                    $jenis   = $mapJenis[$nc_id] ?? '';
+                    $kategori  = $mapKategori[$nc_id] ?? '';
+                }
 
                 // FILTER JENJANG
                 if (!empty($jenjang_id) && $jenjang_current_id != $jenjang_id) {
@@ -183,11 +529,16 @@ class Download extends BaseController
 
                 $hasInvalid = false;
                 $hasPending = false;
+                $hasDecision = false;
                 $allValid = true;
 
                 foreach ($requiredDocs as $doc) {
 
                     $value = strtolower(trim($r[$doc] ?? ''));
+
+                    if ($value === 'valid' || $value === 'invalid') {
+                        $hasDecision = true;
+                    }
 
                     if ($value === 'invalid') {
                         $hasInvalid = true;
@@ -215,15 +566,28 @@ class Download extends BaseController
                     $verifikasi = 'Tidak Valid';
                 } elseif ($hasPending) {
                     $verifikasi = 'Belum Lengkap';
-                } elseif ($allValid) {
+                } elseif ($allValid || ! $hasDecision) {
                     $verifikasi = 'Lengkap';
                 } else {
                     $verifikasi = 'Belum Dicek';
                 }
 
-                // FILTER STATUS
-                if ($status == 'valid' && $verifikasi != 'Lengkap') continue;
-                if ($status == 'pending' && $verifikasi != 'Belum Lengkap') continue;
+                // FILTER STATUS (data tabel memakai filter ini, jadi hitungan pill juga)
+                if (!$this->matchesStatusFilter($verifikasi, $status)) {
+                    continue;
+                }
+
+                // HITUNG (hanya baris yang lolos filter, sama dengan isi tabel)
+                $total++;
+                if ($verifikasi === 'Lengkap') {
+                    $lengkap++;
+                } elseif ($verifikasi === 'Tidak Valid') {
+                    $tidakValid++;
+                } elseif ($verifikasi === 'Belum Dicek') {
+                    $belumDicek++;
+                } else {
+                    $belum++;
+                }
 
                 // TTL
                 $ttl = strtoupper(
@@ -244,11 +608,6 @@ class Download extends BaseController
                     'jenjang'  => $jenjang,
                     'verifikasi' => $verifikasi
                 ];
-
-                // HITUNG
-                $total++;
-                if ($verifikasi == 'Lengkap') $lengkap++;
-                else $belum++;
             }
         }
 
@@ -286,8 +645,8 @@ class Download extends BaseController
         }
 
         // META
-        $cabor_nama = $rows[0]['cabor'] ?? '';
-        $penanggung_jawab = $rows[0]['penanggung_jawab'] ?? (session()->get('user')->nama ?? '');
+        $cabor_nama = $this->getCaborNames($caborIds);
+        $penanggung_jawab = $this->getPenanggungJawab($caborIds);
         $jenjang_nama = '';
 
         if (!empty($jenjang_id)) {
@@ -300,35 +659,48 @@ class Download extends BaseController
         return $this->response->setJSON([
             'status' => 'success',
             'meta' => [
-                'cabor' => $cabor_nama,
+                'cabor' => strtoupper($cabor_nama),
                 'jenjang' => strtoupper($jenjang_nama),
                 'penanggung_jawab' => strtoupper($penanggung_jawab),
                 'total' => $total,
                 'lengkap' => $lengkap,
-                'belum' => $belum
+                'belum' => $belum,
+                'tidak_valid' => $tidakValid,
+                'belum_dicek' => $belumDicek,
+                'page' => $page,
+                'page_size' => self::PREVIEW_PAGE_SIZE,
+                'total_pages' => max(1, (int) ceil($total / self::PREVIEW_PAGE_SIZE)),
             ],
-            'data' => $data
+            'data' => array_slice($data, ($page - 1) * self::PREVIEW_PAGE_SIZE, self::PREVIEW_PAGE_SIZE)
         ]);
     }
 
     public function rekap_atlet_file()
     {
+        if ($guard = $this->guardRekapAccess()) {
+            return $guard;
+        }
+
         $request = service('request');
 
-        $cabor_id   = $request->getPost('cabor_id');
+        $cabor_id   = trim((string) $request->getPost('cabor_id'));
         $jenjang_id = $request->getPost('jenjang_id');
-        $status     = $request->getPost('status');
+        $status     = (string) ($request->getPost('status') ?? '');
 
         // 1. TAMBAHAN TANGKAP FILTER BARU
-        $search_nama = $request->getPost('search_nama');
+        $search_nama = trim((string) $request->getPost('search_nama'));
         $jk          = $request->getPost('jk'); // Misal: 'L' atau 'P'
 
-        if (!$cabor_id) {
+        $scope = $this->resolveCaborScope($cabor_id);
+
+        if ($scope['error'] !== null) {
             return $this->response->setJSON([
-                'status' => 'error',
-                'message' => 'Cabor wajib dipilih'
+                'status'  => 'error',
+                'message' => $scope['error'],
             ]);
         }
+
+        $caborIds = $scope['ids'];
 
         // =========================
         // QUERY BUILDER
@@ -348,24 +720,21 @@ class Download extends BaseController
             av.suket_status,
 
             c.nama AS cabor,
-            u.nama AS penanggung_jawab,
-            p.prestasi 
+            MIN(p.prestasi) AS prestasi
         ");
 
         $builder->join('sekolah s', 's.id = a.sekolah_id');
         $builder->join('cabor c', 'c.id = a.cabor_id');
         $builder->join('atlet_validasi av', 'av.atlet_id = a.id', 'left');
-        $builder->join('users_validator uv', 'uv.cabor_id = c.id', 'left');
-        $builder->join('users u', 'u.id = uv.user_id', 'left');
 
         // 2. INNER JOIN PRESTASI (Otomatis HANYA mengambil yang punya prestasi)
         $builder->join('prestasi p', 'p.atlet_id = a.id');
 
-        $builder->where('a.cabor_id', $cabor_id);
+        $this->applyCaborScope($builder, $caborIds);
         $builder->orderBy('a.nama ASC');
 
         // 3. APPLY FILTER PENCARIAN & JENIS KELAMIN
-        if (!empty($search_nama)) {
+        if ($search_nama !== '') {
             $builder->like('a.nama', $search_nama);
         }
         if (!empty($jk)) {
@@ -374,6 +743,9 @@ class Download extends BaseController
 
         // Group By untuk menghindari data atlet terduplikat jika ia menang di 2 nomor berbeda
         $builder->groupBy('a.id');
+
+        set_time_limit(0);
+        ini_set('memory_limit', '512M');
 
         $rows = $builder->get()->getResultArray();
 
@@ -410,16 +782,16 @@ class Download extends BaseController
         $total = 0;
         $lengkap = 0;
         $belum = 0;
+        $tidakValid = 0;
+        $belumDicek = 0;
 
         foreach ($rows as $r) {
-            $nomorFields = [
-                $r['nomor_cabor_1'] ?? null,
-                $r['nomor_cabor_2'] ?? null,
-                $r['nomor_cabor_3'] ?? null
-            ];
+            $nomorFields = $this->uniqueNomorFields($r);
 
             foreach ($nomorFields as $nc_id) {
-                if (empty($nc_id)) continue;
+
+                // Nomor cabor yang sudah dihapus tidak dihitung sebagai baris rekap.
+                if (!array_key_exists($nc_id, $mapNomor)) continue;
 
                 $nama_nomor = $mapNomor[$nc_id] ?? '';
                 $jenjang    = $mapJenjang[$nc_id] ?? '';
@@ -454,10 +826,15 @@ class Download extends BaseController
 
                 $hasInvalid = false;
                 $hasPending = false;
+                $hasDecision = false;
                 $allValid = true;
 
                 foreach ($requiredDocs as $doc) {
                     $value = strtolower(trim($r[$doc] ?? ''));
+
+                    if ($value === 'valid' || $value === 'invalid') {
+                        $hasDecision = true;
+                    }
 
                     if ($value === 'invalid') {
                         $hasInvalid = true;
@@ -477,15 +854,16 @@ class Download extends BaseController
                     $verifikasi = 'Tidak Valid';
                 } elseif ($hasPending) {
                     $verifikasi = 'Belum Lengkap';
-                } elseif ($allValid) {
+                } elseif ($allValid || ! $hasDecision) {
                     $verifikasi = 'Lengkap';
                 } else {
                     $verifikasi = 'Belum Dicek';
                 }
 
                 // FILTER STATUS
-                if ($status == 'valid' && $verifikasi != 'Lengkap') continue;
-                if ($status == 'pending' && $verifikasi != 'Belum Lengkap') continue;
+                if (!$this->matchesStatusFilter($verifikasi, $status)) {
+                    continue;
+                }
 
                 // TTL
                 $ttl = strtoupper(
@@ -510,8 +888,15 @@ class Download extends BaseController
                 ];
 
                 $total++;
-                if ($verifikasi == 'Lengkap') $lengkap++;
-                else $belum++;
+                if ($verifikasi === 'Lengkap') {
+                    $lengkap++;
+                } elseif ($verifikasi === 'Tidak Valid') {
+                    $tidakValid++;
+                } elseif ($verifikasi === 'Belum Dicek') {
+                    $belumDicek++;
+                } else {
+                    $belum++;
+                }
             }
         }
 
@@ -551,8 +936,8 @@ class Download extends BaseController
             $data[$index]['no'] = $index + 1;
         }
 
-        $cabor_nama = $rows[0]['cabor'] ?? '';
-        $penanggung_jawab = $rows[0]['penanggung_jawab'] ?? (session()->get('user')->nama ?? '');
+        $cabor_nama = $this->getCaborNames($caborIds);
+        $penanggung_jawab = $this->getPenanggungJawab($caborIds);
         $jenjang_nama = '';
 
         if (!empty($jenjang_id)) {
@@ -562,12 +947,14 @@ class Download extends BaseController
         return $this->response->setJSON([
             'status' => 'success',
             'meta' => [
-                'cabor' => $cabor_nama,
+                'cabor' => strtoupper($cabor_nama),
                 'jenjang' => strtoupper($jenjang_nama),
                 'penanggung_jawab' => strtoupper($penanggung_jawab),
                 'total' => $total,
                 'lengkap' => $lengkap,
-                'belum' => $belum
+                'belum' => $belum,
+                'tidak_valid' => $tidakValid,
+                'belum_dicek' => $belumDicek,
             ],
             'data' => $data
         ]);
@@ -575,15 +962,20 @@ class Download extends BaseController
 
     public function datadiriExcel()
     {
+        if ($guard = $this->guardRekapAccess()) {
+            return $guard;
+        }
+
         $atlet_ids_str = $this->request->getPost('atlet_ids');
 
         if (empty($atlet_ids_str)) {
             die('Tidak ada data atlet yang dikirim.');
         }
 
-        $atlet_ids = explode(',', $atlet_ids_str);
+        $atlet_ids = array_values(array_filter(array_map('trim', explode(',', (string) $atlet_ids_str))));
 
-        // Ambil data detail atlet beserta nama cabor-nya
+        $this->guardValidatorScope();
+
         $atlets = $this->db->table('atlet a')
             ->select('
                 a.*, 
@@ -592,9 +984,15 @@ class Download extends BaseController
             ')
             ->join('cabor c', 'c.id = a.cabor_id', 'left')
             ->join('sekolah s', 's.id = a.sekolah_id', 'left')
-            ->whereIn('a.id', $atlet_ids)
-            ->get()
-            ->getResultArray();
+            ->whereIn('a.id', $atlet_ids);
+
+        $this->applyCaborScope($atlets, $this->getAssignedCaborIds());
+
+        $atlets = $atlets->get()->getResultArray();
+
+        if (empty($atlets)) {
+            die('Tidak ada data atlet yang dapat diunduh.');
+        }
 
         // Format nama file
         $filename = "Data_Diri_Kontingen_" . date('Ymd_His') . ".xls";
@@ -650,6 +1048,10 @@ class Download extends BaseController
 
     public function berkasZip()
     {
+        if ($guard = $this->guardRekapAccess()) {
+            return $guard;
+        }
+
         // 1. Amankan memori dan waktu eksekusi agar server tidak crash
         set_time_limit(0);
         ini_set('memory_limit', '512M');
@@ -661,12 +1063,14 @@ class Download extends BaseController
         }
 
         // Pecah string "1,2,5,10" menjadi array [1, 2, 5, 10]
-        $atlet_ids = explode(',', $atlet_ids_str);
+        $atlet_ids = array_values(array_filter(array_map('trim', explode(',', (string) $atlet_ids_str))));
+
+        $this->guardValidatorScope();
 
         // =========================
         // QUERY AMBIL DATA & NAMA FILE
         // =========================
-        $atlets = $this->db->table('atlet a')
+        $builder = $this->db->table('atlet a')
             ->select("
                 a.id, 
                 a.nama, 
@@ -680,9 +1084,15 @@ class Download extends BaseController
             ")
             ->join('sekolah s', 's.id = a.sekolah_id')
             ->join('atlet_validasi av', 'av.atlet_id = a.id', 'left')
-            ->whereIn('a.id', $atlet_ids)
-            ->get()
-            ->getResultArray();
+            ->whereIn('a.id', $atlet_ids);
+
+        $this->applyCaborScope($builder, $this->getAssignedCaborIds());
+
+        $atlets = $builder->get()->getResultArray();
+
+        if (empty($atlets)) {
+            die('Tidak ada atlet yang sesuai dengan pilihan Anda.');
+        }
 
         // =========================
         // KONFIGURASI FILE FISIK
@@ -742,7 +1152,7 @@ class Download extends BaseController
                         $zipInternalPath = $folderName . '/' . $newFileName . '.' . $ext;
 
                         // Masukkan ke ZIP
-                        d($zip->addFile($physicalPath, $zipInternalPath));
+                        $zip->addFile($physicalPath, $zipInternalPath);
                     }
                 }
             }
@@ -770,15 +1180,22 @@ class Download extends BaseController
 
     public function excel()
     {
+        if ($guard = $this->guardRekapAccess()) {
+            return $guard;
+        }
+
         $cabor_id  = $this->request->getGet('cabor_id');
         $jenjang_id = $this->request->getGet('jenjang_id');
         $status   = $this->request->getGet('status');
+        $searchNama = $this->request->getGet('search_nama');
 
         // inject ke preview (biar reuse logic)
         $this->request->setGlobal('post', [
             'cabor_id' => $cabor_id,
             'jenjang_id' => $jenjang_id,
-            'status' => $status
+            'status' => $status,
+            'search_nama' => $searchNama,
+            'page' => 1,
         ]);
 
         $preview = json_decode($this->preview()->getBody(), true);
@@ -789,6 +1206,24 @@ class Download extends BaseController
 
         $meta = $preview['meta'];
         $data = $preview['data'];
+
+        // Excel harus memuat seluruh data, bukan hanya satu halaman preview.
+        for ($page = 2; $page <= ($meta['total_pages'] ?? 1); $page++) {
+            $this->request->setGlobal('post', [
+                'cabor_id' => $cabor_id,
+                'jenjang_id' => $jenjang_id,
+                'status' => $status,
+                'search_nama' => $searchNama,
+                'page' => $page,
+            ]);
+
+            $next = json_decode($this->preview()->getBody(), true);
+            if (($next['status'] ?? '') !== 'success') {
+                break;
+            }
+
+            $data = array_merge($data, $next['data']);
+        }
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();

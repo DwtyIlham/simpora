@@ -186,7 +186,12 @@ $persenValid = $stats['total'] > 0 ? round(($stats['valid'] / $stats['total']) *
     }
 
     #dataTable thead th {
-        white-space: nowrap;
+        white-space: normal;
+    }
+
+    #dataTable .min-w-0 {
+        min-width: 0;
+        overflow: hidden;
     }
 
     #dataTable tbody tr {
@@ -233,6 +238,7 @@ $persenValid = $stats['total'] > 0 ? round(($stats['valid'] / $stats['total']) *
         display: inline-flex;
         align-items: center;
         gap: 4px;
+        max-width: 100%;
         padding: 1px 8px;
         border-radius: 999px;
         background: #eff6ff;
@@ -240,18 +246,22 @@ $persenValid = $stats['total'] > 0 ? round(($stats['valid'] / $stats['total']) *
         font-size: .7rem;
         font-weight: 600;
         margin: 1px 2px 1px 0;
-        white-space: nowrap;
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
 
     .doc-list {
         display: inline-flex;
-        gap: 5px;
+        gap: 4px;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 100%;
         align-items: center;
     }
 
     .doc-dot {
-        width: 10px;
-        height: 10px;
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
         display: inline-block;
         background: #cbd5e1;
@@ -452,19 +462,18 @@ $persenValid = $stats['total'] > 0 ? round(($stats['valid'] / $stats['total']) *
             <?= number_format($stats['total'], 0, ',', '.'); ?> atlet
         </span>
     </div>
-    <div class="card-body table-responsive">
-        <table class="table bordered-table mb-0 align-middle" id="dataTable" data-page-length="10">
+    <div class="card-body table-responsive atlet-table-shell">
+        <table class="table bordered-table table-atlet table-atlet-sekolah mb-0 align-middle" id="dataTable" data-page-length="10">
             <thead>
                 <tr>
-                    <th class="text-center" scope="col">No.</th>
-                    <th class="text-center" scope="col">Aksi</th>
-                    <th class="text-center" scope="col">Dokumen</th>
-                    <th class="text-center" scope="col">Status</th>
-                    <th scope="col">Atlet</th>
-                    <th scope="col">Sekolah</th>
-                    <th class="text-center" scope="col">JK</th>
-                    <th scope="col">Cabang Olahraga</th>
-                    <th scope="col">Nomor Lomba</th>
+                    <th class="text-center col-no" scope="col">No.</th>
+                    <th class="text-center col-aksi" scope="col">Aksi</th>
+                    <th class="text-center col-validasi" scope="col">Validasi</th>
+                    <th class="col-nama" scope="col">Atlet</th>
+                    <th class="col-sekolah" scope="col">Sekolah</th>
+                    <th class="text-center col-jk" scope="col">JK</th>
+                    <th class="col-cabor" scope="col">Cabang Olahraga</th>
+                    <th class="col-nomor" scope="col">Nomor Lomba</th>
                 </tr>
             </thead>
             <tbody>
@@ -516,8 +525,12 @@ $persenValid = $stats['total'] > 0 ? round(($stats['valid'] / $stats['total']) *
                             </div>
                         </td>
 
-                        <td class="text-center">
-                            <div class="doc-list" aria-label="Status dokumen">
+                        <td class="text-center" data-search="<?= $status; ?>">
+                            <span class="badge <?= $statusClass[$status]; ?> radius-8"><?= $statusLabel[$status]; ?></span>
+                            <div class="text-secondary-light mt-1" style="font-size:.68rem;">
+                                <?= $row['validCount']; ?>/<?= $row['totalDokumen']; ?> valid
+                            </div>
+                            <div class="doc-list mt-1" aria-label="Status dokumen">
                                 <?php foreach ($row['docs'] as $doc): ?>
                                     <?php
                                     $docState = in_array($doc['status'], ['valid', 'pending', 'invalid'], true) ? $doc['status'] : 'pending';
@@ -527,18 +540,11 @@ $persenValid = $stats['total'] > 0 ? round(($stats['valid'] / $stats['total']) *
                                         title="<?= esc($doc['label']); ?>: <?= $docText; ?>"></span>
                                 <?php endforeach; ?>
                             </div>
-                            <div class="text-secondary-light mt-1" style="font-size:.68rem;">
-                                <?= $row['validCount']; ?>/<?= $row['totalDokumen']; ?> valid
-                            </div>
-                        </td>
-
-                        <td class="text-center" data-search="<?= $status; ?>">
-                            <span class="badge <?= $statusClass[$status]; ?> radius-8"><?= $statusLabel[$status]; ?></span>
                         </td>
 
                         <td>
-                            <div class="d-flex align-items-center gap-3">
-                                <img src="<?= base_url('public/uploads/atlet/file_foto/' . (($a['file_foto'] ?? '') ?: 'default.png')); ?>"
+                            <div class="d-flex align-items-center gap-3 atlet-name-cell">
+                                <img src="<?= $row['fotoExists'] ? base_url('public/uploads/atlet/file_foto/' . $a['file_foto']) : base_url('public/assets/images/user.png'); ?>"
                                     alt="Foto <?= esc($a['nama'] ?? ''); ?>"
                                     class="atlet-avatar"
                                     onerror="this.onerror=null;this.src='<?= base_url('public/assets/images/user.png'); ?>';">
@@ -797,9 +803,10 @@ $persenValid = $stats['total'] > 0 ? round(($stats['valid'] / $stats['total']) *
     window.jQuery(function($) {
     const dataAtletTable = new window.DataTable('#dataTable', {
         pageLength: 10,
+        autoWidth: false,
         order: [],
         columnDefs: [{
-            targets: [0, 6, 8],
+            targets: [0, 1, 2, 7],
             orderable: false
         }],
         layout: {
@@ -832,17 +839,17 @@ $persenValid = $stats['total'] > 0 ? round(($stats['valid'] / $stats['total']) *
 
         dataAtletTable.columns().search('');
 
-        // Index kolom: 2 = Sekolah, 4 = Cabang Olahraga, 7 = Status
+        // Index kolom: 2 = Validasi, 4 = Sekolah, 6 = Cabang Olahraga
         if (cabor) {
-            dataAtletTable.column(4).search('^' + escapeRegex(cabor) + '$', true, false);
+            dataAtletTable.column(6).search('^' + escapeRegex(cabor) + '$', true, false);
         }
 
         if (sekolah) {
-            dataAtletTable.column(2).search('^' + escapeRegex(sekolah) + '$', true, false);
+            dataAtletTable.column(4).search('^' + escapeRegex(sekolah) + '$', true, false);
         }
 
         if (status) {
-            dataAtletTable.column(7).search('^' + escapeRegex(status) + '$', true, false);
+            dataAtletTable.column(2).search('^' + escapeRegex(status) + '$', true, false);
         }
 
         dataAtletTable.draw();

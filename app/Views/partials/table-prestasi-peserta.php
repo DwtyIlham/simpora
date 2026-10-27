@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Partial: Tabel Prestasi Peserta (Shared)
  * Digunakan oleh admin, validator, dan sekolah.
@@ -37,59 +38,235 @@ $batchUrl   = $batchUrl ?? base_url('admin/piagam-batch/');
 
 ?>
 <style>
-    .prestasi-peserta-table td { vertical-align: middle; }
-    .prestasi-peserta-action { gap: 4px; flex-wrap: nowrap; }
+    .prestasi-peserta-table td {
+        vertical-align: middle;
+    }
+
+    .prestasi-peserta-action {
+        gap: 6px;
+        flex-wrap: nowrap;
+    }
+
+    .prestasi-peserta-table tbody tr:hover {
+        background-color: rgba(37, 99, 235, .035);
+    }
+
+    .prestasi-summary {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        color: #64748b;
+        font-size: .875rem;
+        white-space: nowrap;
+    }
+
+    .prestasi-summary strong {
+        color: #0f172a;
+        font-size: 1rem;
+    }
+
+    .prestasi-peserta-header {
+        padding: 0 0 1rem;
+        border-bottom: 1px solid #e8edf5;
+    }
+
+    .prestasi-peserta-header>div:first-child {
+        min-width: 0;
+    }
+
+    .prestasi-peserta-header>div:first-child>div {
+        min-width: 0;
+    }
+
+    .prestasi-page-title {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 700;
+        line-height: 1.35;
+        color: #0f172a;
+    }
+
+    .prestasi-page-subtitle {
+        margin: .2rem 0 0;
+        color: #64748b;
+        font-size: .825rem;
+    }
+
+    .prestasi-medal {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .3rem .65rem;
+        border-radius: 999px;
+        font-size: .8rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .prestasi-medal-1 {
+        color: #946200;
+        background: #fff4cf;
+    }
+
+    .prestasi-medal-2 {
+        color: #475569;
+        background: #edf2f7;
+    }
+
+    .prestasi-medal-3 {
+        color: #8a4b26;
+        background: #ffeadb;
+    }
+
+    .batch-card {
+        border: 1px solid #e8edf5;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, .035);
+    }
+
+    .batch-card .form-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+    }
+
+    .batch-card .card-header {
+        background: transparent;
+        border-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .batch-card .card-body {
+        padding-top: 1rem;
+    }
+
+    .prestasi-peserta-card {
+        border: 1px solid #e8edf5;
+        border-radius: 14px;
+        box-shadow: 0 6px 20px rgba(15, 23, 42, .035);
+        overflow: hidden;
+    }
+
+    .prestasi-peserta-card>.card-header {
+        padding: 1rem 1.25rem;
+        background: #fff;
+        border-bottom: 1px solid #edf1f6;
+    }
+
+    .prestasi-peserta-card>.card-body {
+        padding: 1.25rem;
+    }
+
+    .prestasi-peserta-card .dataTable {
+        margin-top: .25rem !important;
+    }
+
+    .prestasi-peserta-card .table> :not(caption)>*>* {
+        padding: .8rem .75rem;
+    }
+
+    .batch-card .form-select,
+    .batch-card .select2-container--bootstrap-5 .select2-selection {
+        min-height: 42px;
+        border-radius: 9px;
+    }
+
+    .batch-card .btn {
+        min-height: 42px;
+        border-radius: 9px;
+        font-size: .925rem;
+    }
+
     .prestasi-peserta-btn {
-        width: 32px; height: 32px; border-radius: 50%;
-        display: inline-flex; align-items: center; justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         transition: transform .15s ease, box-shadow .15s ease;
         text-decoration: none;
     }
-    .prestasi-peserta-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(15, 23, 42, .12); }
-    .batch-card .form-label { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.35rem; }
+
+    .prestasi-peserta-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(15, 23, 42, .12);
+    }
+
+    @media (max-width: 767.98px) {
+        .prestasi-peserta-header {
+            align-items: flex-start !important;
+        }
+
+        .prestasi-peserta-header>div:last-child {
+            width: 100%;
+        }
+
+        .prestasi-peserta-header>div:last-child .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .prestasi-peserta-header>div:last-child .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .prestasi-peserta-card>.card-header {
+            padding: .9rem 1rem;
+        }
+
+        .prestasi-peserta-card>.card-body {
+            padding: .75rem;
+        }
+
+        .batch-card .card-header,
+        .batch-card .card-body {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .prestasi-peserta-table {
+            min-width: 700px;
+        }
+    }
 </style>
 
-<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-12">
-    <div>
-        <h6 class="fw-semibold mb-0"><?= esc($title ?? 'Data Prestasi Peserta'); ?></h6>
-        <ul class="d-flex align-items-center gap-2">
-            <li class="fw-medium">
-                <a href="<?= base_url($role === 'admin' ? 'admin/kompetisi/data' : ($role === 'validator' ? 'validator/kompetisi/data' : 'sekolah/kompetisi/data')); ?>" class="d-flex align-items-center gap-1 hover-text-primary text-decoration-none">
-                    <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
-                    <?= esc($title ?? 'Data Prestasi Peserta'); ?>
-                </a>
-            </li>
-            <li class="fw-medium text-secondary-light">-</li>
-            <li class="fw-medium">SILAGAPORA</li>
-        </ul>
+<div class="prestasi-peserta-header d-flex flex-wrap align-items-center justify-content-between gap-3 mb-20">
+    <div class="d-flex align-items-center gap-3 flex-grow-1">
+        <div>
+            <h1 class="prestasi-page-title"><?= esc($title ?? 'Data Prestasi Peserta'); ?></h1>
+            <p class="prestasi-page-subtitle">Daftar atlet berprestasi pada kompetisi ini</p>
+        </div>
     </div>
     <?php if ($canAdd): ?>
         <div>
-            <a href="<?= esc($addUrl); ?>" class="btn btn-primary-600 radius-8"><i class="ri-add-box-line"></i> Tambah Atlet Prestasi</a>
+            <a href="<?= esc($addUrl); ?>" class="btn btn-primary-600 radius-8"><i class="ri-add-box-line me-1"></i> Tambah Atlet Prestasi</a>
         </div>
     <?php endif; ?>
 </div>
 
 <div class="row gy-4">
     <div class="col-md-12">
-        <div class="card basic-data-table mt-12">
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <button onclick="history.back()" class="btn bg-danger-focus text-danger-main radius-8 px-20 py-11 d-flex align-items-center justify-content-center gap-2">
-                    <iconify-icon icon="mingcute:square-arrow-left-line" class="text-xl"></iconify-icon> Kembali
-                </button>
-                <h5 class="card-title mb-0"><?= esc($title ?? 'Data Prestasi Peserta'); ?></h5>
+        <div class="card basic-data-table mt-12 prestasi-peserta-card">
+            <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div>
+                    <h2 class="card-title mb-1 fs-6 fw-semibold">Data Atlet Berprestasi</h2>
+                    <small class="text-muted">Cari dan kelola data atlet serta piagamnya.</small>
+                </div>
+                <div class="prestasi-summary"><strong><?= count($peserta ?? []); ?></strong><span>atlet</span></div>
             </div>
 
             <?php if ($canBatch): ?>
                 <!-- Unduh Piagam Batch -->
                 <div class="card batch-card mb-12">
                     <div class="card-header">
-                        <h6 class="mb-1">
-                            <iconify-icon icon="mdi:file-download-outline"></iconify-icon>
+                        <h6 class="mb-1 d-flex align-items-center gap-2">
+                            <iconify-icon icon="mdi:file-download-outline" class="text-primary-600"></iconify-icon>
                             Unduh Piagam Batch
                         </h6>
                         <small class="text-muted">
-                            Pilih cabang olahraga dan nomor cabang olahraga, kemudian klik tombol untuk mengunduh seluruh piagam.
+                            Pilih cabang olahraga dan nomor cabang olahraga untuk mengunduh piagam sekaligus.
                         </small>
                     </div>
                     <div class="card-body">
@@ -109,13 +286,13 @@ $batchUrl   = $batchUrl ?? base_url('admin/piagam-batch/');
                                 <label class="form-label fw-semibold">
                                     Nomor Cabang Olahraga <span class="text-danger">*</span>
                                 </label>
-                                <select class="form-select select2" id="filter_nomor_cabor" name="filter_nomor_cabor">
-                                    <option value="">Pilih Nomor Cabang Olahraga</option>
+                                <select class="form-select select2" id="filter_nomor_cabor" name="filter_nomor_cabor" disabled>
+                                    <option value="">Pilih cabang olahraga terlebih dahulu</option>
                                 </select>
                             </div>
                             <div class="col-lg-4 d-grid align-middle">
-                                <button type="button" class="btn btn-primary btn-lg" id="btnUnduhBatch">
-                                    Unduh Piagam Batch
+                                <button type="button" class="btn btn-primary btn-lg" id="btnUnduhBatch" disabled>
+                                    <iconify-icon icon="mdi:download-outline" class="me-1"></iconify-icon> Unduh Piagam Batch
                                 </button>
                             </div>
                         </div>
@@ -123,17 +300,17 @@ $batchUrl   = $batchUrl ?? base_url('admin/piagam-batch/');
                 </div>
             <?php endif; ?>
 
-            <div class="card-body table-responsive">
-                <table id="dataTable" class="display table table-bordered table-hover table-striped prestasi-peserta-table" style="width:100%;">
+            <div class="card-body table-responsive data-table-shell">
+                <table id="dataTable" class="display table table-bordered table-hover table-striped prestasi-peserta-table table-data table-data-wide" style="width:100%;">
                     <thead>
                         <tr>
-                            <th style="width:5%" class="text-center">No.</th>
-                            <th style="width:15%" class="text-start">Nama</th>
-                            <th style="width:35%" class="text-start">Sekolah</th>
-                            <th style="width:10%" class="text-center">Cabor</th>
-                            <th style="width:10%" class="text-center">Medali</th>
+                            <th style="width:5%" class="text-center col-no">No.</th>
+                            <th style="width:15%" class="text-start col-nama">Nama</th>
+                            <th style="width:35%" class="text-start col-sekolah">Sekolah</th>
+                            <th style="width:10%" class="text-center col-cabor">Cabor</th>
+                            <th style="width:10%" class="text-center col-medali">Medali</th>
                             <?php if ($canViewPeserta || $canEdit || $canDelete): ?>
-                                <th style="width:15%" class="text-center">Aksi</th>
+                                <th style="width:15%" class="text-center col-aksi">Aksi</th>
                             <?php endif; ?>
                         </tr>
                     </thead>
@@ -142,16 +319,17 @@ $batchUrl   = $batchUrl ?? base_url('admin/piagam-batch/');
                         foreach ($peserta ?? [] as $p): ?>
                             <tr>
                                 <td class="text-center align-middle"><?= $no; ?></td>
-                                <td class="align-middle"><?= esc($p['atlet_nama'] ?? '-'); ?></td>
+                                <td class="align-middle"><span class="fw-semibold text-dark"><?= esc($p['atlet_nama'] ?? '-'); ?></span></td>
                                 <td class="align-middle" style="text-align: left;"><?= esc($p['sekolah_nama'] ?? '-'); ?></td>
-                                <td class="text-center align-middle"><?= esc($p['cabor_nama'] ?? '-'); ?><?= !empty($p['nomor_cabor_nama']) ? '<br /><small>' . esc($p['nomor_cabor_nama']) . '</small>' : ''; ?></td>
-                                <td class="text-center align-middle"><?= esc($p['prestasi'] === '1' ? 'Emas' : ($p['prestasi'] === '2' ? 'Perak' : 'Perunggu')); ?></td>
+                                <td class="text-center align-middle"><span><?= esc($p['cabor_nama'] ?? '-'); ?></span><?= !empty($p['nomor_cabor_nama']) ? '<br /><small class="text-muted">' . esc($p['nomor_cabor_nama']) . '</small>' : ''; ?></td>
+                                <?php $medal = (string) ($p['prestasi'] ?? ''); ?>
+                                <td class="text-center align-middle"><span class="prestasi-medal prestasi-medal-<?= in_array($medal, ['1', '2', '3'], true) ? esc($medal) : '3'; ?>"><?= esc($medal === '1' ? 'Emas' : ($medal === '2' ? 'Perak' : ($medal === '3' ? 'Perunggu' : '-'))); ?></span></td>
                                 <?php if ($canViewPeserta || $canEdit || $canDelete): ?>
                                     <td class="text-center align-middle">
                                         <div class="prestasi-peserta-action">
-                                            <a href="<?= site_url('pdf/view-piagam/') . encode_id($p['id'] ?? ''); ?>" target="_blank"
+                                            <a href="<?= site_url('pdf/view-piagam/') . encode_id($p['id'] ?? ''); ?>" target="_blank" rel="noopener"
                                                 class="prestasi-peserta-btn btn-view-piagam bg-info-focus text-info-main rounded-circle"
-                                                data-id="<?= esc($p['id']); ?>" data-atlet-id="<?= esc($p['atlet_id'] ?? $p['id']); ?>" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Piagam">
+                                                aria-label="Lihat piagam <?= esc($p['atlet_nama'] ?? 'atlet'); ?>" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Piagam">
                                                 <iconify-icon icon="carbon:certificate"></iconify-icon>
                                             </a>
                                             <?php if ($canEdit): ?>
@@ -171,7 +349,7 @@ $batchUrl   = $batchUrl ?? base_url('admin/piagam-batch/');
                                     </td>
                                 <?php endif; ?>
                             </tr>
-                            <?php $no++;
+                        <?php $no++;
                         endforeach; ?>
                     </tbody>
                 </table>
@@ -182,44 +360,44 @@ $batchUrl   = $batchUrl ?? base_url('admin/piagam-batch/');
 
 <!-- Modal Edit Data Prestasi -->
 <?php if ($canEdit): ?>
-<div class="modal fade" id="editPrestasiModal" tabindex="-1" aria-labelledby="editPrestasiModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editPrestasiModalLabel">UBAH DATA PRESTASI PESERTA</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-            </div>
-            <form id="editPrestasiAttempt" method="post">
-                <?= csrf_field(); ?>
-                <input type="hidden" name="kompetisi_id" value="<?= esc($id_kompetisi ?? ''); ?>">
-                <input type="hidden" name="peserta_id" id="peserta_id" value="">
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col">
-                            <label for="editNama">Nama</label>
-                            <input type="text" class="form-control" id="editNama" readonly>
-                            <label for="editSekolah">Sekolah</label>
-                            <input type="text" class="form-control" id="editSekolah" readonly>
-                            <label for="editCabor">Cabor</label>
-                            <input type="text" class="form-control" id="editCabor" readonly>
-                            <label for="editMedali">Medali</label>
-                            <select class="form-select" id="editPrestasi" name="prestasi">
-                                <option value="" disabled>Pilih Medali</option>
-                                <option value="1">Emas</option>
-                                <option value="2">Perak</option>
-                                <option value="3">Perunggu</option>
-                            </select>
+    <div class="modal fade" id="editPrestasiModal" tabindex="-1" aria-labelledby="editPrestasiModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPrestasiModalLabel">UBAH DATA PRESTASI PESERTA</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <form id="editPrestasiAttempt" method="post">
+                    <?= csrf_field(); ?>
+                    <input type="hidden" name="kompetisi_id" value="<?= esc($id_kompetisi ?? ''); ?>">
+                    <input type="hidden" name="peserta_id" id="peserta_id" value="">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col">
+                                <label for="editNama">Nama</label>
+                                <input type="text" class="form-control" id="editNama" readonly>
+                                <label for="editSekolah">Sekolah</label>
+                                <input type="text" class="form-control" id="editSekolah" readonly>
+                                <label for="editCabor">Cabor</label>
+                                <input type="text" class="form-control" id="editCabor" readonly>
+                                <label for="editMedali">Medali</label>
+                                <select class="form-select" id="editPrestasi" name="prestasi">
+                                    <option value="" disabled>Pilih Medali</option>
+                                    <option value="1">Emas</option>
+                                    <option value="2">Perak</option>
+                                    <option value="3">Perunggu</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-success">Perbarui</button>
-                </div>
-            </form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success">Perbarui</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 <?php endif; ?>
 
 <!-- Modal Piagam / Belum Terpakai -->
@@ -265,18 +443,55 @@ $batchUrl   = $batchUrl ?? base_url('admin/piagam-batch/');
                             position: relative;
                             margin: auto;
                         }
-                        .piagam-bg { width: 100%; display: block; }
+
+                        .piagam-bg {
+                            width: 100%;
+                            display: block;
+                        }
+
                         .field {
                             position: absolute;
                             font-family: 'Times New Roman', serif;
                             color: #000;
                         }
-                        .nomor { top: 240px; left: 420px; font-size: 22px; }
-                        .nama { top: 360px; left: 330px; font-size: 28px; font-weight: bold; }
-                        .sekolah { top: 420px; left: 330px; font-size: 24px; }
-                        .sebagai { top: 480px; left: 330px; font-size: 24px; }
-                        .tanggal { top: 650px; left: 560px; font-size: 20px; }
-                        .kadis { top: 780px; left: 560px; font-size: 22px; font-weight: bold; }
+
+                        .nomor {
+                            top: 240px;
+                            left: 420px;
+                            font-size: 22px;
+                        }
+
+                        .nama {
+                            top: 360px;
+                            left: 330px;
+                            font-size: 28px;
+                            font-weight: bold;
+                        }
+
+                        .sekolah {
+                            top: 420px;
+                            left: 330px;
+                            font-size: 24px;
+                        }
+
+                        .sebagai {
+                            top: 480px;
+                            left: 330px;
+                            font-size: 24px;
+                        }
+
+                        .tanggal {
+                            top: 650px;
+                            left: 560px;
+                            font-size: 20px;
+                        }
+
+                        .kadis {
+                            top: 780px;
+                            left: 560px;
+                            font-size: 22px;
+                            font-weight: bold;
+                        }
                     </style>
                 </div>
                 <div class="modal-footer">
@@ -293,23 +508,41 @@ $batchUrl   = $batchUrl ?? base_url('admin/piagam-batch/');
 <script>
     $(function() {
         const canBatch = <?= json_encode($canBatch); ?>;
-        const canEdit  = <?= json_encode($canEdit); ?>;
+        const canEdit = <?= json_encode($canEdit); ?>;
         const deleteUrl = '<?= esc($deleteUrl); ?>';
         const editUrl = '<?= esc($editUrl); ?>';
 
         // Batch piagam (hanya admin)
         if (canBatch) {
+            $('#filter_cabor_piagam').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                closeOnSelect: true,
+                placeholder: 'Pilih Cabang Olahraga',
+                allowClear: true
+            });
+            $('#filter_nomor_cabor').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                closeOnSelect: true,
+                placeholder: 'Pilih Nomor Cabang Olahraga',
+                allowClear: true
+            });
             $('#filter_cabor_piagam').on('change', function() {
                 const id = $(this).val();
-                $('#filter_nomor_cabor').html('<option value="">Memuat...</option>');
+                const $nomorCabor = $('#filter_nomor_cabor');
+                $('#btnUnduhBatch').prop('disabled', true);
+                $nomorCabor.prop('disabled', true).html('<option value="">Memuat nomor cabor...</option>').trigger('change.select2');
                 if (id === '') {
-                    $('#filter_nomor_cabor').html('<option value="">Pilih Nomor Cabor</option>');
+                    $nomorCabor.html('<option value="">Pilih cabang olahraga terlebih dahulu</option>').trigger('change.select2');
                     return;
                 }
                 $.ajax({
                     url: '<?= site_url('api/getNomorCaborPiagam') ?>',
                     type: 'POST',
-                    data: { cabor_id: id },
+                    data: {
+                        cabor_id: id
+                    },
                     dataType: 'json',
                     success: function(response) {
                         let html = '<option value="">Pilih Nomor Cabor</option>';
@@ -318,21 +551,27 @@ $batchUrl   = $batchUrl ?? base_url('admin/piagam-batch/');
                                 html += `<option value="${item.id}">${escHtml(item.nama)}</option>`;
                             });
                         }
-                        $('#filter_nomor_cabor').html(html).trigger('change');
+                        $nomorCabor.html(html).prop('disabled', false).val('').trigger('change.select2');
                     },
                     error: function() {
-                        alert('Gagal mengambil data nomor cabor.');
+                        $nomorCabor.html('<option value="">Gagal memuat. Coba pilih cabor lagi.</option>').trigger('change.select2');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal memuat',
+                            text: 'Tidak dapat mengambil data nomor cabor.'
+                        });
                     }
                 });
             });
 
+            $('#filter_nomor_cabor').on('change', function() {
+                $('#btnUnduhBatch').prop('disabled', !$(this).val());
+            });
+
             $('#btnUnduhBatch').on('click', function() {
-                const nomor_cabor_id = $('#filter_nomor_cabor').val();
-                if (!nomor_cabor_id) {
-                    alert('Silakan pilih Nomor Cabor terlebih dahulu.');
-                    return;
-                }
-                window.open('<?= esc($batchUrl); ?>' + nomor_cabor_id, '_blank');
+                const nomorCaborId = $('#filter_nomor_cabor').val();
+                if (!nomorCaborId) return;
+                window.open('<?= esc($batchUrl); ?>' + encodeURIComponent(nomorCaborId), '_blank', 'noopener');
             });
         }
 
@@ -374,32 +613,35 @@ $batchUrl   = $batchUrl ?? base_url('admin/piagam-batch/');
             $('#editPrestasiAttempt').attr('action', editUrl);
         });
 
-        // View piagam (QR)
-        $(document).on('click', '.btn-view-piagam', function() {
-            const id = $(this).data('atlet-id') || $(this).data('id');
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=<?= site_url('api/validasi/qr-code-atlet/'); ?>${id}`;
-
-            const img = new Image();
-            img.crossOrigin = 'anonymous';
-            img.src = qrUrl;
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-                $('#piagam-qrcode').attr('src', canvas.toDataURL('image/png'));
-            };
-        });
-
+        // Render piagam raster hanya saat fitur preview digunakan.
         function downloadpiagam() {
-            html2canvas(document.querySelector('.piagam-container')).then(canvas => {
+            if (typeof html2canvas === 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Tidak dapat mengunduh',
+                    text: 'Komponen piagam tidak tersedia.'
+                });
+                return;
+            }
+            const container = document.querySelector('.piagam-container');
+            html2canvas(container, {
+                scale: 1,
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            }).then(function(canvas) {
                 const link = document.createElement('a');
                 link.download = 'piagam.png';
-                link.href = canvas.toDataURL();
+                link.href = canvas.toDataURL('image/png');
                 link.click();
+            }).catch(function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal membuat piagam',
+                    text: 'Silakan coba kembali.'
+                });
             });
         }
+        window.downloadpiagam = downloadpiagam;
 
         function escHtml(text) {
             if (!text) return '';

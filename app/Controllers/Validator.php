@@ -181,9 +181,12 @@ class Validator extends BaseController
     public function addDataAtlet_attempt()
     {
         // Menyiapkan data dasar dari POST request
-        $data = [
+        $data = $this->normalizeNomorCabor([
             'sekolah_id'    => $this->request->getPost('sekolah'),
             'cabor_id'      => $this->request->getPost('cabor'),
+            'nomor_cabor_1' => $this->request->getPost('nomor_cabor_1'),
+            'nomor_cabor_2' => $this->request->getPost('nomor_cabor_2'),
+            'nomor_cabor_3' => $this->request->getPost('nomor_cabor_3'),
             'nik'           => $this->request->getPost('nik'),
             'nisn'          => $this->request->getPost('nisn'),
             'nama'          => $this->request->getPost('nama'),
@@ -191,7 +194,7 @@ class Validator extends BaseController
             'jenis_kelamin' => $this->request->getPost('jk'),
             'tanggal_lahir' => $this->request->getPost('tanggal_lahir'),
             'tempat_lahir'  => $this->request->getPost('tempat_lahir'),
-        ];
+        ]);
 
         // Daftar file yang akan di-upload
         $files = [
@@ -325,12 +328,12 @@ class Validator extends BaseController
         }
 
         // Data dasar
-        $data = [
+        $data = $this->normalizeNomorCabor([
             'sekolah_id'    => $this->request->getPost('sekolah'),
             'cabor_id'      => $this->request->getPost('cabor'),
             'nomor_cabor_1'      => $this->request->getPost('nomor_cabor_1'),
-            'nomor_cabor_2'      => $this->request->getPost('nomor_cabor_2') ?? null,
-            'nomor_cabor_3'      => $this->request->getPost('nomor_cabor_3') ?? null,
+            'nomor_cabor_2'      => $this->request->getPost('nomor_cabor_2'),
+            'nomor_cabor_3'      => $this->request->getPost('nomor_cabor_3'),
             'nik'           => $this->request->getPost('nik'),
             'nisn'          => $this->request->getPost('nisn'),
             'nama'          => $this->request->getPost('nama'),
@@ -338,7 +341,7 @@ class Validator extends BaseController
             'jenis_kelamin' => $this->request->getPost('jk'),
             'tanggal_lahir' => $this->request->getPost('tanggal_lahir'),
             'tempat_lahir'  => $this->request->getPost('tempat_lahir'),
-        ];
+        ]);
 
 
         // File yang digunakan
@@ -765,7 +768,7 @@ class Validator extends BaseController
     public function dataKompetisiPrestasiPeserta($id_kompetisi)
     {
         $id_kompetisi = decode_id($id_kompetisi);
-        $kompetisi = $this->m_komp->first($id_kompetisi)['nama'];
+        $kompetisi = $this->m_komp->find($id_kompetisi)['nama'];
         $data = [
             'title'     => 'Data Prestasi ' . $kompetisi,
             'peserta'   => $this->m_peserta->getDataPesertaPrestasi($id_kompetisi),
@@ -1031,12 +1034,21 @@ class Validator extends BaseController
     // Area Pusat Unduhan
     public function rekap_data()
     {
+        $userId = session()->get('user')['id'];
+        $cabor  = $this->m_cabor->getCaborForValidator($userId);
+        $caborIds = array_values(array_filter(array_column($cabor, 'id')));
+
         $data = [
-            'title' => 'Rekapitulasi Data',
-            'atlet'     => $this->m_atlet->getAtletDataValidator(session()->get('user')['id']),
-            'cabor'    => $this->m_cabor->getCaborForValidator(session()->get('user')['id']),
-            'jenjang'  => $this->db->table('jenjang')->get()->getResultArray(),
-            'sekolah'   => $this->db->table('sekolah')->get()->getResultArray()
+            'title'            => 'Rekapitulasi Data',
+            'cabor'            => $cabor,
+            'jenjang'          => $this->db->table('jenjang')->get()->getResultArray(),
+            'sekolah'          => $this->db->table('sekolah')->get()->getResultArray(),
+            'summary'          => empty($caborIds)
+                ? ['total' => 0, 'lengkap' => 0, 'pending' => 0, 'invalid' => 0, 'belum_dicek' => 0]
+                : (new \App\Controllers\Download())->rekapSummary($caborIds),
+            'isValidator'      => true,
+            'assignedCaborIds' => $caborIds,
+            'defaultCaborId'   => count($caborIds) === 1 ? $caborIds[0] : null,
         ];
 
         return view('admin/rekap-data', $data);

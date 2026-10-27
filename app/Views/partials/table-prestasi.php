@@ -25,7 +25,8 @@ $addPrestasiUrl = $addPrestasiUrl ?? base_url($role . '/kompetisi/prestasi-add/'
 ?>
 <style>
     .prestasi-table td { vertical-align: middle; }
-    .prestasi-action { gap: 4px; flex-wrap: nowrap; }
+    .prestasi-table tbody tr:hover { background: rgba(37, 99, 235, .035); }
+    .prestasi-action { gap: 6px; flex-wrap: nowrap; }
     .prestasi-action-btn {
         width: 32px; height: 32px; border-radius: 50%;
         display: inline-flex; align-items: center; justify-content: center;
@@ -60,19 +61,23 @@ $addPrestasiUrl = $addPrestasiUrl ?? base_url($role . '/kompetisi/prestasi-add/'
     <div class="col-md-12">
         <div class="card basic-data-table mt-12">
             <div class="card-header d-flex align-items-center justify-content-between">
-                <h5 class="card-title mb-0"><?= esc($title ?? 'Data Prestasi'); ?></h5>
+                <div>
+                    <h5 class="card-title mb-1"><?= esc($title ?? 'Data Prestasi'); ?></h5>
+                    <small class="text-muted">Pilih kompetisi untuk melihat data medali dan atlet berprestasi.</small>
+                </div>
+                <span class="badge bg-primary-100 text-primary-700 rounded-pill px-3 py-2"><?= count($kompetisi ?? []); ?> kompetisi</span>
             </div>
             <div class="card-body table-responsive">
-                <table id="dataTable" class="display table table-bordered table-hover table-striped prestasi-table" style="width:100%;">
+                <table id="dataTable" class="display table table-bordered table-hover table-striped prestasi-table table-data table-data-wide" style="width:100%;">
                     <thead>
                         <tr>
-                            <th style="width:5%" class="text-center">No.</th>
-                            <th style="width:15%" class="text-start">Nama</th>
-                            <th style="width:35%" class="text-start">Deskripsi</th>
-                            <th style="width:10%" class="text-center">Tgl Mulai</th>
-                            <th style="width:10%" class="text-center">Tgl Selesai</th>
-                            <th style="width:10%" class="text-center">Tingkat</th>
-                            <th style="width:15%" class="text-center">Aksi</th>
+                            <th style="width:5%" class="text-center col-no">No.</th>
+                            <th style="width:15%" class="text-start col-nama">Nama</th>
+                            <th style="width:35%" class="text-start col-deskripsi">Deskripsi</th>
+                            <th style="width:10%" class="text-center col-tanggal">Tgl Mulai</th>
+                            <th style="width:10%" class="text-center col-tanggal">Tgl Selesai</th>
+                            <th style="width:10%" class="text-center col-tingkat">Tingkat</th>
+                            <th style="width:15%" class="text-center col-aksi">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -104,12 +109,24 @@ $addPrestasiUrl = $addPrestasiUrl ?? base_url($role . '/kompetisi/prestasi-add/'
     </div>
 </div>
 
-<script src="<?= base_url('public/assets/js/gallery.js'); ?>"></script>
-
 <script>
     $(function() {
-        let table = new DataTable('#dataTable', {
-            responsive: true,
-        });
+        if (typeof DataTable !== 'undefined' && document.querySelector('#dataTable')) {
+            new DataTable('#dataTable', {
+                responsive: false,
+                autoWidth: false,
+                pageLength: 10,
+                lengthMenu: [10, 25, 50],
+                order: [],
+                language: {
+                    search: 'Cari kompetisi:',
+                    lengthMenu: 'Tampilkan _MENU_ kompetisi',
+                    info: 'Menampilkan _START_–_END_ dari _TOTAL_ kompetisi',
+                    infoEmpty: 'Belum ada data kompetisi',
+                    zeroRecords: 'Kompetisi tidak ditemukan',
+                    emptyTable: 'Belum ada data kompetisi'
+                }
+            });
+        }
     });
 </script>

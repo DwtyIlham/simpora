@@ -22,9 +22,6 @@ use CodeIgniter\Database\BaseUtils;
 <div class="col-md-12">
     <div class="card">
         <div class="card-header">
-            <a href="<?= base_url('sekolah/atlet/data'); ?>" class="btn btn-sm bg-danger-focus bg-hover-danger-200 text-danger-600"><i class="ri-arrow-go-back-line"></i> Daftar Atlet</a>
-        </div>
-        <div class="card-header">
             <h5 class="card-title mb-0">Form Ubah Data Atlet Pelajar - <?= $atlet['nama']; ?></h5>
         </div>
         <form action="<?= site_url('sekolah/atlet/edit/') . $atlet['id']; ?>" method="post" enctype="multipart/form-data">

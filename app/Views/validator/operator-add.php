@@ -23,9 +23,6 @@ use CodeIgniter\Database\BaseUtils;
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <a href="<?= base_url('admin/operator/data'); ?>" class="btn btn-sm bg-danger-focus bg-hover-danger-200 text-danger-600"><i class="ri-arrow-go-back-line"></i> Daftar Operator</a>
-            </div>
-            <div class="card-header">
                 <h5 class="card-title mb-0">Form <?= $title; ?></h5>
             </div>
             <div class="card-body">

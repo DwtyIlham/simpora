@@ -44,6 +44,57 @@
         text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.8);
         /* Tambahan shadow pada ikon */
     }
+
+    /* Tombol kembali global */
+    .app-back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        min-height: 40px;
+        padding: .45rem .95rem;
+        border: 1px solid var(--primary-600);
+        border-radius: 10px;
+        background: var(--primary-600);
+        color: #fff;
+        font-size: .875rem;
+        font-weight: 700;
+        line-height: 1;
+        text-decoration: none;
+        box-shadow: 0 3px 10px rgba(72, 127, 255, .28);
+        transition: color .15s ease, border-color .15s ease, background-color .15s ease, box-shadow .15s ease, transform .15s ease;
+    }
+
+    .app-back-btn iconify-icon {
+        font-size: 1.2rem;
+        color: #fff;
+    }
+
+    .app-back-btn:hover,
+    .app-back-btn:focus-visible {
+        color: #fff;
+        border-color: var(--primary-700);
+        background: var(--primary-700);
+        text-decoration: none;
+        box-shadow: 0 5px 14px rgba(72, 127, 255, .36);
+        transform: translateX(-2px);
+    }
+
+    .app-back-btn:focus-visible {
+        outline: 3px solid rgba(72, 127, 255, .35);
+        outline-offset: 2px;
+    }
+
+    @media (max-width: 575.98px) {
+        .app-back-btn span {
+            display: none;
+        }
+
+        .app-back-btn {
+            justify-content: center;
+            width: 40px;
+            padding: 0;
+        }
+    }
 </style>
 
 <head>
@@ -90,21 +141,21 @@
     <link href="<?= base_url('public'); ?>/assets/css/photoswipe.css" rel="stylesheet" />
 
     <!-- main css -->
-    <link rel="stylesheet" href="<?= base_url('public'); ?>/assets/css/style.css?v=3">
+    <link rel="stylesheet" href="<?= base_url('public'); ?>/assets/css/style.css?v=4">
+    <!-- tabel data atlet -->
+    <link rel="stylesheet" href="<?= base_url('public'); ?>/assets/css/atlet-table.css?v=9">
+    <!-- tabel data umum -->
+    <link rel="stylesheet" href="<?= base_url('public'); ?>/assets/css/data-table.css?v=2">
 </head>
 
 <body>
 
     <!-- Theme Customization Structure Start -->
     <div class="body-overlay"></div>
-    <!-- loader -->
-    <div id="loading" class="loading">
-        <div class="loader--ripple">
-            <div></div>
-            <div></div>
-        </div>
+    <!-- Lightweight, CSS-only page loader -->
+    <div id="loading" class="loading" aria-label="Memuat halaman" aria-live="polite">
+        <span class="loader-spinner" aria-hidden="true"></span>
     </div>
-    <!-- end loader -->
 
     <!-- <button type="button"
         class="theme-customization__button w-48-px h-48-px bg-primary-600 text-white rounded-circle d-flex justify-content-center align-items-center position-fixed end-0 bottom-0 mb-40 me-40 text-2xxl bg-hover-primary-700">
@@ -250,6 +301,49 @@
     $isPassword   = $startsWith($uri, $role . '/ganti-password');
     $activeClass  = static fn(bool $active): string => $active ? 'active-page' : '';
     $activeAria   = static fn(bool $active): string => $active ? ' aria-current="page"' : '';
+
+    // URL cadangan tombol kembali global. Dipakai hanya jika browser tidak
+    // memiliki halaman sebelumnya (mis. halaman dibuka dari tautan/baru).
+    $backFallback = $dashboardUrl;
+    if (! $isDashboard) {
+        $kompetisiListUrl = $role === 'validator'
+            ? base_url('validator/kompetisi/prestasi')
+            : base_url($role . '/kompetisi/data');
+
+        if ($isAtlet) {
+            $backFallback = base_url($role . '/atlet/data');
+            if ($uri === $role . '/atlet/data') {
+                $backFallback = $dashboardUrl;
+            }
+        } elseif ($startsWith($uri, 'admin/validator')) {
+            $backFallback = base_url('admin/users/data');
+        } elseif ($isUsers) {
+            $backFallback = base_url($role . '/users/data');
+            if ($uri === $role . '/users/data') {
+                $backFallback = $dashboardUrl;
+            }
+        } elseif ($isPrestasi) {
+            if ($uri === $role . '/kompetisi/prestasi') {
+                $backFallback = $role === 'validator' ? $dashboardUrl : $kompetisiListUrl;
+            } else {
+                $backFallback = base_url($role . '/kompetisi/prestasi');
+            }
+        } elseif ($isKompetisiData || $isCabor || $isNomorCabor) {
+            $backFallback = $kompetisiListUrl;
+            if ($uri === $role . '/kompetisi/data') {
+                $backFallback = $dashboardUrl;
+            }
+        } elseif ($isJurnal) {
+            $backFallback = $uri === 'jurnal-medali'
+                ? $dashboardUrl
+                : base_url('jurnal-medali');
+        } elseif ($startsWith($uri, $role . '/operator')) {
+            $backFallback = base_url($role . '/operator/data');
+            if ($uri === $role . '/operator/data') {
+                $backFallback = $dashboardUrl;
+            }
+        }
+    }
     ?>
 
     <aside class="sidebar" id="app-sidebar">
@@ -407,6 +501,9 @@
                         <button type="button" class="sidebar-mobile-toggle" aria-controls="app-sidebar" aria-expanded="false" aria-label="Buka menu">
                             <iconify-icon icon="heroicons:bars-3-solid" class="icon"></iconify-icon>
                         </button>
+                        <?php if (! $isDashboard): ?>
+                            <?= $this->include('partials/back-button', ['backUrl' => $backFallback]); ?>
+                        <?php endif; ?>
                         <span class="navbar-role-chip d-none d-lg-inline-flex">
                             <iconify-icon icon="solar:shield-user-outline"></iconify-icon>
                             <?= esc($roleLabel); ?>
@@ -544,26 +641,36 @@
             <script>
                 document.addEventListener("DOMContentLoaded", function() {
                     const loader = document.getElementById("loading");
+                    let loaderTimer;
 
-                    loader.classList.add("loading--hide");
+                    function hideLoader() {
+                        if (!loader) return;
+                        loader.classList.add("loading--hide");
+                        window.setTimeout(function() {
+                            loader.style.display = "none";
+                        }, 180);
+                    }
 
-                    setTimeout(() => {
-                        loader.style.display = "none";
-                    }, 1500);
-
-                    // untuk mengatasi select2 dalam modal bootstrap 5
-                    $.fn.modal.Constructor.prototype.enforceFocus = function() {};
+                    // Jangan menahan UI saat page selesai dirender; loader hanya jadi fallback jika perlu.
+                    if (document.readyState === "complete") {
+                        hideLoader();
+                    } else {
+                        window.addEventListener("load", hideLoader, { once: true });
+                        loaderTimer = window.setTimeout(hideLoader, 2500);
+                    }
 
                     $(document).ajaxStart(function() {
-                        $("#loading").show().removeClass("loading--hide");
+                        window.clearTimeout(loaderTimer);
+                        loader.style.display = "flex";
+                        requestAnimationFrame(function() { loader.classList.remove("loading--hide"); });
                     });
 
                     $(document).ajaxStop(function() {
-                        $("#loading").addClass("loading--hide");
-                        setTimeout(() => {
-                            $("#loading").hide();
-                        }, 400);
+                        hideLoader();
                     });
+
+                    // untuk mengatasi select2 dalam modal bootstrap 5
+                    $.fn.modal.Constructor.prototype.enforceFocus = function() {};
 
                     // select2
                     $('.select2').each(function() {
@@ -722,6 +829,55 @@
                 });
             </script>
             <!-- End Script -->
+            <script>
+                // Tombol kembali global: utamakan riwayat browser (URL + parameter
+                // tetap utuh), lalu pakai URL cadangan bila tidak ada riwayat.
+                document.addEventListener('click', function(event) {
+                    const clicked = event.target instanceof Element ? event.target : event.target.parentElement;
+                    const trigger = clicked ? clicked.closest('[data-app-back]') : null;
+                    if (!trigger) return;
+                    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                        return;
+                    }
+
+                    const fallback = trigger.getAttribute('data-fallback') || trigger.getAttribute('href');
+                    if (!fallback) return;
+
+                    event.preventDefault();
+
+                    let sameOriginReferrer = false;
+                    let referrerIsAuth = false;
+                    try {
+                        if (document.referrer) {
+                            const referrer = new URL(document.referrer);
+                            sameOriginReferrer = referrer.origin === window.location.origin;
+                            referrerIsAuth = /\/(login|register|logout)(\/|$)/i.test(referrer.pathname);
+                        }
+                    } catch (error) {
+                        sameOriginReferrer = false;
+                    }
+
+                    const cameFromSamePage = document.referrer === window.location.href;
+                    const canGoBack = window.history.length > 1 && sameOriginReferrer && !referrerIsAuth && !cameFromSamePage;
+
+                    if (!canGoBack) {
+                        window.location.href = fallback;
+                        return;
+                    }
+
+                    // Pengaman: jika history.back() tidak berpindah halaman,
+                    // arahkan ke URL cadangan.
+                    const safetyTimer = window.setTimeout(function() {
+                        window.location.href = fallback;
+                    }, 900);
+                    window.addEventListener('pagehide', function() {
+                        window.clearTimeout(safetyTimer);
+                    }, {
+                        once: true
+                    });
+                    window.history.back();
+                });
+            </script>
             <!-- Content-->
             <?= $this->renderSection('content'); ?>
             <!-- End Content-->

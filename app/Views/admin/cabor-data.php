@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use CodeIgniter\Database\BaseUtils;
 
@@ -26,10 +26,10 @@ use function App\Controllers\isAdmin;
 <div class="row gy-4">
     <div class="col-md-12">
         <div class="card basic-data-table mt-12">
-            <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
                 <h5 class="card-title mb-0"><?= $title; ?></h5>
                 <?php if (isAdmin()) : ?>
-                    <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#modalAddCabor" class="btn btn-primary-600"><i class="ri-add-box-line"></i> Tambah Cabor</a>
+                    <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#modalAddCabor" class="btn btn-primary-600"><i class="ri-add-box-line"></i> Tambah Cabang Olahraga</a>
                     <!-- modal tambah cabor -->
                     <div class="modal fade" id="modalAddCabor" tabindex="-1">
                         <div class="modal-dialog">
@@ -53,14 +53,14 @@ use function App\Controllers\isAdmin;
                     </div>
                 <?php endif; ?>
             </div>
-            <div class="card-body table-responsive">
-                <table id="dataTable" class="table" style="width:100%;">
+            <div class="card-body table-responsive data-table-shell">
+                <table id="dataTable" class="table table-data" style="width:100%;">
                     <thead>
                         <tr>
-                            <th class="text-start" width="20px">No.</th>
-                            <th class="text-start" width="80%">Nama</th>
+                            <th class="text-start col-no" width="20px">No.</th>
+                            <th class="text-start col-nama" width="80%">Nama</th>
                             <?php if (isAdmin()): ?>
-                                <th class="text-center">Aksi</th>
+                                <th class="text-center col-aksi">Aksi</th>
                             <?php endif; ?>
                         </tr>
                     </thead>
@@ -80,10 +80,10 @@ use function App\Controllers\isAdmin;
                                                 <div class="modal-header border-0 pb-0">
                                                     <div>
                                                         <h5 class="modal-title fw-bold mb-1">
-                                                            Data Nomor Cabor
+                                                            Daftar Nomor Cabang Olahraga
                                                         </h5>
                                                         <small class="text-muted">
-                                                            Kelola status nomor cabang olahraga
+                                                            Aktifkan atau nonaktifkan nomor cabang olahraga yang tersedia.
                                                         </small>
                                                     </div>
 
@@ -115,7 +115,7 @@ use function App\Controllers\isAdmin;
                                                                         <?= $jenjang ?>
                                                                     </h6>
                                                                     <small class="text-muted">
-                                                                        <?= count($items) ?> nomor
+                                                                        <?= count($items) ?> nomor tersedia
                                                                     </small>
                                                                 </div>
 
@@ -123,7 +123,7 @@ use function App\Controllers\isAdmin;
                                                                 <button
                                                                     class="btn-toggle-jenjang btn btn-sm btn-primary rounded-pill px-3"
                                                                     data-jenjang="<?= $jenjang ?>">
-                                                                    Ganti Status <?= $jenjang; ?>
+                                                                    Ubah Status Semua Nomor <?= $jenjang; ?>
                                                                 </button>
                                                             </div>
 
@@ -142,7 +142,7 @@ use function App\Controllers\isAdmin;
 
                                                                             <small class="text-muted">
                                                                                 <?= $nc['kategori'] ?>
-                                                                                <?= !empty($nc['detail']) ? '• ' . $nc['detail'] : '' ?>
+                                                                                <?= !empty($nc['detail']) ? 'â€¢ ' . $nc['detail'] : '' ?>
                                                                             </small>
                                                                         </div>
 
@@ -151,17 +151,22 @@ use function App\Controllers\isAdmin;
 
                                                                             <!-- Badge -->
                                                                             <span class="badge rounded-pill bg-<?= $nc['is_active'] == '1' ? 'success' : 'secondary' ?>">
-                                                                                <?= $nc['is_active'] == '1' ? 'Aktif' : 'Nonaktif' ?>
+                                                                                <?= $nc['is_active'] == '1' ? 'Aktif' : 'Tidak Aktif' ?>
                                                                             </span>
 
                                                                             <!-- Toggle Item -->
-                                                                            <div class="form-check form-switch m-0">
-                                                                                <input
-                                                                                    class="form-check-input btn-status-nocab"
-                                                                                    type="checkbox"
-                                                                                    role="switch"
-                                                                                    data-id="<?= $nc['id']; ?>"
-                                                                                    <?= $nc['is_active'] == '1' ? 'checked' : ''; ?>>
+                                                                            <div class="status-switch-wrap d-flex align-items-center gap-2 <?= $nc['is_active'] == '1' ? 'is-on' : ''; ?>">
+                                                                                <span class="status-switch-text">Off</span>
+                                                                                <div class="form-check form-switch m-0">
+                                                                                    <input
+                                                                                        class="form-check-input btn-status-nocab"
+                                                                                        type="checkbox"
+                                                                                        role="switch"
+                                                                                        aria-label="Ubah status nomor cabang olahraga"
+                                                                                        data-id="<?= $nc['id']; ?>"
+                                                                                        <?= $nc['is_active'] == '1' ? 'checked' : ''; ?>>
+                                                                                </div>
+                                                                                <span class="status-switch-text">On</span>
                                                                             </div>
 
                                                                         </div>
@@ -204,7 +209,7 @@ use function App\Controllers\isAdmin;
                                                         <?= csrf_field(); ?>
                                                         <input type="hidden" id="id" name="id">
                                                         <div class="modal-header">
-                                                            <h5 class="modal-title">Edit Cabor</h5>
+                                                            <h5 class="modal-title">Ubah Cabang Olahraga</h5>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                         </div>
 
@@ -245,11 +250,33 @@ use function App\Controllers\isAdmin;
     </div>
 </div>
 
+<style>
+    .status-switch-wrap .status-switch-text {
+        color: #94a3b8;
+        font-size: .75rem;
+        font-weight: 600;
+    }
+
+    .status-switch-wrap:not(.is-on) .status-switch-text:first-child {
+        color: #475569;
+    }
+
+    .status-switch-wrap.is-on .status-switch-text:last-child {
+        color: #16a34a;
+    }
+
+    .status-switch-wrap .form-check-input:checked {
+        background-color: #16a34a !important;
+    }
+</style>
+
 <script src="<?= base_url('public/assets/js/gallery.js'); ?>"></script>
 
 <script>
     let table = new DataTable('#dataTable', {
-        responsive: true
+        responsive: false,
+        autoWidth: false,
+        order: [],
     });
 
     // toggle status nomor cabor
@@ -329,13 +356,15 @@ use function App\Controllers\isAdmin;
             beforeSend: function() {
 
                 Swal.fire({
-                    title: 'Menyimpan...',
-                    text: 'Sedang memperbarui status',
+                    title: 'Menyimpan status...',
+                    text: 'Sedang memperbarui status nomor cabang olahraga',
                     allowOutsideClick: false,
                     didOpen: () => {
                         Swal.showLoading();
                     }
                 });
+
+                checkbox.prop('disabled', true);
 
             },
 
@@ -346,7 +375,7 @@ use function App\Controllers\isAdmin;
                 Swal.fire({
                     icon: 'success',
                     title: 'Berhasil',
-                    text: 'Status berhasil diperbarui',
+                    text: 'Status nomor cabang olahraga berhasil diperbarui',
                     timer: 1500,
                     showConfirmButton: false
                 });
@@ -368,9 +397,11 @@ use function App\Controllers\isAdmin;
                     badge
                         .removeClass('bg-success')
                         .addClass('bg-secondary')
-                        .text('Nonaktif');
+                        .text('Tidak Aktif');
 
                 }
+
+                checkbox.closest('.status-switch-wrap').toggleClass('is-on', status == 1);
 
             },
 
@@ -381,12 +412,18 @@ use function App\Controllers\isAdmin;
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal',
-                    text: 'Terjadi kesalahan saat update status'
+                    text: 'Gagal memperbarui status. Silakan coba lagi.'
                 });
 
                 // rollback switch
                 checkbox.prop('checked', !status);
+                checkbox.prop('disabled', false);
+                checkbox.closest('.status-switch-wrap').toggleClass('is-on', !status);
 
+            },
+
+            complete: function() {
+                checkbox.prop('disabled', false);
             }
 
         });
@@ -425,7 +462,7 @@ use function App\Controllers\isAdmin;
         let caborID = $(this).attr('id');
 
         Swal.fire({
-            title: "Yakin Hapus Data Cabor Tersebut?",
+            title: "Yakin ingin menghapus cabang olahraga ini?",
             text: "Data yang dihapus tidak dapat dikembalikan!",
             icon: "warning",
             showCancelButton: true,

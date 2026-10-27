@@ -1,0 +1,159 @@
+/* ==========================================================================
+   Optimasi tabel data umum (users, cabor, nomor cabor, kompetisi, prestasi)
+   ========================================================================== */
+
+.data-table-shell {
+    position: relative;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+    border-radius: 10px;
+}
+
+.data-table-shell::-webkit-scrollbar {
+    height: 8px;
+}
+
+.data-table-shell::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.data-table-shell::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 999px;
+}
+
+.table-data {
+    width: 100%;
+    min-width: 100%;
+    border-spacing: 0;
+    border-collapse: separate;
+}
+
+.table-data thead th {
+    background-color: #f8fafc !important;
+    color: #64748b !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+    vertical-align: middle;
+    padding: 11px 12px !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.table-data tbody td {
+    padding: 10px 12px !important;
+    font-size: 13px;
+    line-height: 1.35;
+    color: #334155;
+    vertical-align: middle;
+    word-break: break-word;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.table-data tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.table-data tbody tr:hover td {
+    background-color: #f8fbff;
+}
+
+.table-data .badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: .38em .62em;
+    white-space: nowrap;
+}
+
+.table-data .table-action,
+.table-data .w-32-px {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+}
+
+.table-data th.col-no,
+.table-data th.col-aksi,
+.table-data th.col-status,
+.table-data th.col-jenjang {
+    white-space: nowrap;
+}
+
+.table-data th.col-jenjang,
+.table-data th.col-status {
+    font-size: 10px !important;
+    letter-spacing: 0 !important;
+}
+
+/* Lebar kolom umum */
+.table-data .col-no       { width: 56px; }
+.table-data .col-aksi     { width: 100px; }
+.table-data .col-nama     { min-width: 150px; }
+.table-data .col-akun     { min-width: 120px; }
+.table-data .col-sekolah  { min-width: 150px; }
+.table-data .col-wa       { min-width: 120px; }
+.table-data .col-role     { min-width: 110px; }
+.table-data .col-status   { width: 90px; }
+.table-data .col-deskripsi { min-width: 180px; }
+.table-data .col-tanggal  { width: 110px; }
+.table-data .col-tingkat  { width: 90px; }
+.table-data .col-cabor     { min-width: 110px; }
+.table-data .col-jenjang  { width: 90px; }
+.table-data .col-kategori { min-width: 100px; }
+.table-data .col-detail    { min-width: 120px; }
+.table-data .col-medali    { width: 90px; }
+
+@media (max-width: 767.98px) {
+    .data-table-shell {
+        margin-inline: -.25rem;
+        border-radius: 0;
+    }
+
+    .data-table-shell:has(.table-data-wide)::before {
+        content: "Geser tabel ke samping untuk melihat kolom lainnya \2192";
+        display: block;
+        margin: 0 0 .55rem;
+        padding: .4rem .6rem;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        color: #64748b;
+        font-size: .7rem;
+        line-height: 1.4;
+    }
+
+    .table-data.table-data-wide {
+        min-width: 860px;
+    }
+
+    .dt-container .dt-layout-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: .5rem;
+    }
+
+    .dt-container .dt-layout-cell {
+        width: 100%;
+    }
+
+    .dt-container .dt-length,
+    .dt-container .dt-search {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+    }
+
+    .dt-container .dt-search input {
+        width: 100%;
+    }
+
+    .dt-container .dt-paging .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}

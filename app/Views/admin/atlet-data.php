@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use CodeIgniter\Database\BaseUtils;
 
@@ -31,7 +31,7 @@ $role     = $roleId === '1' ? 'admin' : ($roleId === '4' ? 'validator' : 'sekola
 <div class="row gy-4">
     <div class="col-md-12">
         <div class="card basic-data-table mt-12">
-            <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
                 <h5 class="card-title mb-0">Data Atlet Pelajar</h5>
                 <a href="<?= base_url($role . '/atlet/add'); ?>" class="btn btn-primary-600"><i class="ri-add-box-line"></i> Tambah Atlet</a>
             </div>
@@ -39,8 +39,8 @@ $role     = $roleId === '1' ? 'admin' : ($roleId === '4' ? 'validator' : 'sekola
                 <!-- ========================================================================= -->
                 <!-- COMPONENT FILTER DROPDOWN                                                 -->
                 <!-- ========================================================================= -->
-                <div class="row mb-3">
-                    <div class="col-4">
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-md-6 col-xl-4">
                         <label class="form-label">Filter Cabor</label>
                         <span class="icon align-middle">
                             <iconify-icon icon="fluent:sport-24-regular" width="24" height="24"></iconify-icon>
@@ -54,7 +54,7 @@ $role     = $roleId === '1' ? 'admin' : ($roleId === '4' ? 'validator' : 'sekola
                             </select>
                         </div>
                     </div>
-                    <div class="col-4">
+                    <div class="col-12 col-md-6 col-xl-4">
                         <label class="form-label">Filter Sekolah</label>
                         <span class="icon align-middle">
                             <iconify-icon icon="icon-park-outline:school" width="20" height="20"></iconify-icon>
@@ -68,7 +68,7 @@ $role     = $roleId === '1' ? 'admin' : ($roleId === '4' ? 'validator' : 'sekola
                             </select>
                         </div>
                     </div>
-                    <div class="col-4">
+                    <div class="col-12 col-md-6 col-xl-4">
                         <label class="form-label">Filter Status</label>
                         <span class="icon align-middle">
                             <iconify-icon icon="icon-park-outline:validation" width="20" height="20"></iconify-icon>
@@ -87,24 +87,26 @@ $role     = $roleId === '1' ? 'admin' : ($roleId === '4' ? 'validator' : 'sekola
                 <!-- ========================================================================= -->
                 <!-- STRUCTURE TABLE HTML                                                      -->
                 <!-- ========================================================================= -->
-                <table class="table bordered-table mb-0" id="atletTable">
-                    <thead>
-                        <tr>
-                            <th class="text-center" scope="col">No.</th>
-                            <th class="text-center" scope="col">Aksi</th>
-                            <th class="text-center" scope="col">Validasi</th>
-                            <th class="text-center" scope="col">Nama</th>
-                            <th class="text-center" scope="col">Sekolah</th>
-                            <th class="text-center" scope="col">JK</th>
-                            <th class="text-center" scope="col">Cabor</th>
-                            <th class="text-center" scope="col">Nomor Lomba</th>
-                            <th class="text-center" scope="col">Jenjang</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Data akan diisi secara dinamis oleh JavaScript Ajax -->
-                    </tbody>
-                </table>
+                <div class="table-responsive atlet-table-shell">
+                    <table class="table bordered-table table-atlet mb-0" id="atletTable">
+                        <thead>
+                            <tr>
+                                <th class="text-center col-no" scope="col">No.</th>
+                                <th class="text-center col-aksi" scope="col">Aksi</th>
+                                <th class="text-center col-validasi" scope="col">Validasi</th>
+                                <th class="text-center col-nama" scope="col">Nama</th>
+                                <th class="text-center col-sekolah" scope="col">Sekolah</th>
+                                <th class="text-center col-jk" scope="col">JK</th>
+                                <th class="text-center col-cabor" scope="col">Cabor</th>
+                                <th class="text-center col-nomor" scope="col">Nomor Lomba</th>
+                                <th class="text-center col-jenjang" scope="col">Jenjang</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data akan diisi secara dinamis oleh JavaScript Ajax -->
+                        </tbody>
+                    </table>
+                </div>
 
                 <!-- ========================================================================= -->
                 <!-- JAVASCRIPT DATATABLES ASYNC & FILTER INTEGRATION                           -->
@@ -113,7 +115,8 @@ $role     = $roleId === '1' ? 'admin' : ($roleId === '4' ? 'validator' : 'sekola
                     $(document).ready(function() {
                         // Inisialisasi DataTables Server-Side
                         window.atletTable = new DataTable('#atletTable', {
-                            responsive: true,
+                            responsive: false,
+                            autoWidth: false,
                             processing: true,
                             serverSide: true,
                             order: [], // Matikan sorting default di awal agar memuat lebih cepat
